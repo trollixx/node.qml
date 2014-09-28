@@ -10,6 +10,8 @@ class FileSystem : public QObject
 public:
     FileSystem(QObject *parent = 0);
     ~FileSystem();
+
+    Q_INVOKABLE bool existsSync(const QString &path);
 };
 
 #endif // FILESYSTEM_H
