@@ -132,6 +132,28 @@ void Dns::resolveCname(const QString &domain, QJSValue callback)
     resolve(domain, QDnsLookup::CNAME, callback);
 }
 
+void Dns::reverse(const QString &ip, QJSValue callback)
+{
+    if (!callback.isCallable()) {
+        qCWarning(logCategory, "No callback provided.");
+        return;
+    }
+    int lookupId = QHostInfo::lookupHost(ip, this, SLOT(reverseLookupDone(QHostInfo)));
+    m_lookupCallbacks.insert(lookupId, callback);
+}
+
+/// TODO: Return all records
+void Dns::reverseLookupDone(QHostInfo hostInfo)
+{
+    if (!m_lookupCallbacks.contains(hostInfo.lookupId()))
+        return;
+    QJSValue callback = m_lookupCallbacks.value(hostInfo.lookupId());
+    m_lookupCallbacks.remove(hostInfo.lookupId());
+    QJSValue array = m_jsEngine->newArray(1);
+    array.setProperty(0, hostInfo.hostName());
+    callback.call(QJSValueList{array});
+}
+
 void Dns::resolve(const QString &domain, QDnsLookup::Type type, QJSValue callback)
 {
     QDnsLookup *dns = new QDnsLookup(type, domain, this);
