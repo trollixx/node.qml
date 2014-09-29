@@ -10,11 +10,13 @@ uri = com.wisetroll.nodeqml
 SOURCES += \
     nodeqml_plugin.cpp \
     filesystem.cpp \
+    path.cpp \
     util.cpp
 
 HEADERS += \
     nodeqml_plugin.h \
     filesystem.h \
+    path.h \
     util.h
 
 OTHER_FILES = qmldir
