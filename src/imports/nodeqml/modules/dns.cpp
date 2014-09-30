@@ -12,8 +12,6 @@ namespace {
 const QLoggingCategory logCategory("nodeqml.dns");
 }
 
-/// TODO: Return Error objects in err
-
 Dns::Dns(QJSEngine *jsEngine, QObject *parent) :
     CoreModule(jsEngine, parent)
 {
@@ -149,6 +147,13 @@ void Dns::reverseLookupDone(QHostInfo hostInfo)
         return;
     QJSValue callback = m_lookupCallbacks.value(hostInfo.lookupId());
     m_lookupCallbacks.remove(hostInfo.lookupId());
+
+    if (hostInfo.error()) {
+        /// TODO: Return Node's error code
+        callback.call({createError(hostInfo.errorString(), hostInfo.error())});
+        return;
+    }
+
     QJSValue array = jsEngine()->newArray(1);
     array.setProperty(0, hostInfo.hostName());
     callback.call({QJSValue::NullValue, array});
@@ -205,7 +210,8 @@ void Dns::resolve(const QString &domain, QDnsLookup::Type type, QJSValue callbac
             }
             args << array;
         } else {
-            args << QJSValue(dns->error());
+            /// TODO: Return Node's error code
+            args << createError(dns->errorString(), dns->error());
         }
         dns->deleteLater();
         QJSValue(callback).call(args); /// FIXME: Ugly hack?
