@@ -3,14 +3,10 @@
 #include <QFile>
 #include <QFileInfo>
 
-FileSystem::FileSystem(QObject *parent):
-    QObject(parent)
+FileSystem::FileSystem(QJSEngine *jsEngine, QObject *parent) :
+    CoreModule(jsEngine, parent)
 {
 
-}
-
-FileSystem::~FileSystem()
-{
 }
 
 bool FileSystem::existsSync(const QString &path)

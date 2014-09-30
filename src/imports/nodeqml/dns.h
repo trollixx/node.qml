@@ -1,14 +1,15 @@
 #ifndef DNS_H
 #define DNS_H
 
+#include "coremodule.h"
+
 #include <QDnsLookup>
 #include <QHostInfo>
 #include <QJSValue>
-#include <QObject>
 
 class QJSEngine;
 
-class Dns : public QObject
+class Dns : public CoreModule
 {
     Q_OBJECT
 public:
@@ -32,7 +33,6 @@ private slots:
 private:
     void resolve(const QString &domain, QDnsLookup::Type type, QJSValue callback);
 
-    QJSEngine *m_jsEngine = nullptr;
     QHash<QString, QDnsLookup::Type> m_recordTypes;
     QHash<int, QJSValue> m_lookupCallbacks;
 };

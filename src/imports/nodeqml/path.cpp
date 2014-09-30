@@ -3,9 +3,10 @@
 #include <QDir>
 #include <QFileInfo>
 
-Path::Path(QObject *parent) :
-    QObject(parent)
+Path::Path(QJSEngine *jsEngine, QObject *parent) :
+    CoreModule(jsEngine, parent)
 {
+
 }
 
 QString Path::normalize(const QString &p) const

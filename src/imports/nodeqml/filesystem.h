@@ -1,15 +1,14 @@
 #ifndef FILESYSTEM_H
 #define FILESYSTEM_H
 
-#include <QObject>
+#include "coremodule.h"
 
-class FileSystem : public QObject
+class FileSystem : public CoreModule
 {
     Q_OBJECT
 
 public:
-    FileSystem(QObject *parent = 0);
-    ~FileSystem();
+    explicit FileSystem(QJSEngine *jsEngine, QObject *parent = nullptr);
 
     // Synchonous API
 

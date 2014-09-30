@@ -15,9 +15,9 @@ const QLoggingCategory logCategory("nodeqml.dns");
 /// TODO: Return Error objects in err
 
 Dns::Dns(QJSEngine *jsEngine, QObject *parent) :
-    QObject(parent),
-    m_jsEngine(jsEngine)
+    CoreModule(jsEngine, parent)
 {
+    /// TODO: Use meta enum
     m_recordTypes.insert(QStringLiteral("A"), QDnsLookup::A);
     m_recordTypes.insert(QStringLiteral("AAAA"), QDnsLookup::AAAA);
     m_recordTypes.insert(QStringLiteral("CNAME"), QDnsLookup::CNAME);
@@ -149,7 +149,7 @@ void Dns::reverseLookupDone(QHostInfo hostInfo)
         return;
     QJSValue callback = m_lookupCallbacks.value(hostInfo.lookupId());
     m_lookupCallbacks.remove(hostInfo.lookupId());
-    QJSValue array = m_jsEngine->newArray(1);
+    QJSValue array = jsEngine()->newArray(1);
     array.setProperty(0, hostInfo.hostName());
     callback.call(QJSValueList{array});
 }
@@ -163,7 +163,7 @@ void Dns::resolve(const QString &domain, QDnsLookup::Type type, QJSValue callbac
         if (dns->error() == QDnsLookup::NoError) {
             args << QJSValue::NullValue; // err
 
-            QJSValue array = m_jsEngine->newArray();
+            QJSValue array = jsEngine()->newArray();
 
             switch (dns->type()) {
             case QDnsLookup::A:

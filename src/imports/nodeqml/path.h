@@ -1,15 +1,15 @@
 #ifndef PATH_H
 #define PATH_H
 
-#include <QObject>
+#include "coremodule.h"
 
-class Path : public QObject
+class Path : public CoreModule
 {
     Q_OBJECT
     Q_PROPERTY(QString sep READ sep CONSTANT)
     Q_PROPERTY(QString delimiter READ delimiter CONSTANT)
 public:
-    explicit Path(QObject *parent = 0);
+    explicit Path(QJSEngine *jsEngine, QObject *parent = nullptr);
 
     Q_INVOKABLE QString normalize(const QString &p) const;
     /// TODO: path.join([path1], [path2], [...])

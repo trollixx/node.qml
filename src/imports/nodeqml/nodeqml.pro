@@ -10,6 +10,7 @@ uri = com.wisetroll.nodeqml
 SOURCES += \
     nodeqml_plugin.cpp \
     coremodule.cpp \
+    node.cpp \
     dns.cpp \
     filesystem.cpp \
     path.cpp \
@@ -18,6 +19,7 @@ SOURCES += \
 HEADERS += \
     nodeqml_plugin.h \
     coremodule.h \
+    node.h \
     dns.h \
     filesystem.h \
     path.h \

@@ -2,9 +2,10 @@
 
 #include <QJSValue>
 
-Util::Util(QObject *parent) :
-    QObject(parent)
+Util::Util(QJSEngine *jsEngine, QObject *parent) :
+    CoreModule(jsEngine, parent)
 {
+
 }
 
 bool Util::isArray(const QJSValue &object) const

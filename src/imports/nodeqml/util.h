@@ -1,15 +1,15 @@
 #ifndef UTIL_H
 #define UTIL_H
 
-#include <QObject>
+#include "coremodule.h"
 
 class QJSValue;
 
-class Util : public QObject
+class Util : public CoreModule
 {
     Q_OBJECT
 public:
-    explicit Util(QObject *parent = 0);
+    explicit Util(QJSEngine *jsEngine, QObject *parent = nullptr);
 
     /// TODO: util.format(format, [...])
     /// TODO: util.debug(string)
