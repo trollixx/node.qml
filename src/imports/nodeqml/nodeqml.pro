@@ -11,19 +11,19 @@ SOURCES += \
     nodeqml_plugin.cpp \
     coremodule.cpp \
     node.cpp \
-    dns.cpp \
-    filesystem.cpp \
-    path.cpp \
-    util.cpp
+    modules/dns.cpp \
+    modules/filesystem.cpp \
+    modules/path.cpp \
+    modules/util.cpp
 
 HEADERS += \
     nodeqml_plugin.h \
     coremodule.h \
     node.h \
-    dns.h \
-    filesystem.h \
-    path.h \
-    util.h
+    modules/dns.h \
+    modules/filesystem.h \
+    modules/path.h \
+    modules/util.h
 
 OTHER_FILES = qmldir
 

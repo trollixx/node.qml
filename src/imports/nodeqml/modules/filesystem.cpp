@@ -2,6 +2,7 @@
 
 #include <QFile>
 #include <QFileInfo>
+#include <QJSValue>
 
 FileSystem::FileSystem(QJSEngine *jsEngine, QObject *parent) :
     CoreModule(jsEngine, parent)

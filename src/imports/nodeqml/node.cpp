@@ -1,10 +1,9 @@
 #include "node.h"
 
-#include "coremodule.h"
-#include "dns.h"
-#include "filesystem.h"
-#include "path.h"
-#include "util.h"
+#include "modules/dns.h"
+#include "modules/filesystem.h"
+#include "modules/path.h"
+#include "modules/util.h"
 
 #include <QJSEngine>
 
