@@ -11,9 +11,8 @@ public:
     explicit FileSystem(QJSEngine *jsEngine, QObject *parent = nullptr);
 
     // Synchonous API
-
     Q_INVOKABLE bool existsSync(const QString &path);
-    Q_INVOKABLE bool renameSync(const QString)
+    Q_INVOKABLE bool renameSync(const QString &oldPath, const QString &newPath);
 };
 
 #endif // FILESYSTEM_H
