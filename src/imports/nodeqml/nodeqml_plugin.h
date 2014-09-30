@@ -13,4 +13,3 @@ public:
 };
 
 #endif // NODEQML_PLUGIN_H
-

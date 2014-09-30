@@ -17,7 +17,6 @@ Node::Node(QQmlEngine *qmlEngine, QJSEngine *jsEngine, QObject *parent) :
 
 QJSValue Node::require(const QString &module)
 {
-    qDebug("Trying to load: %s.", qPrintable(module));
     if (m_coreModules.contains(module))
         return m_jsEngine->newQObject(m_coreModules.value(module));
     else

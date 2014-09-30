@@ -6,7 +6,6 @@
 class FileSystem : public CoreModule
 {
     Q_OBJECT
-
 public:
     explicit FileSystem(QJSEngine *jsEngine, QObject *parent = nullptr);
 
@@ -16,4 +15,3 @@ public:
 };
 
 #endif // FILESYSTEM_H
-

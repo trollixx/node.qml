@@ -42,4 +42,3 @@ unix {
     target.path = $$installPath
     INSTALLS += target qmldir
 }
-
