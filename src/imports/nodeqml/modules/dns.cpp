@@ -151,7 +151,7 @@ void Dns::reverseLookupDone(QHostInfo hostInfo)
     m_lookupCallbacks.remove(hostInfo.lookupId());
     QJSValue array = jsEngine()->newArray(1);
     array.setProperty(0, hostInfo.hostName());
-    callback.call(QJSValueList{array});
+    callback.call({QJSValue::NullValue, array});
 }
 
 void Dns::resolve(const QString &domain, QDnsLookup::Type type, QJSValue callback)
