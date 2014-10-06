@@ -12,6 +12,11 @@ void Process::exit(int code) const
     QCoreApplication::exit(code);
 }
 
+QStringList Process::argv() const
+{
+    return QCoreApplication::arguments();
+}
+
 int Process::pid() const
 {
     /// NOTE: QCoreApplication::applicationPid() returns int64
