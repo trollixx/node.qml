@@ -27,7 +27,7 @@ public:
     bool chdir(const QString &directory);
     QString cwd() const;
     /// TODO: process.env
-    void exit(int code = 0) const;
+    void exit(int code = 0);
     /// TODO: process.getgid()
     /// TODO: process.setgid(id)
     /// TODO: process.getuid()

@@ -19,7 +19,7 @@ QString Process::cwd() const
     return QDir::currentPath();
 }
 
-void Process::exit(int code) const
+void Process::exit(int code)
 {
     QCoreApplication::exit(code);
 }
