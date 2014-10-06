@@ -3,6 +3,7 @@
 #include "modules/dns.h"
 #include "modules/filesystem.h"
 #include "modules/path.h"
+#include "modules/process.h"
 #include "modules/util.h"
 
 #include <QJSEngine>
@@ -110,5 +111,6 @@ void Node::setupCoreModules()
     m_coreModules.insert(QStringLiteral("dns"), new Dns(m_jsEngine, this));
     m_coreModules.insert(QStringLiteral("fs"), new FileSystem(m_jsEngine, this));
     m_coreModules.insert(QStringLiteral("path"), new Path(m_jsEngine, this));
+    m_coreModules.insert(QStringLiteral("process"), new Process(m_jsEngine, this));
     m_coreModules.insert(QStringLiteral("util"), new Util(m_jsEngine, this));
 }

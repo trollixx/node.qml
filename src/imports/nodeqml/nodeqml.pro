@@ -14,6 +14,7 @@ SOURCES += \
     modules/dns.cpp \
     modules/filesystem.cpp \
     modules/path.cpp \
+    modules/process.cpp \
     modules/util.cpp
 
 HEADERS += \
@@ -23,6 +24,7 @@ HEADERS += \
     modules/dns.h \
     modules/filesystem.h \
     modules/path.h \
+    modules/process.h \
     modules/util.h
 
 OTHER_FILES = qmldir
