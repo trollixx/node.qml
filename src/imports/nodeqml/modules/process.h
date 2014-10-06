@@ -6,6 +6,7 @@
 class Process : public CoreModule
 {
     Q_OBJECT
+    Q_PROPERTY(int pid READ pid CONSTANT)
 public:
     explicit Process(QJSEngine *jsEngine, QObject *parent = nullptr);
 
@@ -34,7 +35,6 @@ public:
     /// TODO: process.versions
     /// TODO: process.config
     /// TODO: process.kill(pid, [signal])
-    /// TODO: process.pid
     /// TODO: process.title
     /// TODO: process.arch
     /// TODO: process.platform
@@ -45,10 +45,8 @@ public:
     /// TODO: process.uptime()
     /// TODO: process.hrtime()
 
-
-signals:
-
-public slots:
+private:
+    int pid() const;
 
 };
 
