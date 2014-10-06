@@ -11,6 +11,8 @@ class Process : public CoreModule
     Q_PROPERTY(QStringList argv READ argv CONSTANT)
     Q_PROPERTY(QString execPath READ execPath CONSTANT)
     Q_PROPERTY(int pid READ pid CONSTANT)
+    Q_PROPERTY(QString arch READ arch CONSTANT)
+    Q_PROPERTY(QString platform READ platform CONSTANT)
 public:
     explicit Process(QJSEngine *jsEngine, QObject *parent = nullptr);
 
@@ -38,8 +40,6 @@ public:
     /// TODO: process.config
     /// TODO: process.kill(pid, [signal])
     /// TODO: process.title
-    /// TODO: process.arch
-    /// TODO: process.platform
     /// TODO: process.memoryUsage()
     /// TODO: process.nextTick(callback)
     /// TODO: process.maxTickDepth
@@ -51,6 +51,8 @@ private:
     QStringList argv() const;
     QString execPath() const;
     int pid() const;
+    QString arch() const;
+    QString platform() const;
 
 };
 
