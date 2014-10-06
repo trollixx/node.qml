@@ -1,10 +1,16 @@
 #include "process.h"
 
 #include <QCoreApplication>
+#include <QDir>
 
 Process::Process(QJSEngine *jsEngine, QObject *parent) :
     CoreModule(jsEngine, parent)
 {
+}
+
+QString Process::cwd() const
+{
+    return QDir::currentPath();
 }
 
 void Process::exit(int code) const

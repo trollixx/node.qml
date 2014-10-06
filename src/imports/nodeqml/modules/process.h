@@ -25,7 +25,7 @@ public:
     /// TODO: process.execArgv
     /// TODO: process.abort()
     /// TODO: process.chdir(directory)
-    /// TODO: process.cwd()
+    QString cwd() const;
     /// TODO: process.env
     void exit(int code = 0) const;
     /// TODO: process.getgid()
