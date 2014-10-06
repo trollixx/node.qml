@@ -8,6 +8,12 @@ Process::Process(QJSEngine *jsEngine, QObject *parent) :
 {
 }
 
+// TODO: Should throw an exception instead of return value
+bool Process::chdir(const QString &directory)
+{
+    return QDir::setCurrent(directory);
+}
+
 QString Process::cwd() const
 {
     return QDir::currentPath();
