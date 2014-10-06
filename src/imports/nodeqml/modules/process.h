@@ -23,7 +23,7 @@ public:
     /// TODO: process.chdir(directory)
     /// TODO: process.cwd()
     /// TODO: process.env
-    /// TODO: process.exit([code])
+    void exit(int code = 0) const;
     /// TODO: process.getgid()
     /// TODO: process.setgid(id)
     /// TODO: process.getuid()
