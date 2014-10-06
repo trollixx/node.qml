@@ -23,7 +23,7 @@ public:
     /// TODO: process.stderr
     /// TODO: process.stdin
     /// TODO: process.execArgv
-    /// TODO: process.abort()
+    void abort();
     bool chdir(const QString &directory);
     QString cwd() const;
     /// TODO: process.env

@@ -8,6 +8,11 @@ Process::Process(QJSEngine *jsEngine, QObject *parent) :
 {
 }
 
+void Process::abort()
+{
+    ::abort();
+}
+
 // TODO: Should throw an exception instead of return value
 bool Process::chdir(const QString &directory)
 {
