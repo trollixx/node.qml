@@ -9,6 +9,7 @@ class Process : public CoreModule
 {
     Q_OBJECT
     Q_PROPERTY(QStringList argv READ argv CONSTANT)
+    Q_PROPERTY(QString execPath READ execPath CONSTANT)
     Q_PROPERTY(int pid READ pid CONSTANT)
 public:
     explicit Process(QJSEngine *jsEngine, QObject *parent = nullptr);
@@ -19,7 +20,6 @@ public:
     /// TODO: process.stdout
     /// TODO: process.stderr
     /// TODO: process.stdin
-    /// TODO: process.execPath
     /// TODO: process.execArgv
     /// TODO: process.abort()
     /// TODO: process.chdir(directory)
@@ -49,6 +49,7 @@ public:
 
 private:
     QStringList argv() const;
+    QString execPath() const;
     int pid() const;
 
 };

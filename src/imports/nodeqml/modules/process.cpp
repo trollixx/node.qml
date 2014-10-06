@@ -17,6 +17,11 @@ QStringList Process::argv() const
     return QCoreApplication::arguments();
 }
 
+QString Process::execPath() const
+{
+    return QCoreApplication::applicationFilePath();
+}
+
 int Process::pid() const
 {
     /// NOTE: QCoreApplication::applicationPid() returns int64
