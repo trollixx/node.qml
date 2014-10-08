@@ -12,7 +12,7 @@ public:
     explicit Util(QJSEngine *jsEngine, QObject *parent = nullptr);
 
     /// TODO: util.format(format, [...])
-    /// TODO: util.debug(string)
+    Q_INVOKABLE void debug(const QString &string) const;
     /// TODO: util.error([...])
     /// TODO: util.puts([...])
     /// TODO: util.print([...])
