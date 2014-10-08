@@ -23,11 +23,11 @@ public:
     /// TODO: process.stderr
     /// TODO: process.stdin
     /// TODO: process.execArgv
-    void abort();
-    bool chdir(const QString &directory);
-    QString cwd() const;
+    Q_INVOKABLE void abort();
+    Q_INVOKABLE bool chdir(const QString &directory);
+    Q_INVOKABLE QString cwd() const;
     /// TODO: process.env
-    void exit(int code = 0);
+    Q_INVOKABLE void exit(int code = 0);
     /// TODO: process.getgid()
     /// TODO: process.setgid(id)
     /// TODO: process.getuid()
