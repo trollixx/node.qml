@@ -13,6 +13,7 @@ SOURCES += \
     node.cpp \
     modules/dns.cpp \
     modules/filesystem.cpp \
+    modules/os.cpp \
     modules/path.cpp \
     modules/process.cpp \
     modules/util.cpp
@@ -23,6 +24,7 @@ HEADERS += \
     node.h \
     modules/dns.h \
     modules/filesystem.h \
+    modules/os.h \
     modules/path.h \
     modules/process.h \
     modules/util.h
