@@ -9,7 +9,7 @@ class Os : public CoreModule
 public:
     explicit Os(QJSEngine *jsEngine, QObject *parent = nullptr);
 
-    /// TODO: os.tmpdir()
+    Q_INVOKABLE QString tmpdir() const;
     /// TODO: os.endianness()
     /// TODO: os.hostname()
     /// TODO: os.type()
