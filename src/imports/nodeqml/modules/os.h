@@ -9,6 +9,20 @@ class Os : public CoreModule
 public:
     explicit Os(QJSEngine *jsEngine, QObject *parent = nullptr);
 
+    /// TODO: os.tmpdir()
+    /// TODO: os.endianness()
+    /// TODO: os.hostname()
+    /// TODO: os.type()
+    /// TODO: os.platform()
+    /// TODO: os.arch()
+    /// TODO: os.release()
+    /// TODO: os.uptime()
+    /// TODO: os.loadavg()
+    /// TODO: os.totalmem()
+    /// TODO: os.freemem()
+    /// TODO: os.cpus()
+    /// TODO: os.networkInterfaces()
+    /// TODO: os.EOL
 };
 
 #endif // OS_H
