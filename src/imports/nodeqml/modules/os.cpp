@@ -1,6 +1,7 @@
 #include "os.h"
 
 #include <QDir>
+#include <QHostInfo>
 
 Os::Os(QJSEngine *jsEngine, QObject *parent) :
     CoreModule(jsEngine, parent)
@@ -20,4 +21,9 @@ QString Os::endianness() const
 #else
     return QStringLiteral("BE");
 #endif
+}
+
+QString Os::hostname() const
+{
+    return QHostInfo::localHostName();
 }

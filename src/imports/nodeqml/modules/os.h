@@ -11,7 +11,7 @@ public:
 
     Q_INVOKABLE QString tmpdir() const;
     Q_INVOKABLE QString endianness() const;
-    /// TODO: os.hostname()
+    Q_INVOKABLE QString hostname() const;
     /// TODO: os.type()
     /// TODO: os.platform()
     /// TODO: os.arch()
