@@ -27,3 +27,12 @@ QString Os::hostname() const
 {
     return QHostInfo::localHostName();
 }
+
+QString Os::eol() const
+{
+#ifdef Q_OS_WIN
+    return QStringLiteral("\r\n");
+#else
+    return QStringLiteral("\n");
+#endif
+}

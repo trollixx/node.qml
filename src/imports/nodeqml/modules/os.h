@@ -6,6 +6,7 @@
 class Os : public CoreModule
 {
     Q_OBJECT
+    Q_PROPERTY(QString EOL READ eol CONSTANT)
 public:
     explicit Os(QJSEngine *jsEngine, QObject *parent = nullptr);
 
@@ -22,7 +23,9 @@ public:
     /// TODO: os.freemem()
     /// TODO: os.cpus()
     /// TODO: os.networkInterfaces()
-    /// TODO: os.EOL
+
+private:
+    QString eol() const;
 };
 
 #endif // OS_H
