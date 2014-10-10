@@ -10,7 +10,7 @@ public:
     explicit Os(QJSEngine *jsEngine, QObject *parent = nullptr);
 
     Q_INVOKABLE QString tmpdir() const;
-    /// TODO: os.endianness()
+    Q_INVOKABLE QString endianness() const;
     /// TODO: os.hostname()
     /// TODO: os.type()
     /// TODO: os.platform()
