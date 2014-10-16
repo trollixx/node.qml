@@ -1,6 +1,6 @@
 TEMPLATE = lib
 TARGET = NodeQML
-QT += qml quick network
+QT += core-private qml qml-private quick network
 CONFIG += qt plugin c++11
 
 TARGET = $$qtLibraryTarget($$TARGET)
@@ -10,7 +10,8 @@ uri = com.wisetroll.nodeqml
 SOURCES += \
     nodeqml_plugin.cpp \
     coremodule.cpp \
-    node.cpp \
+    engine.cpp \
+    globalextensions.cpp \
     modules/dns.cpp \
     modules/filesystem.cpp \
     modules/os.cpp \
@@ -21,7 +22,8 @@ SOURCES += \
 HEADERS += \
     nodeqml_plugin.h \
     coremodule.h \
-    node.h \
+    engine.h \
+    globalextensions.h \
     modules/dns.h \
     modules/filesystem.h \
     modules/os.h \

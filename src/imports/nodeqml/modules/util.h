@@ -1,34 +1,31 @@
 #ifndef UTIL_H
 #define UTIL_H
 
-#include "coremodule.h"
+#include <private/qv4object_p.h>
 
-class QJSValue;
+namespace NodeQml {
 
-class Util : public CoreModule
+struct UtilModule : QV4::Object
 {
-    Q_OBJECT
-public:
-    explicit Util(QJSEngine *jsEngine, QObject *parent = nullptr);
+    struct Data : QV4::Object::Data {
+        Data(QV4::ExecutionEngine *v4ee);
+    };
 
-    /// TODO: util.format(format, [...])
-    Q_INVOKABLE void debug(const QString &string) const;
-    /// TODO: util.error([...])
-    /// TODO: util.puts([...])
-    /// TODO: util.print([...])
-    /// TODO: util.log(string)
-    /// TODO: util.inspect(object, [options])
-    Q_INVOKABLE bool isArray(const QJSValue &object) const;
-    Q_INVOKABLE bool isRegExp(const QJSValue &object) const;
-    Q_INVOKABLE bool isDate(const QJSValue &object) const;
-    Q_INVOKABLE bool isError(const QJSValue &object) const;
-    /// TODO: util.inherits(constructor, superConstructor)
-
-
-signals:
-
-public slots:
-
+    static QV4::ReturnedValue method_format(QV4::CallContext *ctx);
+    static QV4::ReturnedValue method_debug(QV4::CallContext *ctx);
+    static QV4::ReturnedValue method_error(QV4::CallContext *ctx);
+    static QV4::ReturnedValue method_puts(QV4::CallContext *ctx);
+    static QV4::ReturnedValue method_print(QV4::CallContext *ctx);
+    static QV4::ReturnedValue method_log(QV4::CallContext *ctx);
+    static QV4::ReturnedValue method_inspect(QV4::CallContext *ctx);
+    static QV4::ReturnedValue method_isArray(QV4::CallContext *ctx);
+    static QV4::ReturnedValue method_isRegExp(QV4::CallContext *ctx);
+    static QV4::ReturnedValue method_isDate(QV4::CallContext *ctx);
+    static QV4::ReturnedValue method_isError(QV4::CallContext *ctx);
+    static QV4::ReturnedValue method_pump(QV4::CallContext *ctx);
+    static QV4::ReturnedValue method_inherits(QV4::CallContext *ctx);
 };
+
+} // namespace NodeQml
 
 #endif // UTIL_H

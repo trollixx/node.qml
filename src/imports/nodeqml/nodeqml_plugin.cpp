@@ -1,17 +1,21 @@
 #include "nodeqml_plugin.h"
 
-#include "node.h"
+#include "engine.h"
 
 #include <QQmlEngine>
 #include <qqml.h>
 
-static QObject *node_singletontype_provider(QQmlEngine *engine, QJSEngine *scriptEngine)
+using namespace NodeQml;
+
+void NodeQMLPlugin::initializeEngine(QQmlEngine *engine, const char *uri)
 {
-    return new Node(engine, scriptEngine, engine);
+    Q_UNUSED(uri)
+    new NodeQml::Engine(engine, engine);
 }
 
 void NodeQMLPlugin::registerTypes(const char *uri)
 {
     // @uri com.wisetroll.nodeqml
-    qmlRegisterSingletonType<Node>(uri, 1, 0, "Node", node_singletontype_provider);
+    /// TODO: Get rid of this stupid registration
+    qmlRegisterType<QObject>(uri, 1, 0, "__nodeQmlUselessObject");
 }
