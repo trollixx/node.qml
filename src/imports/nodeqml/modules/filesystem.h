@@ -1,17 +1,20 @@
 #ifndef FILESYSTEM_H
 #define FILESYSTEM_H
 
-#include "coremodule.h"
+#include <private/qv4object_p.h>
 
-class FileSystem : public CoreModule
+namespace NodeQml {
+
+struct FileSystemModule : QV4::Object
 {
-    Q_OBJECT
-public:
-    explicit FileSystem(QJSEngine *jsEngine, QObject *parent = nullptr);
+    struct Data : QV4::Object::Data {
+        Data(QV4::ExecutionEngine *v4);
+    };
 
-    // Synchonous API
-    Q_INVOKABLE bool existsSync(const QString &path);
-    Q_INVOKABLE bool renameSync(const QString &oldPath, const QString &newPath);
+    static QV4::ReturnedValue method_existsSync(QV4::CallContext *ctx);
+    static QV4::ReturnedValue method_renameSync(QV4::CallContext *ctx);
 };
+
+} // namespace NodeQml
 
 #endif // FILESYSTEM_H
