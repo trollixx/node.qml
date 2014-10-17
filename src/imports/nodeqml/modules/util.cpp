@@ -6,10 +6,10 @@
 
 using namespace NodeQml;
 
-UtilModule::Data::Data(QV4::ExecutionEngine *v4ee) :
-    QV4::Object::Data(v4ee)
+UtilModule::Data::Data(QV4::ExecutionEngine *v4) :
+    QV4::Object::Data(v4)
 {
-    QV4::Scope scope(v4ee);
+    QV4::Scope scope(v4);
     QV4::ScopedObject o(scope, this);
 
     o->defineDefaultProperty(QStringLiteral("format"), method_format);
@@ -35,13 +35,14 @@ QV4::ReturnedValue UtilModule::method_format(QV4::CallContext *ctx)
 
 QV4::ReturnedValue UtilModule::method_debug(QV4::CallContext *ctx)
 {
-    if (ctx->d()->callData->argc < 1)
+    const QV4::CallData * const callData = ctx->d()->callData;
+    if (callData->argc < 1)
         ctx->throwError("require() requires an argument");
-    if (!ctx->d()->callData->args[0].isString())
+    if (!callData->args[0].isString())
         ctx->throwTypeError("require(): argument must be a string");
 
     QTextStream stream(stderr);
-    stream << ctx->d()->callData->args[0].toQStringNoThrow();
+    stream << callData->args[0].toQStringNoThrow();
 
     return QV4::Encode::undefined();
 }
@@ -91,13 +92,15 @@ QV4::ReturnedValue UtilModule::method_isRegExp(QV4::CallContext *ctx)
 
 QV4::ReturnedValue UtilModule::method_isDate(QV4::CallContext *ctx)
 {
-    bool isDate = ctx->d()->callData->argc && ctx->d()->callData->args[0].asDateObject();
+    const QV4::CallData * const callData = ctx->d()->callData;
+    bool isDate = callData->argc && callData->args[0].asDateObject();
     return QV4::Encode(isDate);
 }
 
 QV4::ReturnedValue UtilModule::method_isError(QV4::CallContext *ctx)
 {
-    bool isError = ctx->d()->callData->argc && ctx->d()->callData->args[0].asErrorObject();
+    const QV4::CallData * const callData = ctx->d()->callData;
+    bool isError = callData->argc && callData->args[0].asErrorObject();
     return QV4::Encode(isError);
 }
 

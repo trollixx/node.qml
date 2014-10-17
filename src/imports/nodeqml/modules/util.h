@@ -8,7 +8,7 @@ namespace NodeQml {
 struct UtilModule : QV4::Object
 {
     struct Data : QV4::Object::Data {
-        Data(QV4::ExecutionEngine *v4ee);
+        Data(QV4::ExecutionEngine *v4);
     };
 
     static QV4::ReturnedValue method_format(QV4::CallContext *ctx);
