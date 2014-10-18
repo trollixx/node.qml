@@ -113,7 +113,7 @@ QV4::ReturnedValue BufferPrototype::method_isEncoding(QV4::CallContext *ctx)
 
 QV4::ReturnedValue BufferPrototype::method_isBuffer(QV4::CallContext *ctx)
 {
-    return ctx->d()->callData->argc && ctx->d()->callData->args[0].as<BufferObject>();
+    return QV4::Encode(ctx->d()->callData->argc && ctx->d()->callData->args[0].as<BufferObject>());
 }
 
 QV4::ReturnedValue BufferPrototype::method_byteLength(QV4::CallContext *ctx)
