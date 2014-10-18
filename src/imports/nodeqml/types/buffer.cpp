@@ -149,7 +149,7 @@ bool BufferPrototype::isEncoding(const QString &encoding)
         QStringLiteral("utf16le"),
         QStringLiteral("utf-16le")
     };
-    return encodings.contains(encoding);
+    return encodings.contains(encoding.toLower());
 }
 
 QV4::ReturnedValue BufferPrototype::method_isEncoding(QV4::CallContext *ctx)
