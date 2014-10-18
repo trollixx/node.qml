@@ -181,6 +181,7 @@ void Engine::registerTypes()
     bufferCtor = m_v4->memoryManager->alloc<BufferCtor>(m_v4->rootContext);
     static_cast<BufferPrototype *>(bufferPrototype.getPointer())->init(m_v4, bufferCtor.asObject());
     m_v4->globalObject->defineDefaultProperty(QStringLiteral("Buffer"), bufferCtor);
+    m_v4->globalObject->defineDefaultProperty(QStringLiteral("SlowBuffer"), bufferCtor);
 }
 
 void Engine::registerModules()
