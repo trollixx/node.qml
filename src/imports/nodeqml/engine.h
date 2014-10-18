@@ -27,10 +27,15 @@ public:
     QV4::ReturnedValue setInterval(QV4::CallContext *ctx);
     QV4::ReturnedValue clearInterval(QV4::CallContext *ctx);
 
+public:
+    QV4::Value bufferCtor;
+    QV4::InternalClass *bufferClass;
+
 protected:
     void timerEvent(QTimerEvent *event) override;
 
 private:
+    void registerTypes();
     void setupCoreModules();
 
     QQmlEngine *m_qmlEngine;

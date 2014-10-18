@@ -7,6 +7,7 @@
 #include "modules/path.h"
 #include "modules/process.h"
 #include "modules/util.h"
+#include "types/buffer.h"
 
 #include <QLoggingCategory>
 #include <QTimerEvent>
@@ -40,6 +41,7 @@ Engine::Engine(QQmlEngine *qmlEngine, QObject *parent) :
     m_nodeEngines.insert(m_v4, this);
 
     NodeQml::GlobalExtensions::init(m_qmlEngine);
+    registerTypes();
     setupCoreModules();
 }
 
@@ -165,6 +167,20 @@ void Engine::timerEvent(QTimerEvent *event)
     QV4::ScopedCallData callData(scope, 0);
     callData->thisObject = m_v4->globalObject->asReturnedValue();
     cb->call(callData);
+}
+
+void Engine::registerTypes()
+{
+    QV4::Scope scope(m_v4);
+
+    QV4::ScopedObject bufferPrototype(
+                scope, m_v4->memoryManager->alloc<BufferPrototype>(
+                    QV4::InternalClass::create(m_v4, BufferPrototype::staticVTable(),
+                                               m_v4->objectClass->prototype)));
+    bufferClass = QV4::InternalClass::create(m_v4, BufferObject::staticVTable(), bufferPrototype);
+    bufferCtor = m_v4->memoryManager->alloc<BufferCtor>(m_v4->rootContext);
+    static_cast<BufferPrototype *>(bufferPrototype.getPointer())->init(m_v4, bufferCtor.asObject());
+    m_v4->globalObject->defineDefaultProperty(QStringLiteral("Buffer"), bufferCtor);
 }
 
 void Engine::setupCoreModules()

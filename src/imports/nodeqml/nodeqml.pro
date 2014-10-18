@@ -17,7 +17,8 @@ SOURCES += \
     modules/os.cpp \
     modules/path.cpp \
     modules/process.cpp \
-    modules/util.cpp
+    modules/util.cpp \
+    types/buffer.cpp
 
 HEADERS += \
     nodeqml_plugin.h \
@@ -29,7 +30,8 @@ HEADERS += \
     modules/os.h \
     modules/path.h \
     modules/process.h \
-    modules/util.h
+    modules/util.h \
+    types/buffer.h
 
 OTHER_FILES = qmldir
 
