@@ -42,9 +42,8 @@ struct BufferCtor: QV4::FunctionObject
 struct BufferPrototype: BufferObject
 {
     void init(QV4::ExecutionEngine *v4, QV4::Object *ctor);
+    static bool isEncoding(const QString &encoding);
 
-    /// TODO: Class Method: Buffer.isEncoding(encoding)
-    /// TODO: Class Method: Buffer.isBuffer(obj)
     /// TODO: Class Method: Buffer.byteLength(string, [encoding])
     /// TODO: Class Method: Buffer.concat(list, [totalLength])
     static QV4::ReturnedValue method_isEncoding(QV4::CallContext *ctx);
@@ -55,9 +54,7 @@ struct BufferPrototype: BufferObject
     /// TODO: buf.write(string, [offset], [length], [encoding])
     /// TODO: buf.toString([encoding], [start], [end])
     /// TODO: buf.toJSON()
-    /// TODO: buf[index]
 
-    /// TODO: buf.length
     /// TODO: buf.copy(targetBuffer, [targetStart], [sourceStart], [sourceEnd])
     /// TODO: buf.slice([start], [end])
     /// TODO: buf.readUInt8(offset, [noAssert])

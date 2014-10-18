@@ -128,13 +128,35 @@ void BufferPrototype::init(QV4::ExecutionEngine *v4, QV4::Object *ctor)
     QV4::ScopedObject o(scope);
     ctor->defineReadonlyProperty(v4->id_length, QV4::Primitive::fromInt32(1));
     ctor->defineReadonlyProperty(v4->id_prototype, (o = this));
-    ctor->defineDefaultProperty(QStringLiteral("isBuffer"), method_isBuffer, 1);
     defineDefaultProperty(QStringLiteral("constructor"), (o = ctor));
+
+    ctor->defineDefaultProperty(QStringLiteral("isEncoding"), method_isEncoding, 1);
+    ctor->defineDefaultProperty(QStringLiteral("isBuffer"), method_isBuffer, 1);
+}
+
+bool BufferPrototype::isEncoding(const QString &encoding)
+{
+    static QStringList encodings = {
+        QStringLiteral("hex"),
+        QStringLiteral("utf8"),
+        QStringLiteral("utf-8"),
+        QStringLiteral("ascii"),
+        QStringLiteral("binary"),
+        QStringLiteral("base64"),
+        QStringLiteral("raw"),
+        QStringLiteral("ucs2"),
+        QStringLiteral("ucs-2"),
+        QStringLiteral("utf16le"),
+        QStringLiteral("utf-16le")
+    };
+    return encodings.contains(encoding);
 }
 
 QV4::ReturnedValue BufferPrototype::method_isEncoding(QV4::CallContext *ctx)
 {
-    return ctx->throwUnimplemented(QStringLiteral("Buffer.isEncoding()"));
+    const QV4::CallData * const callData = ctx->d()->callData;
+    return QV4::Encode(callData->argc && callData->args[0].isString()
+            && isEncoding(callData->args[0].toQStringNoThrow()));
 }
 
 QV4::ReturnedValue BufferPrototype::method_isBuffer(QV4::CallContext *ctx)
