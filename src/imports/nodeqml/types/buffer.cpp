@@ -132,6 +132,7 @@ void BufferPrototype::init(QV4::ExecutionEngine *v4, QV4::Object *ctor)
 
     ctor->defineDefaultProperty(QStringLiteral("isEncoding"), method_isEncoding, 1);
     ctor->defineDefaultProperty(QStringLiteral("isBuffer"), method_isBuffer, 1);
+    ctor->defineDefaultProperty(QStringLiteral("byteLength"), method_byteLength);
 }
 
 bool BufferPrototype::isEncoding(const QString &encoding)
@@ -166,7 +167,36 @@ QV4::ReturnedValue BufferPrototype::method_isBuffer(QV4::CallContext *ctx)
 
 QV4::ReturnedValue BufferPrototype::method_byteLength(QV4::CallContext *ctx)
 {
-    return ctx->throwUnimplemented(QStringLiteral("Buffer.byteLength()"));
+    const QV4::CallData * const callData = ctx->d()->callData;
+
+    if (!callData->argc || !callData->args[0].isString())
+        return ctx->throwTypeError(QStringLiteral("byteLength: argument must be a string"));
+
+    QString encoding;
+    if (callData->argc > 1 && callData->args[1].isString()
+            && isEncoding(callData->args[1].toQStringNoThrow())) {
+        encoding = callData->args[1].toQStringNoThrow();
+    } else {
+        encoding = QStringLiteral("utf8");
+    }
+
+    quint32 length = 0;
+
+    if (encoding == QStringLiteral("ascii") || encoding == QStringLiteral("binary")
+            || encoding == QStringLiteral("raw")) {
+        length = callData->args[0].stringValue()->d()->length();
+    } else if (encoding == QStringLiteral("ucs2") || encoding == QStringLiteral("ucs-2")
+               || encoding == QStringLiteral("utf16le") || encoding == QStringLiteral("utf-16le")) {
+        length = callData->args[0].stringValue()->d()->length() * 2;
+    } else if (encoding == QStringLiteral("hex")) {
+        length = callData->args[0].stringValue()->d()->length() >> 1;
+    } else if (encoding == QStringLiteral("base64")) {
+        length = QByteArray::fromBase64(callData->args[0].toQStringNoThrow().toUtf8()).length();
+    } else { // utf8
+        length = callData->args[0].toQStringNoThrow().toUtf8().length();
+    }
+
+    return QV4::Encode(length);
 }
 
 QV4::ReturnedValue BufferPrototype::method_concat(QV4::CallContext *ctx)

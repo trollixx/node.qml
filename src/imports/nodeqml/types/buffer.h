@@ -44,7 +44,6 @@ struct BufferPrototype: BufferObject
     void init(QV4::ExecutionEngine *v4, QV4::Object *ctor);
     static bool isEncoding(const QString &encoding);
 
-    /// TODO: Class Method: Buffer.byteLength(string, [encoding])
     /// TODO: Class Method: Buffer.concat(list, [totalLength])
     static QV4::ReturnedValue method_isEncoding(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_isBuffer(QV4::CallContext *ctx);
