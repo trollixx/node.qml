@@ -34,19 +34,45 @@ BufferObject::Data::Data(QV4::ExecutionEngine *v4, const QString &str, const QSt
 
 }
 
-QV4::Property *BufferObject::getIndex(uint index) const
+QV4::ReturnedValue BufferObject::getIndexed(QV4::Managed *m, quint32 index, bool *hasProperty)
 {
+    QV4::ExecutionEngine *v4 = m->engine();
+    QV4::Scope scope(v4);
+    QV4::Scoped<BufferObject> that(scope, static_cast<BufferObject *>(m));
 
+    if (index >= static_cast<quint32>(that->d()->value.size())) {
+        if (hasProperty)
+            *hasProperty = false;
+        return QV4::Encode::undefined();
+    }
+
+    if (hasProperty)
+        *hasProperty = true;
+    return QV4::Encode(v4->newNumberObject(QV4::Primitive::fromUInt32(that->d()->value.at(index))));
+}
+
+void BufferObject::putIndexed(QV4::Managed *m, uint index, const QV4::ValueRef value)
+{
+    QV4::ExecutionEngine *v4 = m->engine();
+    QV4::Scope scope(v4);
+    QV4::Scoped<BufferObject> that(scope, static_cast<BufferObject *>(m));
+
+    if (index >= static_cast<quint32>(that->d()->value.size()))
+        return;
+
+    that->d()->value[index] = value->toUInt16();
 }
 
 bool BufferObject::deleteIndexedProperty(QV4::Managed *m, uint index)
 {
-
+    Q_UNUSED(m)
+    Q_UNUSED(index)
+    return true;
 }
 
 void BufferObject::advanceIterator(QV4::Managed *m, QV4::ObjectIterator *it, QV4::String *&name, uint *index, QV4::Property *p, QV4::PropertyAttributes *attrs)
 {
-
+    return Object::advanceIterator(m, it, name, index, p, attrs);
 }
 
 void BufferObject::markObjects(QV4::Managed *that, QV4::ExecutionEngine *e)

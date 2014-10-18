@@ -19,9 +19,8 @@ struct BufferObject: QV4::Object {
     V4_OBJECT(Object)
     //Q_MANAGED_TYPE(BufferObject)
 
-
-    QV4::Property *getIndex(uint index) const;
-
+    static QV4::ReturnedValue getIndexed(QV4::Managed *m, quint32 index, bool *hasProperty);
+    static void putIndexed(QV4::Managed *m, uint index, const QV4::ValueRef value);
     static bool deleteIndexedProperty(QV4::Managed *m, uint index);
 
 protected:
