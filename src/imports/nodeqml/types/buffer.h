@@ -11,8 +11,9 @@ namespace NodeQml {
 struct BufferObject: QV4::Object {
     struct Data : QV4::Object::Data {
         Data(QV4::InternalClass *ic);
-        Data(QV4::ExecutionEngine *v4, quint32 length);
+        Data(QV4::ExecutionEngine *v4, quint32 size);
         Data(QV4::ExecutionEngine *v4, const QString &str, const QString &encoding);
+
         QByteArray value;
     };
     V4_OBJECT(Object)

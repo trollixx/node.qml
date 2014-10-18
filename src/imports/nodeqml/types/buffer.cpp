@@ -19,13 +19,13 @@ BufferObject::Data::Data(QV4::InternalClass *ic)
     s->defineReadonlyProperty(ic->engine->id_length, QV4::Primitive::fromInt32(0));
 }
 
-BufferObject::Data::Data(QV4::ExecutionEngine *v4, quint32 length) :
+BufferObject::Data::Data(QV4::ExecutionEngine *v4, quint32 size) :
     Object::Data(Engine::get(v4)->bufferClass)
 {
-    value.resize(length);
+    value.resize(size);
     QV4::Scope scope(v4);
     QV4::ScopedObject s(scope, this);
-    s->defineReadonlyProperty(v4->id_length, QV4::Primitive::fromInt32(length));
+    s->defineReadonlyProperty(v4->id_length, QV4::Primitive::fromInt32(size));
 }
 
 BufferObject::Data::Data(QV4::ExecutionEngine *v4, const QString &str, const QString &encoding) :
