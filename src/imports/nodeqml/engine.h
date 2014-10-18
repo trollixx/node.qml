@@ -36,7 +36,7 @@ protected:
 
 private:
     void registerTypes();
-    void setupCoreModules();
+    void registerModules();
 
     QQmlEngine *m_qmlEngine;
     QV4::ExecutionEngine *m_v4;

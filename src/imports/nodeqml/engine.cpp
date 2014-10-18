@@ -42,7 +42,7 @@ Engine::Engine(QQmlEngine *qmlEngine, QObject *parent) :
 
     NodeQml::GlobalExtensions::init(m_qmlEngine);
     registerTypes();
-    setupCoreModules();
+    registerModules();
 }
 
 Engine::~Engine()
@@ -183,7 +183,7 @@ void Engine::registerTypes()
     m_v4->globalObject->defineDefaultProperty(QStringLiteral("Buffer"), bufferCtor);
 }
 
-void Engine::setupCoreModules()
+void Engine::registerModules()
 {
     m_coreModules.insert(QStringLiteral("util"), m_v4->memoryManager->alloc<UtilModule>(m_v4));
     m_coreModules.insert(QStringLiteral("fs"), m_v4->memoryManager->alloc<FileSystemModule>(m_v4));
