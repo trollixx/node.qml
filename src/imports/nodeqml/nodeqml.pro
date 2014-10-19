@@ -1,5 +1,5 @@
 TEMPLATE = lib
-TARGET = NodeQML
+TARGET = NodeQml
 QT += core-private qml qml-private quick network
 CONFIG += qt plugin c++11
 
