@@ -106,7 +106,8 @@ QV4::ReturnedValue UtilModule::method_isError(QV4::CallContext *ctx)
 
 QV4::ReturnedValue UtilModule::method_pump(QV4::CallContext *ctx)
 {
-    return ctx->throwUnimplemented(QStringLiteral("util.pump()"));
+    return ctx->throwUnimplemented(
+                QStringLiteral("util.pump: Deprecated. Use readableStream.pipe(writableStream)."));
 }
 
 /// TODO: util.inherits(constructor, superConstructor)
