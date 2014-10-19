@@ -12,6 +12,7 @@ SOURCES += \
     coremodule.cpp \
     engine.cpp \
     globalextensions.cpp \
+    moduleobject.cpp \
     modules/dns.cpp \
     modules/filesystem.cpp \
     modules/os.cpp \
@@ -25,6 +26,7 @@ HEADERS += \
     coremodule.h \
     engine.h \
     globalextensions.h \
+    moduleobject.h \
     modules/dns.h \
     modules/filesystem.h \
     modules/os.h \

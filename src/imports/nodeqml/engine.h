@@ -10,6 +10,8 @@ class QQmlEngine;
 
 namespace NodeQml {
 
+struct ModuleObject;
+
 class Engine : public QObject
 {
     Q_OBJECT
@@ -41,6 +43,7 @@ private:
     QQmlEngine *m_qmlEngine;
     QV4::ExecutionEngine *m_v4;
     QHash<QString, QV4::Object *> m_coreModules;
+    QHash<QString, ModuleObject *> m_cachedModules;
     QHash<int, QV4::FunctionObject *> m_timeoutCallbacks;
     QHash<int, QV4::FunctionObject *> m_intervalCallbacks;
 

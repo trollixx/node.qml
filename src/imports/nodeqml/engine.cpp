@@ -1,6 +1,7 @@
 #include "engine.h"
 
 #include "globalextensions.h"
+#include "moduleobject.h"
 #include "modules/dns.h"
 #include "modules/filesystem.h"
 #include "modules/os.h"
@@ -8,11 +9,13 @@
 #include "modules/util.h"
 #include "types/buffer.h"
 
+#include <QFileInfo>
 #include <QLoggingCategory>
-#include <QTimerEvent>
 #include <QQmlEngine>
+#include <QTimerEvent>
 
 #include <private/qv4engine_p.h>
+#include <private/qv4script_p.h>
 #include <private/qv8engine_p.h>
 
 namespace {
@@ -41,6 +44,7 @@ Engine::Engine(QQmlEngine *qmlEngine, QObject *parent) :
 
     NodeQml::GlobalExtensions::init(m_qmlEngine);
     registerTypes();
+    /// TODO: Core modules should not be loaded unless required
     registerModules();
 }
 
@@ -61,6 +65,51 @@ QV4::ReturnedValue Engine::require(QV4::CallContext *ctx)
 
     if (m_coreModules.contains(id))
         return QV4::ScopedObject(scope, m_coreModules.value(id)).asReturnedValue();
+
+    QV4::ScopedString exportsString(scope, m_v4->newString(QStringLiteral("exports")));
+
+    if (m_cachedModules.contains(id))
+        return m_cachedModules.value(id)->get(exportsString);
+
+    // This is a core module
+    QFileInfo fi(QStringLiteral(":/js/") + id + QStringLiteral(".js"));
+    if (fi.exists()) {
+        QScopedPointer<QFile> file(new QFile(fi.absoluteFilePath()));
+        if (!file->open(QIODevice::ReadOnly))
+            return ctx->throwError(QString("require: Cannot open file '%1'").arg(file->fileName()));
+
+        QV4::ScopedString s(scope);
+
+        QV4::ScopedObject requireScope(scope, m_v4->newObject());
+        requireScope->defineReadonlyProperty(QStringLiteral("__dirname"),
+                                            (s = m_v4->newString(fi.absoluteFilePath())));
+        requireScope->defineReadonlyProperty(QStringLiteral("__filename"),
+                                            (s = m_v4->newString(fi.fileName())));
+
+        QV4::Scoped<ModuleObject> moduleObject(
+                    scope, m_v4->memoryManager->alloc<ModuleObject>(m_v4, id, fi.fileName()));
+
+        QV4::ScopedObject exportsObject(scope, moduleObject->get(exportsString));
+        requireScope->defineDefaultProperty(QStringLiteral("module"), moduleObject);
+        requireScope->defineDefaultProperty(QStringLiteral("exports"), exportsObject);
+
+        QV4::Script script(m_v4, requireScope, file->readAll(), fi.fileName());
+        script.strictMode = ctx->d()->strictMode;
+        script.inheritContext = true; /// NOTE: Is it needed?
+        script.parse();
+
+        QV4::ScopedValue result(scope);
+        if (!scope.engine->hasException)
+            result = script.run();
+
+        if (scope.engine->hasException)
+            return result.asReturnedValue();
+
+        m_cachedModules.insert(id, moduleObject->as<ModuleObject>());
+
+        return moduleObject->get(exportsString);
+    }
+
 
     return ctx->throwError(QString("require: Cannot find module '%1'").arg(id));
 }
