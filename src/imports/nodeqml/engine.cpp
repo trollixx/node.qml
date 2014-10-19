@@ -51,13 +51,18 @@ Engine::~Engine()
 
 QV4::ReturnedValue Engine::require(QV4::CallContext *ctx)
 {
-    const QString id = ctx->d()->callData->args[0].toQStringNoThrow();
+    const QV4::CallData * const callData = ctx->d()->callData;
 
-    if (!m_coreModules.contains(id))
-        return ctx->throwError(QString("Cannot find module '%1'").arg(id));
+    if (!callData->argc || !callData->args[0].isString())
+        return ctx->throwError(QStringLiteral("require: id must be a string"));
 
+    const QString id = callData->args[0].toQStringNoThrow();
     QV4::Scope scope(m_v4);
-    return QV4::ScopedObject(scope, m_coreModules.value(id)).asReturnedValue();
+
+    if (m_coreModules.contains(id))
+        return QV4::ScopedObject(scope, m_coreModules.value(id)).asReturnedValue();
+
+    return ctx->throwError(QString("require: Cannot find module '%1'").arg(id));
 }
 
 QV4::ReturnedValue Engine::setTimeout(QV4::CallContext *ctx)
