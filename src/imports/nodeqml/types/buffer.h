@@ -22,10 +22,6 @@ struct BufferObject: QV4::Object {
     static QV4::ReturnedValue getIndexed(QV4::Managed *m, quint32 index, bool *hasProperty);
     static void putIndexed(QV4::Managed *m, uint index, const QV4::ValueRef value);
     static bool deleteIndexedProperty(QV4::Managed *m, uint index);
-
-protected:
-    static void advanceIterator(QV4::Managed *m, QV4::ObjectIterator *it, QV4::String *&name, uint *index, QV4::Property *p, QV4::PropertyAttributes *attrs);
-    static void markObjects(QV4::Managed *that, QV4::ExecutionEngine *e);
 };
 
 struct BufferCtor: QV4::FunctionObject
@@ -44,7 +40,6 @@ struct BufferPrototype: BufferObject
     void init(QV4::ExecutionEngine *v4, QV4::Object *ctor);
     static bool isEncoding(const QString &encoding);
 
-    /// TODO: Class Method: Buffer.concat(list, [totalLength])
     static QV4::ReturnedValue method_isEncoding(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_isBuffer(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_byteLength(QV4::CallContext *ctx);

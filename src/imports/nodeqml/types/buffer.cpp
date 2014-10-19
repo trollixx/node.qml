@@ -70,16 +70,6 @@ bool BufferObject::deleteIndexedProperty(QV4::Managed *m, uint index)
     return true;
 }
 
-void BufferObject::advanceIterator(QV4::Managed *m, QV4::ObjectIterator *it, QV4::String *&name, uint *index, QV4::Property *p, QV4::PropertyAttributes *attrs)
-{
-    return Object::advanceIterator(m, it, name, index, p, attrs);
-}
-
-void BufferObject::markObjects(QV4::Managed *that, QV4::ExecutionEngine *e)
-{
-
-}
-
 DEFINE_OBJECT_VTABLE(BufferCtor);
 
 BufferCtor::Data::Data(QV4::ExecutionContext *scope)
@@ -121,11 +111,11 @@ QV4::ReturnedValue BufferCtor::call(QV4::Managed *that, QV4::CallData *callData)
     return construct(that, callData);
 }
 
-
 void BufferPrototype::init(QV4::ExecutionEngine *v4, QV4::Object *ctor)
 {
     QV4::Scope scope(v4);
     QV4::ScopedObject o(scope);
+
     ctor->defineReadonlyProperty(v4->id_length, QV4::Primitive::fromInt32(1));
     ctor->defineReadonlyProperty(v4->id_prototype, (o = this));
     defineDefaultProperty(QStringLiteral("constructor"), (o = ctor));
