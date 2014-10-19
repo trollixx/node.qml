@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>js/assert.js</file>
+        <file>js/events.js</file>
     </qresource>
 </RCC>
