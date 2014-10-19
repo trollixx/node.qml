@@ -11,11 +11,7 @@ struct ProcessModule : QV4::Object
         Data(QV4::ExecutionEngine *v4);
     };
 
-    /// TODO: argv
-    /// TODO: execPath
-    /// TODO: pid
-    /// TODO: arch
-    /// TODO: platform
+    static QV4::ReturnedValue property_pid_getter(QV4::CallContext *ctx);
 
     /// TODO: Event: 'exit'
     /// TODO: Event: 'uncaughtException'
@@ -47,6 +43,10 @@ struct ProcessModule : QV4::Object
     /// TODO: process.umask([mask])
     /// TODO: process.uptime()
     /// TODO: process.hrtime()
+
+private:
+    static inline QString arch();
+    static inline QString platform();
 };
 
 } // namespace NodeQml

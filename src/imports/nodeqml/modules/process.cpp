@@ -10,11 +10,28 @@ ProcessModule::Data::Data(QV4::ExecutionEngine *v4) :
 {
     QV4::Scope scope(v4);
     QV4::ScopedObject o(scope, this);
+    QV4::ScopedValue v(scope);
+
+    o->defineReadonlyProperty(QStringLiteral("arch"), (v = v4->newString(arch())));
+    o->defineReadonlyProperty(QStringLiteral("platform"), (v = v4->newString(platform())));
+    o->defineReadonlyProperty(QStringLiteral("argv"),
+                              (v = v4->newArrayObject(QCoreApplication::arguments())));
+    o->defineReadonlyProperty(QStringLiteral("execPath"),
+                              (v = v4->newString(QCoreApplication::applicationFilePath())));
+
+    o->defineAccessorProperty(QStringLiteral("pid"), property_pid_getter, nullptr);
 
     o->defineDefaultProperty(QStringLiteral("abort"), method_abort);
     o->defineDefaultProperty(QStringLiteral("chdir"), method_chdir);
     o->defineDefaultProperty(QStringLiteral("cwd"), method_cwd);
     o->defineDefaultProperty(QStringLiteral("exit"), method_exit);
+}
+
+QV4::ReturnedValue ProcessModule::property_pid_getter(QV4::CallContext *ctx)
+{
+    Q_UNUSED(ctx)
+    // Has to be dynamic property, because PID can change because of fork()
+    return QV4::Primitive::fromInt32(QCoreApplication::applicationPid()).asReturnedValue();
 }
 
 QV4::ReturnedValue ProcessModule::method_abort(QV4::CallContext *ctx)
@@ -55,26 +72,9 @@ QV4::ReturnedValue ProcessModule::method_exit(QV4::CallContext *ctx)
     return QV4::Encode::undefined();
 }
 
-/*QStringList Process::argv() const
+QString ProcessModule::arch()
 {
-    return QCoreApplication::arguments();
-}
-
-QString Process::execPath() const
-{
-    return QCoreApplication::applicationFilePath();
-}
-
-int Process::pid() const
-{
-    /// NOTE: QCoreApplication::applicationPid() returns int64
-    return QCoreApplication::applicationPid();
-}
-
-QString Process::arch() const
-{
-    // Node supports: 'arm', 'ia32', or 'x64'
-    /// TODO: Extend with all Q_PROCESSOR_*?
+    /// NOTE: Node supports: 'arm', 'ia32', 'x64'. Extend with all Q_PROCESSOR_*?
 #if defined(Q_PROCESSOR_ARM)
     return QStringLiteral("arm");
 #elif defined(Q_PROCESSOR_X86_32)
@@ -86,10 +86,9 @@ QString Process::arch() const
 #endif
 }
 
-QString Process::platform() const
+QString ProcessModule::platform()
 {
-    // Node supports: 'darwin', 'freebsd', 'linux', 'sunos' or 'win32'
-    /// TODO: Extend with all Q_OS_*?
+    /// NOTE: Node supports: 'darwin', 'freebsd', 'linux', 'sunos', 'win32'. Extend with all Q_OS_*?
 #if defined(Q_OS_DARWIN)
     return QStringLiteral("darwin");
 #elif defined(Q_OS_FREEBSD)
@@ -106,4 +105,3 @@ QString Process::platform() const
     return QStringLiteral("");
 #endif
 }
-*/
