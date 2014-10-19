@@ -110,8 +110,40 @@ QV4::ReturnedValue UtilModule::method_pump(QV4::CallContext *ctx)
                 QStringLiteral("util.pump: Deprecated. Use readableStream.pipe(writableStream)."));
 }
 
-/// TODO: util.inherits(constructor, superConstructor)
 QV4::ReturnedValue UtilModule::method_inherits(QV4::CallContext *ctx)
 {
-    return ctx->throwUnimplemented(QStringLiteral("util.inherits()"));
+    const QV4::CallData * const callData = ctx->d()->callData;
+
+    if (callData->argc < 2)
+        return ctx->throwError(QStringLiteral("inherits: two arguments are required"));
+
+    if (!callData->args[0].isObject())
+        return ctx->throwTypeError(QStringLiteral("inherits: constructor must be an object"));
+    if (!callData->args[1].isObject())
+        return ctx->throwTypeError(QStringLiteral("inherits: super constructor must be an object"));
+
+    QV4::ExecutionEngine *v4 = ctx->engine();
+
+    QV4::Scope scope(v4);
+    QV4::ScopedObject ctor(scope, callData->args[0].asObject());
+    QV4::ScopedObject superCtor(scope, callData->args[1].asObject());
+
+    ctor->defineDefaultProperty(QStringLiteral("super_"), superCtor);
+
+    QV4::ScopedObject prototype(scope, v4->newObject());
+    prototype->setPrototype(superCtor->prototype());
+
+    QV4::ScopedObject constructorProperty(scope, v4->newObject());
+    constructorProperty->defineDefaultProperty(QStringLiteral("value"), ctor);
+    constructorProperty->defineDefaultProperty(QStringLiteral("enumerable"),
+                                               QV4::Primitive::fromBoolean(false));
+    constructorProperty->defineDefaultProperty(QStringLiteral("writable"),
+                                               QV4::Primitive::fromBoolean(true));
+    constructorProperty->defineDefaultProperty(QStringLiteral("configurable"),
+                                               QV4::Primitive::fromBoolean(true));
+
+    prototype->defineDefaultProperty(QStringLiteral("constructor"), constructorProperty);
+    ctor->setPrototype(prototype);
+
+    return QV4::Encode::undefined();
 }
