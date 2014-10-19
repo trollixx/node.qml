@@ -3,33 +3,59 @@
 #include <QCoreApplication>
 #include <QDir>
 
-Process::Process(QJSEngine *jsEngine, QObject *parent) :
-    CoreModule(jsEngine, parent)
+using namespace NodeQml;
+
+ProcessModule::Data::Data(QV4::ExecutionEngine *v4) :
+    QV4::Object::Data(v4)
 {
+    QV4::Scope scope(v4);
+    QV4::ScopedObject o(scope, this);
+
+    o->defineDefaultProperty(QStringLiteral("abort"), method_abort);
+    o->defineDefaultProperty(QStringLiteral("chdir"), method_chdir);
+    o->defineDefaultProperty(QStringLiteral("cwd"), method_cwd);
+    o->defineDefaultProperty(QStringLiteral("exit"), method_exit);
 }
 
-void Process::abort()
+QV4::ReturnedValue ProcessModule::method_abort(QV4::CallContext *ctx)
 {
+    Q_UNUSED(ctx);
     ::abort();
 }
 
-// TODO: Should throw an exception instead of return value
-bool Process::chdir(const QString &directory)
+QV4::ReturnedValue ProcessModule::method_chdir(QV4::CallContext *ctx)
 {
-    return QDir::setCurrent(directory);
+    const QV4::CallData * const callData = ctx->d()->callData;
+
+    if (!callData->argc || !callData->args[0].isString())
+        return ctx->throwError(QStringLiteral("chdir: Bad argument"));
+
+    /// TODO: Should have fs error code, like ENOENT or NOACCES
+    // { [Error: ENOENT, no such file or directory] errno: 34, code: 'ENOENT', syscall: 'uv_chdir' }
+    if (!QDir::setCurrent(callData->args[0].toQStringNoThrow()))
+        return ctx->throwError(QStringLiteral("chdir: Cannot change directory"));
+
+    return QV4::Encode::undefined();
 }
 
-QString Process::cwd() const
+QV4::ReturnedValue ProcessModule::method_cwd(QV4::CallContext *ctx)
 {
-    return QDir::currentPath();
+    return ctx->engine()->newString(QDir::currentPath())->asReturnedValue();
 }
 
-void Process::exit(int code)
+QV4::ReturnedValue ProcessModule::method_exit(QV4::CallContext *ctx)
 {
+    const QV4::CallData * const callData = ctx->d()->callData;
+
+    int code = 0;
+    if (callData->argc)
+        code = callData->args[0].toInt32();
+
     QCoreApplication::exit(code);
+    return QV4::Encode::undefined();
 }
 
-QStringList Process::argv() const
+/*QStringList Process::argv() const
 {
     return QCoreApplication::arguments();
 }
@@ -80,3 +106,4 @@ QString Process::platform() const
     return QStringLiteral("");
 #endif
 }
+*/

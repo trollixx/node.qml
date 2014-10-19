@@ -1,20 +1,21 @@
 #ifndef PROCESS_H
 #define PROCESS_H
 
-#include "coremodule.h"
+#include <private/qv4object_p.h>
 
-#include <QStringList>
+namespace NodeQml {
 
-class Process : public CoreModule
+struct ProcessModule : QV4::Object
 {
-    Q_OBJECT
-    Q_PROPERTY(QStringList argv READ argv CONSTANT)
-    Q_PROPERTY(QString execPath READ execPath CONSTANT)
-    Q_PROPERTY(int pid READ pid CONSTANT)
-    Q_PROPERTY(QString arch READ arch CONSTANT)
-    Q_PROPERTY(QString platform READ platform CONSTANT)
-public:
-    explicit Process(QJSEngine *jsEngine, QObject *parent = nullptr);
+    struct Data : QV4::Object::Data {
+        Data(QV4::ExecutionEngine *v4);
+    };
+
+    /// TODO: argv
+    /// TODO: execPath
+    /// TODO: pid
+    /// TODO: arch
+    /// TODO: platform
 
     /// TODO: Event: 'exit'
     /// TODO: Event: 'uncaughtException'
@@ -23,11 +24,11 @@ public:
     /// TODO: process.stderr
     /// TODO: process.stdin
     /// TODO: process.execArgv
-    Q_INVOKABLE void abort();
-    Q_INVOKABLE bool chdir(const QString &directory);
-    Q_INVOKABLE QString cwd() const;
+    static QV4::ReturnedValue method_abort(QV4::CallContext *ctx);
+    static QV4::ReturnedValue method_chdir(QV4::CallContext *ctx);
+    static QV4::ReturnedValue method_cwd(QV4::CallContext *ctx);
     /// TODO: process.env
-    Q_INVOKABLE void exit(int code = 0);
+    static QV4::ReturnedValue method_exit(QV4::CallContext *ctx);
     /// TODO: process.getgid()
     /// TODO: process.setgid(id)
     /// TODO: process.getuid()
@@ -46,14 +47,8 @@ public:
     /// TODO: process.umask([mask])
     /// TODO: process.uptime()
     /// TODO: process.hrtime()
-
-private:
-    QStringList argv() const;
-    QString execPath() const;
-    int pid() const;
-    QString arch() const;
-    QString platform() const;
-
 };
+
+} // namespace NodeQml
 
 #endif // PROCESS_H
