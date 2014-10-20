@@ -3,25 +3,26 @@
 
 #include "coremodule.h"
 
-class Path : public CoreModule
+#include <private/qv4object_p.h>
+
+namespace NodeQml {
+
+struct PathModule : QV4::Object
 {
-    Q_OBJECT
-    Q_PROPERTY(QString sep READ sep CONSTANT)
-    Q_PROPERTY(QString delimiter READ delimiter CONSTANT)
-public:
-    explicit Path(QJSEngine *jsEngine, QObject *parent = nullptr);
+    struct Data : QV4::Object::Data {
+        Data(QV4::ExecutionEngine *v4);
+    };
 
-    Q_INVOKABLE QString normalize(const QString &p) const;
-    /// TODO: path.join([path1], [path2], [...])
-    /// TODO: path.resolve([from ...], to)
-    /// TODO: path.relative(from, to)
-    Q_INVOKABLE QString dirname(const QString &p) const;
-    Q_INVOKABLE QString basename(const QString &p, const QString &ext = QString()) const;
-    Q_INVOKABLE QString extname(const QString &p) const;
+    static QV4::ReturnedValue method_normalize(QV4::CallContext *ctx);
+    static QV4::ReturnedValue method_join(QV4::CallContext *ctx);
+    static QV4::ReturnedValue method_resolve(QV4::CallContext *ctx);
+    static QV4::ReturnedValue method_relative(QV4::CallContext *ctx);
+    static QV4::ReturnedValue method_dirname(QV4::CallContext *ctx);
+    static QV4::ReturnedValue method_basename(QV4::CallContext *ctx);
+    static QV4::ReturnedValue method_extname(QV4::CallContext *ctx);
 
-private:
-    QString sep() const;
-    QString delimiter() const;
 };
+
+} // namespace NodeQml
 
 #endif // PATH_H
