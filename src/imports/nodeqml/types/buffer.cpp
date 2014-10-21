@@ -22,7 +22,9 @@ BufferObject::Data::Data(QV4::InternalClass *ic)
 BufferObject::Data::Data(QV4::ExecutionEngine *v4, quint32 size) :
     Object::Data(Engine::get(v4)->bufferClass)
 {
+    setVTable(staticVTable());
     value.resize(size);
+
     QV4::Scope scope(v4);
     QV4::ScopedObject s(scope, this);
     s->defineReadonlyProperty(v4->id_length, QV4::Primitive::fromInt32(size));
