@@ -32,6 +32,25 @@ Engine::Engine(QQmlEngine *qmlEngine, QObject *parent) :
 
 }
 
+QJSValue Engine::require(const QString &id)
+{
+    Q_D(Engine);
+
+    QV4::Scope scope(d->m_v4);
+    QV4::ScopedCallData callData(scope, 1);
+    callData->args[0] = d->m_v4->newString(id);
+    callData->thisObject = d->m_v4->globalObject;
+
+    QV4::CallContext *ctx
+            = reinterpret_cast<QV4::CallContext *>(
+                d->m_v4->currentContext()->newCallContext(
+                    d->m_v4->globalObject->asFunctionObject(), callData));
+
+    QV4::ScopedValue result(scope);
+    result = d->require(ctx);
+    return new QJSValuePrivate(d->m_v4, result);
+}
+
 QHash<QV4::ExecutionEngine *, EnginePrivate*> EnginePrivate::m_nodeEngines;
 
 EnginePrivate *EnginePrivate::get(QV4::ExecutionEngine *v4)

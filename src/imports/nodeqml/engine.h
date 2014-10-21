@@ -17,6 +17,8 @@ public:
 
     explicit Engine(QQmlEngine *qmlEngine, QObject *parent = nullptr);
 
+    QJSValue require(const QString &id);
+    /// TODO: QJSValue evaluate(const QString &code);
 
 private:
     EnginePrivate * const d_ptr;
