@@ -3,7 +3,6 @@
 
 #include "globalextensions.h"
 #include "moduleobject.h"
-#include "modules/dns.h"
 #include "modules/filesystem.h"
 #include "modules/os.h"
 #include "modules/path.h"

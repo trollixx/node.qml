@@ -1,6 +1,6 @@
 #include "dns.h"
 
-#include <QDnsLookup>
+/*#include <QDnsLookup>
 #include <QHostAddress>
 #include <QJSEngine>
 #include <QLoggingCategory>
@@ -24,7 +24,7 @@ Dns::Dns(QJSEngine *jsEngine, QObject *parent) :
     m_recordTypes.insert(QStringLiteral("PTR"), QDnsLookup::PTR);
     m_recordTypes.insert(QStringLiteral("SRV"), QDnsLookup::SRV);
     m_recordTypes.insert(QStringLiteral("TXT"), QDnsLookup::TXT);
-}
+}*/
 
 /*void Dns::lookup(const QString &domain, QJSValue family, QJSValue callback)
 {
@@ -76,7 +76,7 @@ Dns::Dns(QJSEngine *jsEngine, QObject *parent) :
     dns->lookup();
 }*/
 
-void Dns::resolve(const QString &domain, QJSValue rrtype, QJSValue callback)
+/*void Dns::resolve(const QString &domain, QJSValue rrtype, QJSValue callback)
 {
     if (!callback.isCallable()) {
         if (rrtype.isCallable()) {
@@ -218,3 +218,4 @@ void Dns::resolve(const QString &domain, QDnsLookup::Type type, QJSValue callbac
     });
     dns->lookup();
 }
+*/

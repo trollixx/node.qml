@@ -1,7 +1,7 @@
 #ifndef DNS_H
 #define DNS_H
 
-#include "coremodule.h"
+/*#include "coremodule.h"
 
 #include <QDnsLookup>
 #include <QHostInfo>
@@ -35,6 +35,6 @@ private:
 
     QHash<QString, QDnsLookup::Type> m_recordTypes;
     QHash<int, QJSValue> m_lookupCallbacks;
-};
+};*/
 
 #endif // DNS_H

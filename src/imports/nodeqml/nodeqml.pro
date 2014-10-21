@@ -11,7 +11,6 @@ DESTDIR = $$top_builddir/qml/$$replace(uri, \\., /)
 # Input
 SOURCES += \
     nodeqml_plugin.cpp \
-    coremodule.cpp \
     engine.cpp \
     globalextensions.cpp \
     moduleobject.cpp \
@@ -25,7 +24,6 @@ SOURCES += \
 
 HEADERS += \
     nodeqml_plugin.h \
-    coremodule.h \
     engine.h \
     engine_p.h \
     globalextensions.h \
