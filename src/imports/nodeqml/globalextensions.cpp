@@ -1,6 +1,6 @@
 #include "globalextensions.h"
 
-#include "engine.h"
+#include "engine_p.h"
 #include "modules/process.h"
 
 #include <QQmlEngine>
@@ -34,25 +34,25 @@ QV4::ReturnedValue GlobalExtensions::method_require(QV4::CallContext *ctx)
     if (!ctx->d()->callData->args[0].isString())
         return ctx->throwTypeError("require(): argument (id) must be a string");
 
-    return Engine::get(ctx->engine())->require(ctx);
+    return EnginePrivate::get(ctx->engine())->require(ctx);
 }
 
 QV4::ReturnedValue GlobalExtensions::method_setTimeout(QV4::CallContext *ctx)
 {
-    return Engine::get(ctx->engine())->setTimeout(ctx);
+    return EnginePrivate::get(ctx->engine())->setTimeout(ctx);
 }
 
 QV4::ReturnedValue GlobalExtensions::method_clearTimeout(QV4::CallContext *ctx)
 {
-    return Engine::get(ctx->engine())->clearTimeout(ctx);
+    return EnginePrivate::get(ctx->engine())->clearTimeout(ctx);
 }
 
 QV4::ReturnedValue GlobalExtensions::method_setInterval(QV4::CallContext *ctx)
 {
-    return Engine::get(ctx->engine())->setInterval(ctx);
+    return EnginePrivate::get(ctx->engine())->setInterval(ctx);
 }
 
 QV4::ReturnedValue GlobalExtensions::method_clearInterval(QV4::CallContext *ctx)
 {
-    return Engine::get(ctx->engine())->clearInterval(ctx);
+    return EnginePrivate::get(ctx->engine())->clearInterval(ctx);
 }

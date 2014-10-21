@@ -1,4 +1,5 @@
 #include "engine.h"
+#include "engine_p.h"
 
 #include "globalextensions.h"
 #include "moduleobject.h"
@@ -14,6 +15,7 @@
 #include <QQmlEngine>
 #include <QTimerEvent>
 
+#include <private/qjsvalue_p.h>
 #include <private/qv4engine_p.h>
 #include <private/qv4script_p.h>
 #include <private/qv8engine_p.h>
@@ -24,9 +26,16 @@ const QLoggingCategory logCategory("nodeqml.core");
 
 using namespace NodeQml;
 
-QHash<QV4::ExecutionEngine *, Engine*> Engine::m_nodeEngines;
+Engine::Engine(QQmlEngine *qmlEngine, QObject *parent) :
+    QObject(parent),
+    d_ptr(new EnginePrivate(qmlEngine, this))
+{
 
-Engine *Engine::get(QV4::ExecutionEngine *v4)
+}
+
+QHash<QV4::ExecutionEngine *, EnginePrivate*> EnginePrivate::m_nodeEngines;
+
+EnginePrivate *EnginePrivate::get(QV4::ExecutionEngine *v4)
 {
     if (!m_nodeEngines.contains(v4))
         return nullptr;
@@ -34,8 +43,9 @@ Engine *Engine::get(QV4::ExecutionEngine *v4)
     return m_nodeEngines.value(v4);
 }
 
-Engine::Engine(QQmlEngine *qmlEngine, QObject *parent) :
-    QObject(parent),
+EnginePrivate::EnginePrivate(QQmlEngine *qmlEngine, Engine *engine) :
+    QObject(engine),
+    q_ptr(engine),
     m_qmlEngine(qmlEngine),
     m_v4(QV8Engine::getV4(qmlEngine))
 {
@@ -48,12 +58,12 @@ Engine::Engine(QQmlEngine *qmlEngine, QObject *parent) :
     registerModules();
 }
 
-Engine::~Engine()
+EnginePrivate::~EnginePrivate()
 {
     m_nodeEngines.remove(m_v4);
 }
 
-QV4::ReturnedValue Engine::require(QV4::CallContext *ctx)
+QV4::ReturnedValue EnginePrivate::require(QV4::CallContext *ctx)
 {
     const QV4::CallData * const callData = ctx->d()->callData;
 
@@ -114,7 +124,7 @@ QV4::ReturnedValue Engine::require(QV4::CallContext *ctx)
     return ctx->throwError(QString("require: Cannot find module '%1'").arg(id));
 }
 
-QV4::ReturnedValue Engine::setTimeout(QV4::CallContext *ctx)
+QV4::ReturnedValue EnginePrivate::setTimeout(QV4::CallContext *ctx)
 {
     if (ctx->d()->callData->argc < 2)
         return ctx->throwError("setTimeout: missing arguments");
@@ -140,7 +150,7 @@ QV4::ReturnedValue Engine::setTimeout(QV4::CallContext *ctx)
     return QV4::Encode(timerId);
 }
 
-QV4::ReturnedValue Engine::clearTimeout(QV4::CallContext *ctx)
+QV4::ReturnedValue EnginePrivate::clearTimeout(QV4::CallContext *ctx)
 {
     if (ctx->d()->callData->argc < 1)
         return ctx->throwError("clearTimeout: missing arguments");
@@ -157,7 +167,7 @@ QV4::ReturnedValue Engine::clearTimeout(QV4::CallContext *ctx)
     return QV4::Encode::undefined();
 }
 
-QV4::ReturnedValue Engine::setInterval(QV4::CallContext *ctx)
+QV4::ReturnedValue EnginePrivate::setInterval(QV4::CallContext *ctx)
 {
     if (ctx->d()->callData->argc < 2)
         return ctx->throwError("setInterval: missing arguments");
@@ -183,7 +193,7 @@ QV4::ReturnedValue Engine::setInterval(QV4::CallContext *ctx)
     return QV4::Encode(timerId);
 }
 
-QV4::ReturnedValue Engine::clearInterval(QV4::CallContext *ctx)
+QV4::ReturnedValue EnginePrivate::clearInterval(QV4::CallContext *ctx)
 {
     if (ctx->d()->callData->argc < 1)
         return ctx->throwError("clearInterval: missing arguments");
@@ -200,7 +210,7 @@ QV4::ReturnedValue Engine::clearInterval(QV4::CallContext *ctx)
     return QV4::Encode::undefined();
 }
 
-void Engine::timerEvent(QTimerEvent *event)
+void EnginePrivate::timerEvent(QTimerEvent *event)
 {
     int timerId = event->timerId();
     QV4::FunctionObject *cb;
@@ -222,7 +232,7 @@ void Engine::timerEvent(QTimerEvent *event)
     cb->call(callData);
 }
 
-void Engine::registerTypes()
+void EnginePrivate::registerTypes()
 {
     QV4::Scope scope(m_v4);
 
@@ -237,7 +247,7 @@ void Engine::registerTypes()
     m_v4->globalObject->defineDefaultProperty(QStringLiteral("SlowBuffer"), bufferCtor);
 }
 
-void Engine::registerModules()
+void EnginePrivate::registerModules()
 {
     m_coreModules.insert(QStringLiteral("fs"), m_v4->memoryManager->alloc<FileSystemModule>(m_v4));
     m_coreModules.insert(QStringLiteral("os"), m_v4->memoryManager->alloc<OsModule>(m_v4));

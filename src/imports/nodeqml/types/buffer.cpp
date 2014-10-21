@@ -1,6 +1,6 @@
 #include "buffer.h"
 
-#include "../engine.h"
+#include "../engine_p.h"
 
 #include <private/qv4engine_p.h>
 
@@ -20,7 +20,7 @@ BufferObject::Data::Data(QV4::InternalClass *ic)
 }
 
 BufferObject::Data::Data(QV4::ExecutionEngine *v4, quint32 size) :
-    Object::Data(Engine::get(v4)->bufferClass)
+    Object::Data(EnginePrivate::get(v4)->bufferClass)
 {
     setVTable(staticVTable());
     value.resize(size);
@@ -31,7 +31,7 @@ BufferObject::Data::Data(QV4::ExecutionEngine *v4, quint32 size) :
 }
 
 BufferObject::Data::Data(QV4::ExecutionEngine *v4, const QString &str, const QString &encoding) :
-    Object::Data(Engine::get(v4)->bufferClass)
+    Object::Data(EnginePrivate::get(v4)->bufferClass)
 {
 
 }

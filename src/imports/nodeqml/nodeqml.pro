@@ -6,6 +6,8 @@ CONFIG += qt plugin c++11
 TARGET = $$qtLibraryTarget($$TARGET)
 uri = com.wisetroll.nodeqml
 
+DESTDIR = $$top_builddir/qml/$$replace(uri, \\., /)
+
 # Input
 SOURCES += \
     nodeqml_plugin.cpp \
@@ -25,6 +27,7 @@ HEADERS += \
     nodeqml_plugin.h \
     coremodule.h \
     engine.h \
+    engine_p.h \
     globalextensions.h \
     moduleobject.h \
     modules/dns.h \
@@ -37,8 +40,8 @@ HEADERS += \
 
 OTHER_FILES = qmldir
 
-!equals(_PRO_FILE_PWD_, $$OUT_PWD) {
-    copy_qmldir.target = $$OUT_PWD/qmldir
+!equals(_PRO_FILE_PWD_, $$DESTDIR) { # Was $$OUT_PWD
+    copy_qmldir.target = $$DESTDIR/qmldir
     copy_qmldir.depends = $$_PRO_FILE_PWD_/qmldir
     copy_qmldir.commands = $(COPY_FILE) \"$$replace(copy_qmldir.depends, /, $$QMAKE_DIR_SEP)\" \"$$replace(copy_qmldir.target, /, $$QMAKE_DIR_SEP)\"
     QMAKE_EXTRA_TARGETS += copy_qmldir

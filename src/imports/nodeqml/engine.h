@@ -1,54 +1,28 @@
-#ifndef NODE_H
-#define NODE_H
+#ifndef ENGINE_H
+#define ENGINE_H
 
-#include <QHash>
+#include <QJSValue>
 #include <QObject>
-
-#include <private/qv4engine_p.h>
 
 class QQmlEngine;
 
 namespace NodeQml {
 
-struct ModuleObject;
+class EnginePrivate;
 
 class Engine : public QObject
 {
     Q_OBJECT
 public:
-    static Engine *get(QV4::ExecutionEngine *v4);
 
-    explicit Engine(QQmlEngine *qmlEngine, QObject *parent = 0);
-    ~Engine();
+    explicit Engine(QQmlEngine *qmlEngine, QObject *parent = nullptr);
 
-    QV4::ReturnedValue require(QV4::CallContext *ctx);
-
-    QV4::ReturnedValue setTimeout(QV4::CallContext *ctx);
-    QV4::ReturnedValue clearTimeout(QV4::CallContext *ctx);
-
-    QV4::ReturnedValue setInterval(QV4::CallContext *ctx);
-    QV4::ReturnedValue clearInterval(QV4::CallContext *ctx);
-
-public:
-    QV4::Value bufferCtor;
-    QV4::InternalClass *bufferClass;
-
-protected:
-    void timerEvent(QTimerEvent *event) override;
 
 private:
-    void registerTypes();
-    void registerModules();
-
-    QQmlEngine *m_qmlEngine;
-    QV4::ExecutionEngine *m_v4;
-    QHash<QString, QV4::Object *> m_coreModules;
-    QHash<QString, ModuleObject *> m_cachedModules;
-    QHash<int, QV4::FunctionObject *> m_timeoutCallbacks;
-    QHash<int, QV4::FunctionObject *> m_intervalCallbacks;
-
-    static QHash<QV4::ExecutionEngine *, Engine*> m_nodeEngines;
+    EnginePrivate * const d_ptr;
+    Q_DECLARE_PRIVATE(Engine)
 };
 
 }
-#endif // NODE_H
+
+#endif // ENGINE_H
