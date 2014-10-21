@@ -1,18 +1,19 @@
 #ifndef OS_H
 #define OS_H
 
-#include "coremodule.h"
+#include <private/qv4object_p.h>
 
-class Os : public CoreModule
+namespace NodeQml {
+
+struct OsModule : QV4::Object
 {
-    Q_OBJECT
-    Q_PROPERTY(QString EOL READ eol CONSTANT)
-public:
-    explicit Os(QJSEngine *jsEngine, QObject *parent = nullptr);
+    struct Data : QV4::Object::Data {
+        Data(QV4::ExecutionEngine *v4);
+    };
 
-    Q_INVOKABLE QString tmpdir() const;
-    Q_INVOKABLE QString endianness() const;
-    Q_INVOKABLE QString hostname() const;
+    static QV4::ReturnedValue method_tmpdir(QV4::CallContext *ctx);
+    static QV4::ReturnedValue method_endianness(QV4::CallContext *ctx);
+    static QV4::ReturnedValue method_hostname(QV4::CallContext *ctx);
     /// TODO: os.type()
     /// TODO: os.platform()
     /// TODO: os.arch()
@@ -24,8 +25,8 @@ public:
     /// TODO: os.cpus()
     /// TODO: os.networkInterfaces()
 
-private:
-    QString eol() const;
 };
+
+} // namespace NodeQml
 
 #endif // OS_H
