@@ -1,6 +1,8 @@
 #ifndef ENGINE_H
 #define ENGINE_H
 
+#include "nodeqml_global.h"
+
 #include <QJSValue>
 #include <QObject>
 
@@ -10,7 +12,7 @@ namespace NodeQml {
 
 class EnginePrivate;
 
-class Engine : public QObject
+class NODEQMLSHARED_EXPORT Engine : public QObject
 {
     Q_OBJECT
 public:

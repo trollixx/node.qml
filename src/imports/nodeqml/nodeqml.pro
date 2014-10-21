@@ -1,6 +1,6 @@
 TEMPLATE = lib
 TARGET = NodeQml
-QT += core-private qml qml-private quick network
+QT += qml
 CONFIG += qt plugin c++11
 
 TARGET = $$qtLibraryTarget($$TARGET)
@@ -10,31 +10,10 @@ DESTDIR = $$top_builddir/qml/$$replace(uri, \\., /)
 
 # Input
 SOURCES += \
-    nodeqml_plugin.cpp \
-    engine.cpp \
-    globalextensions.cpp \
-    moduleobject.cpp \
-    modules/dns.cpp \
-    modules/filesystem.cpp \
-    modules/os.cpp \
-    modules/path.cpp \
-    modules/process.cpp \
-    modules/util.cpp \
-    types/buffer.cpp
+    nodeqml_plugin.cpp
 
 HEADERS += \
-    nodeqml_plugin.h \
-    engine.h \
-    engine_p.h \
-    globalextensions.h \
-    moduleobject.h \
-    modules/dns.h \
-    modules/filesystem.h \
-    modules/os.h \
-    modules/path.h \
-    modules/process.h \
-    modules/util.h \
-    types/buffer.h
+    nodeqml_plugin.h
 
 OTHER_FILES = qmldir
 
@@ -54,5 +33,3 @@ unix {
     INSTALLS += target qmldir
 }
 
-RESOURCES += \
-    js.qrc

@@ -1,6 +1,7 @@
 #include "nodeqml_plugin.h"
 
-#include "engine.h"
+/// TODO: Replace with <nodeqml/engine.h>
+#include "../../nodeqml/engine.h"
 
 #include <QQmlEngine>
 #include <qqml.h>

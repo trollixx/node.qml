@@ -1,3 +1,5 @@
 TEMPLATE = subdirs
 
-SUBDIRS += imports
+SUBDIRS += \
+    imports \
+    nodeqml
