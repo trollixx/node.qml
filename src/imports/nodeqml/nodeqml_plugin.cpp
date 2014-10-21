@@ -5,8 +5,6 @@
 #include <QQmlEngine>
 #include <qqml.h>
 
-using namespace NodeQml;
-
 void NodeQMLPlugin::initializeEngine(QQmlEngine *engine, const char *uri)
 {
     Q_UNUSED(uri)
