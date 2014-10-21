@@ -1,8 +1,6 @@
 #ifndef PATH_H
 #define PATH_H
 
-#include "coremodule.h"
-
 #include <private/qv4object_p.h>
 
 namespace NodeQml {
