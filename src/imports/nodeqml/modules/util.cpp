@@ -2,7 +2,7 @@
 
 #include <QTextStream>
 
-#include <private/qv8engine_p.h>
+//#include <private/qv4regexpobject_p.h>
 
 using namespace NodeQml;
 
