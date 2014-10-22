@@ -1,7 +1,7 @@
 QT += core-private qml qml-private quick network
 CONFIG += c++11
 
-TARGET = nodeqml
+TARGET = $$qtLibraryTarget(nodeqml)
 TEMPLATE = lib
 
 DEFINES += NODEQML_LIBRARY
