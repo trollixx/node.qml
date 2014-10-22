@@ -107,6 +107,7 @@ QV4::ReturnedValue EnginePrivate::require(QV4::CallContext *ctx)
             return ctx->throwError(QString("require: Cannot open file '%1'").arg(file->fileName()));
 
         QV4::ScopedString s(scope);
+        QV4::ScopedObject o(scope);
 
         QV4::ScopedObject requireScope(scope, m_v4->newObject());
         requireScope->defineReadonlyProperty(QStringLiteral("__dirname"),
@@ -116,6 +117,8 @@ QV4::ReturnedValue EnginePrivate::require(QV4::CallContext *ctx)
 
         QV4::Scoped<ModuleObject> moduleObject(
                     scope, m_v4->memoryManager->alloc<ModuleObject>(m_v4, id, fi.fileName()));
+
+        moduleObject->defineDefaultProperty(QStringLiteral("parent"), (o = callData->thisObject));
 
         QV4::ScopedObject exportsObject(scope, moduleObject->get(exportsString));
         requireScope->defineDefaultProperty(QStringLiteral("module"), moduleObject);
