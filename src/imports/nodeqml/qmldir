@@ -1,2 +1,2 @@
 module com.wisetroll.nodeqml
-plugin NodeQml
+plugin nodeqml_plugin

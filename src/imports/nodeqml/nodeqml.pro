@@ -3,7 +3,7 @@ TARGET = NodeQml
 QT += qml
 CONFIG += qt plugin c++11
 
-TARGET = $$qtLibraryTarget($$TARGET)
+TARGET = nodeqml_plugin
 uri = com.wisetroll.nodeqml
 
 DESTDIR = $$top_builddir/qml/$$replace(uri, \\., /)
@@ -16,6 +16,8 @@ HEADERS += \
     nodeqml_plugin.h
 
 OTHER_FILES = qmldir
+
+LIBS += -L$$top_builddir/lib -lnodeqml
 
 !equals(_PRO_FILE_PWD_, $$DESTDIR) { # Was $$OUT_PWD
     copy_qmldir.target = $$DESTDIR/qmldir
