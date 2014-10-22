@@ -13,17 +13,12 @@ UtilModule::Data::Data(QV4::ExecutionEngine *v4) :
     QV4::ScopedObject o(scope, this);
 
     o->defineDefaultProperty(QStringLiteral("format"), method_format);
-    o->defineDefaultProperty(QStringLiteral("debug"), method_debug);
-    o->defineDefaultProperty(QStringLiteral("error"), method_error);
-    o->defineDefaultProperty(QStringLiteral("puts"), method_puts);
-    o->defineDefaultProperty(QStringLiteral("print"), method_print);
     o->defineDefaultProperty(QStringLiteral("log"), method_log);
     o->defineDefaultProperty(QStringLiteral("inspect"), method_inspect);
     o->defineDefaultProperty(QStringLiteral("isArray"), method_isArray);
     o->defineDefaultProperty(QStringLiteral("isRegExp"), method_isRegExp);
     o->defineDefaultProperty(QStringLiteral("isDate"), method_isDate);
     o->defineDefaultProperty(QStringLiteral("isError"), method_isError);
-    o->defineDefaultProperty(QStringLiteral("pump"), method_pump);
     o->defineDefaultProperty(QStringLiteral("inherits"), method_inherits);
 }
 
@@ -31,38 +26,6 @@ UtilModule::Data::Data(QV4::ExecutionEngine *v4) :
 QV4::ReturnedValue UtilModule::method_format(QV4::CallContext *ctx)
 {
     return ctx->throwUnimplemented(QStringLiteral("util.format()"));
-}
-
-QV4::ReturnedValue UtilModule::method_debug(QV4::CallContext *ctx)
-{
-    const QV4::CallData * const callData = ctx->d()->callData;
-    if (callData->argc < 1)
-        ctx->throwError("require() requires an argument");
-    if (!callData->args[0].isString())
-        ctx->throwTypeError("require(): argument must be a string");
-
-    QTextStream stream(stderr);
-    stream << callData->args[0].toQStringNoThrow();
-
-    return QV4::Encode::undefined();
-}
-
-/// TODO: util.error([...])
-QV4::ReturnedValue UtilModule::method_error(QV4::CallContext *ctx)
-{
-    return ctx->throwUnimplemented(QStringLiteral("util.error()"));
-}
-
-/// TODO: util.puts([...])
-QV4::ReturnedValue UtilModule::method_puts(QV4::CallContext *ctx)
-{
-    return ctx->throwUnimplemented(QStringLiteral("util.puts()"));
-}
-
-/// TODO: util.print([...])
-QV4::ReturnedValue UtilModule::method_print(QV4::CallContext *ctx)
-{
-    return ctx->throwUnimplemented(QStringLiteral("util.print()"));
 }
 
 /// TODO: util.log(string)
@@ -102,12 +65,6 @@ QV4::ReturnedValue UtilModule::method_isError(QV4::CallContext *ctx)
     const QV4::CallData * const callData = ctx->d()->callData;
     bool isError = callData->argc && callData->args[0].asErrorObject();
     return QV4::Encode(isError);
-}
-
-QV4::ReturnedValue UtilModule::method_pump(QV4::CallContext *ctx)
-{
-    return ctx->throwUnimplemented(
-                QStringLiteral("util.pump: Deprecated. Use readableStream.pipe(writableStream)."));
 }
 
 QV4::ReturnedValue UtilModule::method_inherits(QV4::CallContext *ctx)
