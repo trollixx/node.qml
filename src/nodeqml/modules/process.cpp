@@ -18,6 +18,8 @@ ProcessModule::Data::Data(QV4::ExecutionEngine *v4) :
                               (v = v4->newArrayObject(QCoreApplication::arguments())));
     o->defineReadonlyProperty(QStringLiteral("execPath"),
                               (v = v4->newString(QCoreApplication::applicationFilePath())));
+    o->defineReadonlyProperty(QStringLiteral("version"),
+                              (v = v4->newString(QStringLiteral("v0.10.32"))));
 
     o->defineAccessorProperty(QStringLiteral("pid"), property_pid_getter, nullptr);
 

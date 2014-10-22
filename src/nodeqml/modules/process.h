@@ -32,7 +32,6 @@ struct ProcessModule : QV4::Object
     /// TODO: process.getgroups()
     /// TODO: process.setgroups(groups)
     /// TODO: process.initgroups(user, extra_group)
-    /// TODO: process.version
     /// TODO: process.versions
     /// TODO: process.config
     /// TODO: process.kill(pid, [signal])
