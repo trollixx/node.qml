@@ -13,6 +13,7 @@ struct BufferObject: QV4::Object {
         Data(QV4::InternalClass *ic);
         Data(QV4::ExecutionEngine *v4, quint32 size);
         Data(QV4::ExecutionEngine *v4, const QString &str, const QString &encoding);
+        Data(QV4::ExecutionEngine *v4, QV4::ArrayObject *array);
 
         QByteArray value;
     };

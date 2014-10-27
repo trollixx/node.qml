@@ -34,7 +34,25 @@ BufferObject::Data::Data(QV4::ExecutionEngine *v4, const QString &str, const QSt
     Object::Data(EnginePrivate::get(v4)->bufferClass)
 {
     setVTable(staticVTable());
+}
 
+BufferObject::Data::Data(QV4::ExecutionEngine *v4, QV4::ArrayObject *array) :
+    Object::Data(EnginePrivate::get(v4)->bufferClass)
+{
+    setVTable(staticVTable());
+
+    QV4::Scope scope(v4);
+    QV4::ScopedObject o(scope, this);
+    QV4::ScopedArrayObject a(scope, array);
+    QV4::ScopedValue v(scope);
+
+    const uint length = a->getLength();
+    o->defineReadonlyProperty(v4->id_length, QV4::Primitive::fromInt32(length));
+    value.resize(length);
+    for (uint i = 0; i < length; ++i) {
+        v = array->getIndexed(i);
+        value[i] = v->toInt32() & 0xff;
+    }
 }
 
 QV4::ReturnedValue BufferObject::getIndexed(QV4::Managed *m, quint32 index, bool *hasProperty)
@@ -90,8 +108,8 @@ QV4::ReturnedValue BufferCtor::construct(QV4::Managed *m, QV4::CallData *callDat
             QV4::Scoped<BufferObject> object(scope, v4->memoryManager->alloc<BufferObject>(v4, callData->args[0].toInt32()));
             return QV4::Encode(object->asReturned<QV4::Object>());
         } else if (callData->args[0].asArrayObject()) {
-            /// TODO: Implement Buffer(array)
-            return QV4::Encode::undefined();
+            QV4::Scoped<BufferObject> object(scope, v4->memoryManager->alloc<BufferObject>(v4, callData->args[0].asArrayObject()));
+            return object->asReturnedValue();
         } else if (callData->args[0].isString()) {
             QString encoding;
             if (callData->argc > 1 && callData->args[1].isString()) {
