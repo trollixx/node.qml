@@ -26,13 +26,14 @@ BufferObject::Data::Data(QV4::ExecutionEngine *v4, quint32 size) :
     value.resize(size);
 
     QV4::Scope scope(v4);
-    QV4::ScopedObject s(scope, this);
-    s->defineReadonlyProperty(v4->id_length, QV4::Primitive::fromInt32(size));
+    QV4::ScopedObject o(scope, this);
+    o->defineReadonlyProperty(v4->id_length, QV4::Primitive::fromInt32(size));
 }
 
 BufferObject::Data::Data(QV4::ExecutionEngine *v4, const QString &str, const QString &encoding) :
     Object::Data(EnginePrivate::get(v4)->bufferClass)
 {
+    setVTable(staticVTable());
 
 }
 
@@ -84,7 +85,6 @@ QV4::ReturnedValue BufferCtor::construct(QV4::Managed *m, QV4::CallData *callDat
 {
     QV4::ExecutionEngine *v4 = m->engine();
     QV4::Scope scope(v4);
-    QV4::ScopedValue value(scope);
     if (callData->argc) {
         if (callData->args[0].isInt32()) {
             QV4::Scoped<BufferObject> object(scope, v4->memoryManager->alloc<BufferObject>(v4, callData->args[0].toInt32()));
