@@ -163,7 +163,7 @@ QV4::ReturnedValue EnginePrivate::setTimeout(QV4::CallContext *ctx)
 
     int timerId = startTimer(delay, Qt::PreciseTimer);
     if (!timerId)
-        return ctx->throwError("setInterval: cannot start timer");
+        return ctx->throwError("setTimeout: cannot start timer");
 
     m_timeoutCallbacks.insert(timerId, cb);
 
