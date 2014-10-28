@@ -22,6 +22,13 @@ public:
     explicit EnginePrivate(QQmlEngine *qmlEngine, Engine *engine = 0);
     ~EnginePrivate();
 
+    bool hasNativeModule(const QString &id) const;
+    QV4::Object *nativeModule(const QString &id) const;
+
+    void cacheModule(const QString& id, ModuleObject *module);
+    bool hasCachedModule(const QString &id) const;
+    QV4::Object *cachedModule(const QString &id) const;
+
     QV4::ReturnedValue require(QV4::CallContext *ctx);
 
     QV4::ReturnedValue setTimeout(QV4::CallContext *ctx);

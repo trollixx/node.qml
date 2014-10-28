@@ -16,7 +16,6 @@
 
 #include <private/qjsvalue_p.h>
 #include <private/qv4engine_p.h>
-#include <private/qv4script_p.h>
 #include <private/qv8engine_p.h>
 
 namespace {
@@ -41,13 +40,20 @@ QJSValue Engine::require(const QString &id)
     callData->args[0] = d->m_v4->newString(id);
     callData->thisObject = d->m_v4->globalObject;
 
-    QV4::CallContext *ctx
-            = reinterpret_cast<QV4::CallContext *>(
-                d->m_v4->currentContext()->newCallContext(
-                    d->m_v4->globalObject->asFunctionObject(), callData));
+    QV4::ScopedString requireString(scope, d->m_v4->newString(QStringLiteral("require")));
+    QV4::Scoped<QV4::FunctionObject> f(scope, d->m_v4->globalObject->get(requireString));
 
-    QV4::ScopedValue result(scope);
-    result = d->require(ctx);
+    //QV4::Scoped<QV4::ScriptFunction> f(scope, );
+
+    /*QV4::CallContext *ctx
+            = reinterpret_cast<QV4::CallContext *>(
+                d->m_v4->currentContext()->newCallContext(f, callData));
+
+    QV4::ExecutionContextSaver ctxSaver(d->m_v4->currentContext());*/
+    //f->call(d->m_v4->globalObject, callData);
+
+    //QV4::ScopedValue result(scope, d->require(ctx));
+    QV4::ScopedValue result(scope, f->call(d->m_v4->globalObject, callData));
     return new QJSValuePrivate(d->m_v4, result);
 }
 
@@ -78,6 +84,32 @@ EnginePrivate::~EnginePrivate()
     m_nodeEngines.remove(m_v4);
 }
 
+bool EnginePrivate::hasNativeModule(const QString &id) const
+{
+    return m_coreModules.contains(id);
+}
+
+QV4::Object *EnginePrivate::nativeModule(const QString &id) const
+{
+    return m_coreModules.value(id);
+}
+
+void EnginePrivate::cacheModule(const QString &id, ModuleObject *module)
+{
+    Q_ASSERT(!m_cachedModules.contains(id));
+    m_cachedModules.insert(id, module);
+}
+
+bool EnginePrivate::hasCachedModule(const QString &id) const
+{
+    return m_cachedModules.contains(id);
+}
+
+QV4::Object *EnginePrivate::cachedModule(const QString &id) const
+{
+    return m_cachedModules.value(id);
+}
+
 QV4::ReturnedValue EnginePrivate::require(QV4::CallContext *ctx)
 {
     const QV4::CallData * const callData = ctx->d()->callData;
@@ -86,60 +118,7 @@ QV4::ReturnedValue EnginePrivate::require(QV4::CallContext *ctx)
         return ctx->throwError(QStringLiteral("require: id must be a string"));
 
     const QString id = callData->args[0].toQStringNoThrow();
-    QV4::Scope scope(m_v4);
-
-    if (m_coreModules.contains(id))
-        return QV4::ScopedObject(scope, m_coreModules.value(id)).asReturnedValue();
-
-    QV4::ScopedString exportsString(scope, m_v4->newString(QStringLiteral("exports")));
-
-    if (m_cachedModules.contains(id))
-        return m_cachedModules.value(id)->get(exportsString);
-
-    // This is a core module
-    QFileInfo fi(QStringLiteral(":/js/") + id + QStringLiteral(".js"));
-    if (fi.exists()) {
-        QScopedPointer<QFile> file(new QFile(fi.absoluteFilePath()));
-        if (!file->open(QIODevice::ReadOnly))
-            return ctx->throwError(QString("require: Cannot open file '%1'").arg(file->fileName()));
-
-        QV4::ScopedString s(scope);
-        QV4::ScopedObject o(scope);
-
-        QV4::ScopedObject requireScope(scope, m_v4->newObject());
-        requireScope->defineReadonlyProperty(QStringLiteral("__dirname"),
-                                            (s = m_v4->newString(fi.absoluteFilePath())));
-        requireScope->defineReadonlyProperty(QStringLiteral("__filename"),
-                                            (s = m_v4->newString(fi.fileName())));
-
-        QV4::Scoped<ModuleObject> moduleObject(
-                    scope, m_v4->memoryManager->alloc<ModuleObject>(m_v4, id, fi.fileName()));
-
-        moduleObject->defineDefaultProperty(QStringLiteral("parent"), (o = callData->thisObject));
-
-        QV4::ScopedObject exportsObject(scope, moduleObject->get(exportsString));
-        requireScope->defineDefaultProperty(QStringLiteral("module"), moduleObject);
-        requireScope->defineDefaultProperty(QStringLiteral("exports"), exportsObject);
-
-        QV4::Script script(m_v4, requireScope, file->readAll(), fi.fileName());
-        script.strictMode = ctx->d()->strictMode;
-        script.inheritContext = true; /// NOTE: Is it needed?
-        script.parse();
-
-        QV4::ScopedValue result(scope);
-        if (!scope.engine->hasException)
-            result = script.run();
-
-        if (scope.engine->hasException)
-            return result.asReturnedValue();
-
-        m_cachedModules.insert(id, moduleObject->as<ModuleObject>());
-
-        return moduleObject->get(exportsString);
-    }
-
-
-    return ctx->throwError(QString("require: Cannot find module '%1'").arg(id));
+    return ModuleObject::require(ctx, id)->asReturnedValue();
 }
 
 QV4::ReturnedValue EnginePrivate::setTimeout(QV4::CallContext *ctx)
