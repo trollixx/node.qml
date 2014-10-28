@@ -29,12 +29,15 @@ void GlobalExtensions::init(QQmlEngine *qmlEngine)
 
 QV4::ReturnedValue GlobalExtensions::method_require(QV4::CallContext *ctx)
 {
-    if (ctx->d()->callData->argc < 1)
+    const QV4::CallData * const callData = ctx->d()->callData;
+
+    if (!callData->argc)
         return ctx->throwError("require() requires an argument");
-    if (!ctx->d()->callData->args[0].isString())
+    if (!callData->args[0].isString())
         return ctx->throwTypeError("require(): argument (id) must be a string");
 
-    return EnginePrivate::get(ctx->engine())->require(ctx);
+    const QString id = callData->args[0].toQStringNoThrow();
+    return EnginePrivate::get(ctx->engine())->require(id, ctx);
 }
 
 QV4::ReturnedValue GlobalExtensions::method_setTimeout(QV4::CallContext *ctx)

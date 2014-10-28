@@ -34,27 +34,7 @@ Engine::Engine(QQmlEngine *qmlEngine, QObject *parent) :
 QJSValue Engine::require(const QString &id)
 {
     Q_D(Engine);
-
-    QV4::Scope scope(d->m_v4);
-    QV4::ScopedCallData callData(scope, 1);
-    callData->args[0] = d->m_v4->newString(id);
-    callData->thisObject = d->m_v4->globalObject;
-
-    QV4::ScopedString requireString(scope, d->m_v4->newString(QStringLiteral("require")));
-    QV4::Scoped<QV4::FunctionObject> f(scope, d->m_v4->globalObject->get(requireString));
-
-    //QV4::Scoped<QV4::ScriptFunction> f(scope, );
-
-    /*QV4::CallContext *ctx
-            = reinterpret_cast<QV4::CallContext *>(
-                d->m_v4->currentContext()->newCallContext(f, callData));
-
-    QV4::ExecutionContextSaver ctxSaver(d->m_v4->currentContext());*/
-    //f->call(d->m_v4->globalObject, callData);
-
-    //QV4::ScopedValue result(scope, d->require(ctx));
-    QV4::ScopedValue result(scope, f->call(d->m_v4->globalObject, callData));
-    return new QJSValuePrivate(d->m_v4, result);
+    return new QJSValuePrivate(d->require(id));
 }
 
 QHash<QV4::ExecutionEngine *, EnginePrivate*> EnginePrivate::m_nodeEngines;
@@ -110,14 +90,11 @@ QV4::Object *EnginePrivate::cachedModule(const QString &id) const
     return m_cachedModules.value(id);
 }
 
-QV4::ReturnedValue EnginePrivate::require(QV4::CallContext *ctx)
+QV4::ReturnedValue EnginePrivate::require(const QString &id, QV4::ExecutionContext *ctx)
 {
-    const QV4::CallData * const callData = ctx->d()->callData;
+    if (!ctx)
+        ctx = m_v4->currentContext();
 
-    if (!callData->argc || !callData->args[0].isString())
-        return ctx->throwError(QStringLiteral("require: id must be a string"));
-
-    const QString id = callData->args[0].toQStringNoThrow();
     return ModuleObject::require(ctx, id)->asReturnedValue();
 }
 

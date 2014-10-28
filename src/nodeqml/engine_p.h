@@ -29,7 +29,7 @@ public:
     bool hasCachedModule(const QString &id) const;
     QV4::Object *cachedModule(const QString &id) const;
 
-    QV4::ReturnedValue require(QV4::CallContext *ctx);
+    QV4::ReturnedValue require(const QString &id, QV4::ExecutionContext *ctx = nullptr);
 
     QV4::ReturnedValue setTimeout(QV4::CallContext *ctx);
     QV4::ReturnedValue clearTimeout(QV4::CallContext *ctx);
