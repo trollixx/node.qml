@@ -55,9 +55,6 @@ QHash<QV4::ExecutionEngine *, EnginePrivate*> EnginePrivate::m_nodeEngines;
 
 EnginePrivate *EnginePrivate::get(QV4::ExecutionEngine *v4)
 {
-    if (!m_nodeEngines.contains(v4))
-        return nullptr;
-
     return m_nodeEngines.value(v4);
 }
 
