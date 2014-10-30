@@ -70,7 +70,12 @@ void ModuleObject::load(QV4::ExecutionContext *ctx, const QString &path)
             return;
         }
         QJsonDocument json = QJsonDocument::fromJson(file->readAll());
-        /// TODO: Check Node's behaviour for empty and corrupted files
+
+        if (json.isNull()) {
+            ctx->throwSyntaxError(QStringLiteral("Unexpected end of input"));
+            return;
+        }
+
         if (json.isObject())
             exports = QV4::JsonObject::fromJsonObject(v4, json.object());
         else if (json.isArray())
