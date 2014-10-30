@@ -5,8 +5,10 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QJsonDocument>
 
 #include <private/qv4script_p.h>
+#include <private/qv4jsonobject_p.h>
 
 using namespace NodeQml;
 
@@ -61,15 +63,25 @@ void ModuleObject::load(QV4::ExecutionContext *ctx, const QString &path)
     QString suffix = fi.suffix();
     if (suffix == QStringLiteral("js")) {
         exports = self->compile(ctx);
-        self->defineDefaultProperty(QStringLiteral("exports"), exports);
     } else if (suffix == QStringLiteral("json")) {
-        qDebug("JSON NOT SUPPORTED YET");
+        QScopedPointer<QFile> file(new QFile(d()->filename));
+        if (!file->open(QIODevice::ReadOnly)) {
+            v4->currentContext()->throwError(QString("require: Cannot open file '%1'").arg(file->fileName()));
+            return;
+        }
+        QJsonDocument json = QJsonDocument::fromJson(file->readAll());
+        /// TODO: Check Node's behaviour for empty and corrupted files
+        if (json.isObject())
+            exports = QV4::JsonObject::fromJsonObject(v4, json.object());
+        else if (json.isArray())
+            exports = QV4::JsonObject::fromJsonArray(v4, json.array());
+
     } else {
         qFatal("Wrong file type"); /// TODO: Remove
         return;
     }
 
-    //self->defineDefaultProperty(QStringLiteral("exports"), exports);
+    self->defineDefaultProperty(QStringLiteral("exports"), exports);
 
     d()->loaded = true;
 }
