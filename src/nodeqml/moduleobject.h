@@ -11,6 +11,7 @@ struct ModuleObject: QV4::Object {
 
         QString id;
         QString filename;
+        QString dirname;
         bool loaded;
         QV4::Object *exportsObject;
         ModuleObject *parent;

@@ -58,6 +58,7 @@ void ModuleObject::load(QV4::ExecutionContext *ctx, const QString &path)
     QV4::ScopedObject exports(scope);
 
     d()->filename = path;
+    d()->dirname = QFileInfo(path).absolutePath();
 
     QFileInfo fi(path);
     QString suffix = fi.suffix();
