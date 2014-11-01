@@ -151,9 +151,12 @@ QV4::Object *ModuleObject::require(QV4::ExecutionContext *ctx, const QString &pa
         filename = path;
         exports = node->nativeModule(path);
     } else {
-        filename = resolveModule(ctx, path);
+        const QString parentPath = parent ? parent->d()->dirname : QString();
+        filename = resolveModule(ctx, path, parentPath);
+        qDebug("Resolved module path: %s", qPrintable(filename));
 
         if (filename.isEmpty()) {
+            qWarning() << QString("Cannot find module '%1'").arg(path);
             v4->currentContext()->throwError(QString("Cannot find module '%1'").arg(path));
             return nullptr;
         }
@@ -187,16 +190,29 @@ QString ModuleObject::resolveModule(QV4::ExecutionContext *ctx, const QString &r
     if (node->hasNativeModule(request))
         return request;
 
-    // Absolute path
-    /// TODO: Check if it works on Windows
-    if (request.startsWith(QStringLiteral("/")) && QFileInfo::exists(request))
-        return request;
-
-
     // Bundled JS module
     QFileInfo fi(QStringLiteral(":/js/") + request + QStringLiteral(".js"));
     if (fi.exists())
         return fi.absoluteFilePath();
+
+    /// TODO: .npm_modules
+
+    fi.setFile(request);
+
+    if (fi.isRelative())
+        fi.setFile(QDir(parentPath).filePath(request));
+
+    if (!fi.exists())
+        return QString();
+
+    if (fi.isFile())
+        return fi.absoluteFilePath();
+
+    // Checking for index file
+    /// TODO: index.[ext]
+    QFileInfo indexInfo(fi.absoluteFilePath() + QStringLiteral("/index.js"));
+    if (indexInfo.exists() && indexInfo.isFile())
+        return indexInfo.absoluteFilePath();
 
     return QString();
 }
