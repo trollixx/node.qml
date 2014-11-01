@@ -10,6 +10,7 @@ SOURCES += \
     engine.cpp \
     globalextensions.cpp \
     moduleobject.cpp \
+    modules/console.cpp \
     modules/dns.cpp \
     modules/filesystem.cpp \
     modules/os.cpp \
@@ -26,6 +27,7 @@ HEADERS_PRIVATE += \
     engine_p.h \
     globalextensions.h \
     moduleobject.h \
+    modules/console.h \
     modules/dns.h \
     modules/filesystem.h \
     modules/os.h \
