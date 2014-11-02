@@ -11,6 +11,8 @@ struct ConsoleModule : QV4::Object
 {
     struct Data : QV4::Object::Data {
         Data(QV4::ExecutionEngine *v4);
+
+        QHash<QV4::ReturnedValue, qint64> timeMarks;
     };
     V4_OBJECT(Object)
 

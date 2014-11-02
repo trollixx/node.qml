@@ -2,6 +2,7 @@
 
 #include "util.h"
 
+#include <QDateTime>
 #include <QTextStream>
 
 using namespace NodeQml;
@@ -54,12 +55,37 @@ QV4::ReturnedValue ConsoleModule::method_dir(QV4::CallContext *ctx)
 
 QV4::ReturnedValue ConsoleModule::method_time(QV4::CallContext *ctx)
 {
-    return ctx->throwUnimplemented(QStringLiteral("console.time()"));
+    const QV4::CallData * const callData = ctx->d()->callData;
+
+    QV4::Scope scope(ctx);
+    QV4::Scoped<ConsoleModule> self(scope, callData->thisObject.as<ConsoleModule>());
+
+    QV4::ScopedValue key(scope, callData->args[0]);
+    self->d()->timeMarks.insert(key.asReturnedValue(), QDateTime::currentMSecsSinceEpoch());
+
+    return QV4::Encode::undefined();
 }
 
 QV4::ReturnedValue ConsoleModule::method_timeEnd(QV4::CallContext *ctx)
 {
-    return ctx->throwUnimplemented(QStringLiteral("console.timeEnd()"));
+    const QV4::CallData * const callData = ctx->d()->callData;
+
+    QV4::Scope scope(ctx);
+    QV4::Scoped<ConsoleModule> self(scope, callData->thisObject.as<ConsoleModule>());
+
+    QV4::ScopedValue key(scope, callData->args[0]);
+
+    if (!self->d()->timeMarks.contains(key.asReturnedValue())) {
+        qDebug("No such label: %s", qPrintable(key->toQStringNoThrow()));
+        return ctx->throwError(QString("No such label: %1").arg(key->toQStringNoThrow()));
+    }
+
+    const qint64 delta
+            = QDateTime::currentMSecsSinceEpoch() - self->d()->timeMarks[key.asReturnedValue()];
+    /// TODO: Use QTextStream
+    qDebug("%s: %lldms", qPrintable(callData->args[0].toQStringNoThrow()), delta);
+
+    return QV4::Encode::undefined();
 }
 
 QV4::ReturnedValue ConsoleModule::method_trace(QV4::CallContext *ctx)
