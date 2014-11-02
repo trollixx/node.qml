@@ -6,9 +6,13 @@
 
 using namespace NodeQml;
 
+DEFINE_OBJECT_VTABLE(ConsoleModule);
+
 ConsoleModule::Data::Data(QV4::ExecutionEngine *v4) :
     QV4::Object::Data(v4)
 {
+    setVTable(staticVTable());
+
     QV4::Scope scope(v4);
     QV4::ScopedObject o(scope, this);
 

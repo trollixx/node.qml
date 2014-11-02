@@ -12,6 +12,7 @@ struct ConsoleModule : QV4::Object
     struct Data : QV4::Object::Data {
         Data(QV4::ExecutionEngine *v4);
     };
+    V4_OBJECT(Object)
 
     static QV4::ReturnedValue method_log(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_info(QV4::CallContext *ctx);
