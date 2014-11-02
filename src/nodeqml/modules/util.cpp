@@ -34,10 +34,19 @@ QV4::ReturnedValue UtilModule::method_log(QV4::CallContext *ctx)
     return ctx->throwUnimplemented(QStringLiteral("util.log()"));
 }
 
-/// TODO: util.inspect(object, [options])
+/// TODO: Real implementation (See: https://github.com/joyent/node/blob/master/lib/util.js)
 QV4::ReturnedValue UtilModule::method_inspect(QV4::CallContext *ctx)
 {
-    return ctx->throwUnimplemented(QStringLiteral("util.inspect()"));
+    const QV4::CallData * const callData = ctx->d()->callData;
+
+    QString str;
+
+    if (!callData->argc || callData->args[0].isNullOrUndefined())
+        str = QStringLiteral("undefined");
+    else
+        str = callData->args[0].toQStringNoThrow();
+
+    return ctx->engine()->newString(QString("'%1'").arg(str))->asReturnedValue();
 }
 
 QV4::ReturnedValue UtilModule::method_isArray(QV4::CallContext *ctx)
