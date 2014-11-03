@@ -2,6 +2,7 @@
 
 #include "engine_p.h"
 #include "modules/process.h"
+#include "modules/console.h"
 
 #include <QQmlEngine>
 
@@ -25,6 +26,9 @@ void GlobalExtensions::init(QQmlEngine *qmlEngine)
     QV4::Scope scope(v4);
     QV4::ScopedObject process(scope, v4->memoryManager->alloc<ProcessModule>(v4));
     globalObject->defineDefaultProperty(QStringLiteral("process"), process);
+
+    QV4::ScopedObject console(scope, v4->memoryManager->alloc<ConsoleModule>(v4));
+    globalObject->defineDefaultProperty(QStringLiteral("console"), console);
 }
 
 QV4::ReturnedValue GlobalExtensions::method_require(QV4::CallContext *ctx)
