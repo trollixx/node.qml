@@ -5,6 +5,8 @@
 #include <QDateTime>
 #include <QTextStream>
 
+#include <private/qv4global_p.h>
+
 using namespace NodeQml;
 
 DEFINE_OBJECT_VTABLE(ConsoleModule);
@@ -30,7 +32,12 @@ ConsoleModule::Data::Data(QV4::ExecutionEngine *v4) :
 
 QV4::ReturnedValue ConsoleModule::method_log(QV4::CallContext *ctx)
 {
-    return ctx->throwUnimplemented(QStringLiteral("console.log()"));
+    QV4::Scope scope(ctx);
+    QV4::ScopedString s(scope, UtilModule::method_format(ctx));
+
+    QTextStream(stdout) << s->toQString() << endl;
+
+    return QV4::Encode::undefined();
 }
 
 QV4::ReturnedValue ConsoleModule::method_info(QV4::CallContext *ctx)
