@@ -24,7 +24,6 @@ UtilModule::Data::Data(QV4::ExecutionEngine *v4) :
     o->defineDefaultProperty(QStringLiteral("inherits"), method_inherits, 2);
 }
 
-/// TODO: util.format(format, [...])
 QV4::ReturnedValue UtilModule::method_format(QV4::CallContext *ctx)
 {
     QV4::ExecutionEngine *v4 = ctx->engine();
