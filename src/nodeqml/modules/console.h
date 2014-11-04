@@ -17,9 +17,7 @@ struct ConsoleModule : QV4::Object
     V4_OBJECT(Object)
 
     static QV4::ReturnedValue method_log(QV4::CallContext *ctx);
-    static QV4::ReturnedValue method_info(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_error(QV4::CallContext *ctx);
-    static QV4::ReturnedValue method_warn(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_dir(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_time(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_timeEnd(QV4::CallContext *ctx);

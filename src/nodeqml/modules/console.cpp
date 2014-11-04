@@ -20,9 +20,9 @@ ConsoleModule::Data::Data(QV4::ExecutionEngine *v4) :
     QV4::ScopedObject o(scope, this);
 
     o->defineDefaultProperty(QStringLiteral("log"), method_log);
-    o->defineDefaultProperty(QStringLiteral("info"), method_info);
+    o->defineDefaultProperty(QStringLiteral("info"), method_log);
     o->defineDefaultProperty(QStringLiteral("error"), method_error);
-    o->defineDefaultProperty(QStringLiteral("warn"), method_warn);
+    o->defineDefaultProperty(QStringLiteral("warn"), method_error);
     o->defineDefaultProperty(QStringLiteral("dir"), method_dir);
     o->defineDefaultProperty(QStringLiteral("time"), method_time);
     o->defineDefaultProperty(QStringLiteral("timeEnd"), method_timeEnd);
@@ -40,19 +40,9 @@ QV4::ReturnedValue ConsoleModule::method_log(QV4::CallContext *ctx)
     return QV4::Encode::undefined();
 }
 
-QV4::ReturnedValue ConsoleModule::method_info(QV4::CallContext *ctx)
-{
-    return ctx->throwUnimplemented(QStringLiteral("console.info()"));
-}
-
 QV4::ReturnedValue ConsoleModule::method_error(QV4::CallContext *ctx)
 {
     return ctx->throwUnimplemented(QStringLiteral("console.error()"));
-}
-
-QV4::ReturnedValue ConsoleModule::method_warn(QV4::CallContext *ctx)
-{
-    return ctx->throwUnimplemented(QStringLiteral("console.warn()"));
 }
 
 QV4::ReturnedValue ConsoleModule::method_dir(QV4::CallContext *ctx)
