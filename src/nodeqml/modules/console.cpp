@@ -42,7 +42,12 @@ QV4::ReturnedValue ConsoleModule::method_log(QV4::CallContext *ctx)
 
 QV4::ReturnedValue ConsoleModule::method_error(QV4::CallContext *ctx)
 {
-    return ctx->throwUnimplemented(QStringLiteral("console.error()"));
+    QV4::Scope scope(ctx);
+    QV4::ScopedString s(scope, UtilModule::method_format(ctx));
+
+    QTextStream(stderr) << s->toQString() << endl;
+
+    return QV4::Encode::undefined();
 }
 
 QV4::ReturnedValue ConsoleModule::method_dir(QV4::CallContext *ctx)
