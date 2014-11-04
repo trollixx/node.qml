@@ -69,7 +69,8 @@ QV4::ReturnedValue BufferObject::getIndexed(QV4::Managed *m, quint32 index, bool
 
     if (hasProperty)
         *hasProperty = true;
-    return QV4::Encode(v4->newNumberObject(QV4::Primitive::fromUInt32(that->d()->value.at(index))));
+
+    return QV4::Primitive::fromUInt32(that->d()->value.at(index) & 0xff).asReturnedValue();
 }
 
 void BufferObject::putIndexed(QV4::Managed *m, uint index, const QV4::ValueRef value)
@@ -81,7 +82,7 @@ void BufferObject::putIndexed(QV4::Managed *m, uint index, const QV4::ValueRef v
     if (index >= static_cast<quint32>(that->d()->value.size()))
         return;
 
-    that->d()->value[index] = value->toUInt16();
+    that->d()->value[index] = value->toInt32();
 }
 
 bool BufferObject::deleteIndexedProperty(QV4::Managed *m, uint index)
