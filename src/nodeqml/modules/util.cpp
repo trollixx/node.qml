@@ -1,8 +1,10 @@
 #include "util.h"
 
 #include <QTextStream>
+#include <QRegularExpression>
 
 //#include <private/qv4regexpobject_p.h>
+#include <private/qv4jsonobject_p.h>
 
 using namespace NodeQml;
 
@@ -25,7 +27,60 @@ UtilModule::Data::Data(QV4::ExecutionEngine *v4) :
 /// TODO: util.format(format, [...])
 QV4::ReturnedValue UtilModule::method_format(QV4::CallContext *ctx)
 {
-    return ctx->throwUnimplemented(QStringLiteral("util.format()"));
+    QV4::ExecutionEngine *v4 = ctx->engine();
+    const QV4::CallData * const callData = ctx->d()->callData;
+
+    QV4::Scope scope(ctx);
+    QV4::ScopedString s(scope);
+
+    // TODO: Call inspect anyway
+    if (!callData->argc)
+        return (s = v4->newString(QString()))->asReturnedValue();
+
+    if (!callData->args[0].isString()) {
+        QStringList objects;
+        for (int i = 0; i < callData->argc; ++i)
+            objects << inspect(callData->args[i]);
+        return (s = v4->newString(objects.join(QStringLiteral(" "))))->asReturnedValue();
+    }
+
+    const QString format = callData->args[0].toQStringNoThrow();
+
+    QString result;
+    int i = 1;
+    int lastPos = 0;
+
+    QRegularExpression re(QStringLiteral("%[sdj%]"));
+    QRegularExpressionMatchIterator it = re.globalMatch(format);
+    while (it.hasNext()) {
+        QRegularExpressionMatch match = it.next();
+
+        /// TODO: That might be slow
+        if (match.capturedStart(0))
+            result += format.mid(lastPos, match.capturedStart(0) - lastPos);
+        lastPos = match.capturedEnd(0);
+
+        const QString placeholder = match.captured(0);
+
+        if (i >= callData->argc) {
+            result += placeholder;
+        } else if (placeholder == QStringLiteral("%%")) {
+            result += QStringLiteral("%");
+        } else if (placeholder == QStringLiteral("%s") || placeholder == QStringLiteral("%d")) {
+            result += inspect(callData->args[i++]);
+        } else if (placeholder == QStringLiteral("%j")) {
+            /// TODO: Call JSON.stringify(). See: Stringify::Str() in qv4jsonobject.cpp.
+            result += QStringLiteral("[JSON]");
+            ++i;
+        }
+    }
+
+    result += format.mid(lastPos);
+
+    for (; i < callData->argc; ++i)
+        result += QStringLiteral(" ") + inspect(callData->args[i]);
+
+    return (s = v4->newString(result))->asReturnedValue();
 }
 
 /// TODO: util.log(string)
