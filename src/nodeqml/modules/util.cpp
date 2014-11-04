@@ -34,19 +34,13 @@ QV4::ReturnedValue UtilModule::method_log(QV4::CallContext *ctx)
     return ctx->throwUnimplemented(QStringLiteral("util.log()"));
 }
 
-/// TODO: Real implementation (See: https://github.com/joyent/node/blob/master/lib/util.js)
 QV4::ReturnedValue UtilModule::method_inspect(QV4::CallContext *ctx)
 {
     const QV4::CallData * const callData = ctx->d()->callData;
 
-    QString str;
-
-    if (!callData->argc || callData->args[0].isNullOrUndefined())
-        str = QStringLiteral("undefined");
-    else
-        str = callData->args[0].toQStringNoThrow();
-
-    return ctx->engine()->newString(QString("'%1'").arg(str))->asReturnedValue();
+    QV4::Scope scope(ctx);
+    QV4::ScopedString s(scope);
+    return (s = ctx->engine()->newString(inspect(callData->args[0])))->asReturnedValue();
 }
 
 QV4::ReturnedValue UtilModule::method_isArray(QV4::CallContext *ctx)
@@ -112,4 +106,13 @@ QV4::ReturnedValue UtilModule::method_inherits(QV4::CallContext *ctx)
     ctor->setPrototype(prototype);
 
     return QV4::Encode::undefined();
+}
+
+/// TODO: Real implementation (See: https://github.com/joyent/node/blob/master/lib/util.js)
+QString UtilModule::inspect(QV4::Value value)
+{
+    if (value.isNullOrUndefined())
+        return QStringLiteral("undefined");
+
+    return value.toQStringNoThrow();
 }

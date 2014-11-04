@@ -19,6 +19,8 @@ struct UtilModule : QV4::Object
     static QV4::ReturnedValue method_isDate(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_isError(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_inherits(QV4::CallContext *ctx);
+
+    static QString inspect(QV4::Value value);
 };
 
 } // namespace NodeQml
