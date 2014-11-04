@@ -12,14 +12,14 @@ UtilModule::Data::Data(QV4::ExecutionEngine *v4) :
     QV4::Scope scope(v4);
     QV4::ScopedObject o(scope, this);
 
-    o->defineDefaultProperty(QStringLiteral("format"), method_format);
-    o->defineDefaultProperty(QStringLiteral("log"), method_log);
-    o->defineDefaultProperty(QStringLiteral("inspect"), method_inspect);
-    o->defineDefaultProperty(QStringLiteral("isArray"), method_isArray);
-    o->defineDefaultProperty(QStringLiteral("isRegExp"), method_isRegExp);
-    o->defineDefaultProperty(QStringLiteral("isDate"), method_isDate);
-    o->defineDefaultProperty(QStringLiteral("isError"), method_isError);
-    o->defineDefaultProperty(QStringLiteral("inherits"), method_inherits);
+    o->defineDefaultProperty(QStringLiteral("format"), method_format, 1);
+    o->defineDefaultProperty(QStringLiteral("log"), method_log, 1);
+    o->defineDefaultProperty(QStringLiteral("inspect"), method_inspect, 2);
+    o->defineDefaultProperty(QStringLiteral("isArray"), method_isArray, 1);
+    o->defineDefaultProperty(QStringLiteral("isRegExp"), method_isRegExp, 1);
+    o->defineDefaultProperty(QStringLiteral("isDate"), method_isDate, 1);
+    o->defineDefaultProperty(QStringLiteral("isError"), method_isError, 1);
+    o->defineDefaultProperty(QStringLiteral("inherits"), method_inherits, 2);
 }
 
 /// TODO: util.format(format, [...])
