@@ -12,7 +12,6 @@ BufferObject::Data::Data(QV4::InternalClass *ic)
     : Object::Data(ic)
 {
     Q_ASSERT(internalClass->vtable == staticVTable());
-    value = QByteArray();
 
     QV4::Scope scope(ic->engine);
     QV4::ScopedObject s(scope, this);
