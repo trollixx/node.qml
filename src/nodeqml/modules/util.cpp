@@ -4,7 +4,7 @@
 #include <QTextStream>
 #include <QRegularExpression>
 
-//#include <private/qv4regexpobject_p.h>
+#include <private/qv4regexpobject_p.h>
 #include <private/qv4jsonobject_p.h>
 
 using namespace NodeQml;
@@ -109,9 +109,8 @@ QV4::ReturnedValue UtilModule::method_isArray(QV4::CallContext *ctx)
 
 QV4::ReturnedValue UtilModule::method_isRegExp(QV4::CallContext *ctx)
 {
-    return ctx->throwUnimplemented(QStringLiteral("util.isRegExp()"));
-    //bool isRegExp = ctx->d()->callData->argc && ctx->d()->callData->args[0].as<QV4::RegExpObject>();
-    //return QV4::Encode(isRegExp);
+    bool isRegExp = ctx->d()->callData->argc && ctx->d()->callData->args[0].as<QV4::RegExpObject>();
+    return QV4::Encode(isRegExp);
 }
 
 QV4::ReturnedValue UtilModule::method_isDate(QV4::CallContext *ctx)
