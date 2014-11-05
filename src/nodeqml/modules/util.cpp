@@ -1,5 +1,6 @@
 #include "util.h"
 
+#include <QDateTime>
 #include <QTextStream>
 #include <QRegularExpression>
 
@@ -82,10 +83,13 @@ QV4::ReturnedValue UtilModule::method_format(QV4::CallContext *ctx)
     return (s = v4->newString(result))->asReturnedValue();
 }
 
-/// TODO: util.log(string)
 QV4::ReturnedValue UtilModule::method_log(QV4::CallContext *ctx)
 {
-    return ctx->throwUnimplemented(QStringLiteral("util.log()"));
+    const QString label = QDateTime::currentDateTime().toString(QStringLiteral("d MMM HH:mm:ss"));
+    QV4::Scope scope(ctx);
+    QV4::ScopedValue v(scope, method_format(ctx));
+    QTextStream(stdout) << label << QStringLiteral(" - ") << v->toQStringNoThrow() << endl;
+    return QV4::Encode::undefined();
 }
 
 QV4::ReturnedValue UtilModule::method_inspect(QV4::CallContext *ctx)
