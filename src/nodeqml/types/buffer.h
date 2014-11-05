@@ -50,7 +50,7 @@ struct BufferPrototype: BufferObject
     /// TODO: buf.toString([encoding], [start], [end])
     /// TODO: buf.toJSON()
 
-    /// TODO: buf.copy(targetBuffer, [targetStart], [sourceStart], [sourceEnd])
+    static QV4::ReturnedValue method_copy(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_fill(QV4::CallContext *ctx);
     /// TODO: buf.slice([start], [end])
     /// TODO: buf.readUInt8(offset, [noAssert])

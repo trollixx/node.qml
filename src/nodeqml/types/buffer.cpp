@@ -144,6 +144,7 @@ void BufferPrototype::init(QV4::ExecutionEngine *v4, QV4::Object *ctor)
     ctor->defineDefaultProperty(QStringLiteral("isBuffer"), method_isBuffer, 1);
     ctor->defineDefaultProperty(QStringLiteral("byteLength"), method_byteLength);
 
+    defineDefaultProperty(QStringLiteral("copy"), method_copy, 4);
     defineDefaultProperty(QStringLiteral("fill"), method_fill, 3);
 }
 
@@ -215,6 +216,66 @@ QV4::ReturnedValue BufferPrototype::method_byteLength(QV4::CallContext *ctx)
 QV4::ReturnedValue BufferPrototype::method_concat(QV4::CallContext *ctx)
 {
     return ctx->throwUnimplemented(QStringLiteral("Buffer.concat()"));
+}
+
+// copy(targetBuffer, [targetStart], [sourceStart], [sourceEnd])
+QV4::ReturnedValue BufferPrototype::method_copy(QV4::CallContext *ctx)
+{
+    const QV4::CallData * const callData = ctx->d()->callData;
+
+    if (!callData->argc || !callData->args[0].as<BufferObject>())
+        return ctx->throwTypeError(QStringLiteral("copy: First arg should be a Buffer"));
+
+    QV4::Scope scope(ctx);
+    QV4::Scoped<BufferObject> self(scope, getThis(ctx));
+
+    QV4::Scoped<BufferObject> target(scope, callData->args[0].as<BufferObject>());
+
+    size_t targetStart = 0;
+    size_t sourceStart = 0;
+    size_t sourceEnd = self->getLength();
+
+    if (callData->argc > 1) {
+        if (!callData->args[1].isNumber())
+            return ctx->throwTypeError(QStringLiteral("Bad argument"));
+        if (callData->args[1].toInt32() < 0)
+            return ctx->throwRangeError(QStringLiteral("Out of range index"));
+
+        targetStart = callData->args[1].toInt32();
+    }
+
+    if (callData->argc > 2) {
+        if (!callData->args[2].isNumber())
+            return ctx->throwTypeError(QStringLiteral("Bad argument"));
+        if (callData->args[2].toInt32() < 0)
+            return ctx->throwRangeError(QStringLiteral("Out of range index"));
+        sourceStart = callData->args[2].toInt32();
+    }
+
+    if (callData->argc > 3) {
+        if (!callData->args[3].isNumber())
+            return ctx->throwTypeError(QStringLiteral("Bad argument"));
+        if (callData->args[3].toInt32() < 0)
+            return ctx->throwRangeError(QStringLiteral("Out of range index"));
+        sourceEnd = callData->args[3].toInt32();
+    }
+
+    qDebug("Target length: %u", target->getLength());
+
+    // Copy zero bytes, we're done
+    if (targetStart >= target->getLength() || sourceStart >= sourceEnd)
+        return QV4::Encode(0);
+
+    if (sourceStart > self->getLength())
+        return ctx->throwRangeError(QStringLiteral("copy: Out of range index"));
+
+    const size_t targetLength = target->getLength();
+    if (sourceEnd - sourceStart > targetLength - targetStart)
+        sourceEnd = sourceStart + targetLength - targetStart;
+    size_t to_copy = qMin(qMin(sourceEnd - sourceStart, targetLength - targetStart),
+                          self->getLength() - sourceStart);
+    memmove(target->d()->value.data() + targetStart, self->d()->value.constData() + sourceStart, to_copy);
+    return QV4::Primitive::fromUInt32(to_copy).asReturnedValue();
 }
 
 // fill(value, [offset], [end])
