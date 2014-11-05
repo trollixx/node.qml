@@ -143,6 +143,8 @@ void BufferPrototype::init(QV4::ExecutionEngine *v4, QV4::Object *ctor)
     ctor->defineDefaultProperty(QStringLiteral("isEncoding"), method_isEncoding, 1);
     ctor->defineDefaultProperty(QStringLiteral("isBuffer"), method_isBuffer, 1);
     ctor->defineDefaultProperty(QStringLiteral("byteLength"), method_byteLength);
+
+    defineDefaultProperty(QStringLiteral("fill"), method_fill, 3);
 }
 
 bool BufferPrototype::isEncoding(const QString &encoding)
@@ -213,4 +215,74 @@ QV4::ReturnedValue BufferPrototype::method_byteLength(QV4::CallContext *ctx)
 QV4::ReturnedValue BufferPrototype::method_concat(QV4::CallContext *ctx)
 {
     return ctx->throwUnimplemented(QStringLiteral("Buffer.concat()"));
+}
+
+// fill(value, [offset], [end])
+QV4::ReturnedValue BufferPrototype::method_fill(QV4::CallContext *ctx)
+{
+    const QV4::CallData * const callData = ctx->d()->callData;
+    QV4::Scope scope(ctx);
+    QV4::Scoped<BufferObject> self(scope, getThis(ctx));
+
+    size_t offset = 0;
+    size_t end = self->d()->value.size();
+
+    if (!callData->argc)
+        return QV4::Encode::undefined();
+
+    if (callData->argc > 1) {
+        if (!callData->args[1].isNumber())
+            return ctx->throwTypeError(QStringLiteral("Bad argument"));
+        offset = callData->args[1].toInt32();
+    }
+
+    if (callData->argc > 2) {
+        if (!callData->args[2].isNumber())
+            return ctx->throwTypeError(QStringLiteral("Bad argument"));
+        end = callData->args[2].toInt32();
+    }
+
+    const int length = end - offset;
+    char * const startPtr = self->d()->value.data() + offset;
+
+    if (callData->args[0].isNumber()) {
+        const quint8 value = callData->args[0].toUInt32() & 0xff;
+        memset(startPtr, value, length);
+        return QV4::Encode::undefined();
+    }
+
+    if (!callData->args[0].isString())
+        return ctx->throwTypeError(QStringLiteral("fill: value is not a number"));
+
+    const QByteArray value = callData->args[0].toQStringNoThrow().toUtf8();
+
+    // optimize single ascii character case
+    if (value.size() == 1) {
+        memset(startPtr, value.at(0), length);
+        return QV4::Encode::undefined();
+    }
+
+    int in_there = value.size();
+    char * ptr = startPtr + value.size();
+    memcpy(startPtr, value.constData(), qMin(value.size(), length));
+    if (value.size() >= length)
+        return QV4::Encode::undefined();
+
+    while (in_there < length - in_there) {
+        memcpy(ptr, startPtr, in_there);
+        ptr += in_there;
+        in_there *= 2;
+    }
+
+    if (in_there < length)
+        memcpy(ptr, startPtr, length - in_there);
+
+    return QV4::Encode::undefined();
+}
+
+BufferObject *BufferPrototype::getThis(QV4::ExecutionContext *ctx)
+{
+    QV4::Scope scope(ctx);
+    QV4::Scoped<BufferObject> self(scope, ctx->d()->callData->thisObject);
+    return self.getPointer();
 }

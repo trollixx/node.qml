@@ -51,6 +51,7 @@ struct BufferPrototype: BufferObject
     /// TODO: buf.toJSON()
 
     /// TODO: buf.copy(targetBuffer, [targetStart], [sourceStart], [sourceEnd])
+    static QV4::ReturnedValue method_fill(QV4::CallContext *ctx);
     /// TODO: buf.slice([start], [end])
     /// TODO: buf.readUInt8(offset, [noAssert])
     /// TODO: buf.readUInt16LE(offset, [noAssert])
@@ -80,7 +81,9 @@ struct BufferPrototype: BufferObject
     /// TODO: buf.writeFloatBE(value, offset, [noAssert])
     /// TODO: buf.writeDoubleLE(value, offset, [noAssert])
     /// TODO: buf.writeDoubleBE(value, offset, [noAssert])
-    /// TODO: buf.fill(value, [offset], [end])    
+
+private:
+    static BufferObject *getThis(QV4::ExecutionContext *ctx);
 };
 
 } // namespace NodeQml
