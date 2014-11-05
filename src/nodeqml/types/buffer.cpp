@@ -224,8 +224,10 @@ QV4::ReturnedValue BufferPrototype::method_fill(QV4::CallContext *ctx)
     QV4::Scope scope(ctx);
     QV4::Scoped<BufferObject> self(scope, getThis(ctx));
 
-    size_t offset = 0;
-    size_t end = self->d()->value.size();
+    /// TODO: SLICE_START_END (https://github.com/joyent/node/blob/master/src/node_buffer.cc#L52)
+
+    int offset = 0;
+    int end = self->d()->value.size();
 
     if (!callData->argc)
         return QV4::Encode::undefined();
@@ -234,12 +236,16 @@ QV4::ReturnedValue BufferPrototype::method_fill(QV4::CallContext *ctx)
         if (!callData->args[1].isNumber())
             return ctx->throwTypeError(QStringLiteral("Bad argument"));
         offset = callData->args[1].toInt32();
+        if (offset < 0)
+            return ctx->throwRangeError(QStringLiteral("Out of range index"));
     }
 
     if (callData->argc > 2) {
         if (!callData->args[2].isNumber())
             return ctx->throwTypeError(QStringLiteral("Bad argument"));
         end = callData->args[2].toInt32();
+        if (end < 0)
+            return ctx->throwRangeError(QStringLiteral("Out of range index"));
     }
 
     const int length = end - offset;
