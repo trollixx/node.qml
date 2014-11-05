@@ -128,6 +128,13 @@ QV4::ReturnedValue UtilModule::method_isError(QV4::CallContext *ctx)
     return QV4::Encode(isError);
 }
 
+QV4::ReturnedValue UtilModule::method_isUndefined(QV4::CallContext *ctx)
+{
+    const QV4::CallData * const callData = ctx->d()->callData;
+    bool isUndefined = callData->argc && callData->args[0].isUndefined();
+    return QV4::Encode(isUndefined);
+}
+
 QV4::ReturnedValue UtilModule::method_inherits(QV4::CallContext *ctx)
 {
     const QV4::CallData * const callData = ctx->d()->callData;
