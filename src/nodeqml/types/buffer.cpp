@@ -8,8 +8,8 @@ using namespace NodeQml;
 
 DEFINE_OBJECT_VTABLE(BufferObject);
 
-BufferObject::Data::Data(QV4::InternalClass *ic)
-    : Object::Data(ic)
+BufferObject::Data::Data(QV4::InternalClass *ic) :
+    Object::Data(ic)
 {
     Q_ASSERT(internalClass->vtable == staticVTable());
 
@@ -29,7 +29,7 @@ BufferObject::Data::Data(QV4::ExecutionEngine *v4, quint32 size) :
     o->defineReadonlyProperty(v4->id_length, QV4::Primitive::fromInt32(size));
 }
 
-BufferObject::Data::Data(QV4::ExecutionEngine *v4, const QString &str, const QString &encoding) :
+BufferObject::Data::Data(QV4::ExecutionEngine *v4, const QString &str, Encoding encoding) :
     Object::Data(EnginePrivate::get(v4)->bufferClass)
 {
     setVTable(staticVTable());
@@ -91,6 +91,35 @@ bool BufferObject::deleteIndexedProperty(QV4::Managed *m, uint index)
     return true;
 }
 
+BufferObject::Encoding BufferObject::parseEncoding(const QString &str)
+{
+    static QHash<QString, Encoding> encodings = {
+        std::pair<QString, Encoding>(QStringLiteral("hex"), Encoding::Hex),
+        std::pair<QString, Encoding>(QStringLiteral("utf8"), Encoding::Utf8),
+        std::pair<QString, Encoding>(QStringLiteral("utf-8"), Encoding::Utf8),
+        std::pair<QString, Encoding>(QStringLiteral("ascii"), Encoding::Ascii),
+        std::pair<QString, Encoding>(QStringLiteral("binary"), Encoding::Binary),
+        std::pair<QString, Encoding>(QStringLiteral("base64"), Encoding::Base64),
+        std::pair<QString, Encoding>(QStringLiteral("raw"), Encoding::Raw),
+        std::pair<QString, Encoding>(QStringLiteral("ucs2"), Encoding::Ucs2),
+        std::pair<QString, Encoding>(QStringLiteral("ucs-2"), Encoding::Ucs2),
+        std::pair<QString, Encoding>(QStringLiteral("utf16le"), Encoding::Utf16le),
+        std::pair<QString, Encoding>(QStringLiteral("utf-16le"), Encoding::Utf16le)
+    };
+
+    const QString encodingStr = str.toLower();
+
+    if (!encodings.contains(encodingStr))
+        return Encoding::Invalid;
+    return encodings.value(encodingStr);
+}
+
+bool BufferObject::isEncoding(const QString &str)
+{
+    return parseEncoding(str) != Encoding::Invalid;
+}
+
+
 DEFINE_OBJECT_VTABLE(BufferCtor);
 
 BufferCtor::Data::Data(QV4::ExecutionContext *scope)
@@ -111,12 +140,15 @@ QV4::ReturnedValue BufferCtor::construct(QV4::Managed *m, QV4::CallData *callDat
             QV4::Scoped<BufferObject> object(scope, v4->memoryManager->alloc<BufferObject>(v4, callData->args[0].asArrayObject()));
             return object->asReturnedValue();
         } else if (callData->args[0].isString()) {
-            QString encoding;
-            if (callData->argc > 1 && callData->args[1].isString()) {
-                encoding = callData->args[1].toQStringNoThrow();
-                /// TODO: Call isEncoding() and throw exception
-            } else {
-                encoding = QStringLiteral("utf8");
+            BufferObject::Encoding encoding = BufferObject::Encoding::Utf8;
+            if (callData->argc > 1) {
+                if (!callData->args[1].isString())
+                    return v4->currentContext()->throwTypeError(QStringLiteral("Encoding must me a string"));
+                const QString encStr = callData->args[1].toQStringNoThrow();
+                BufferObject::Encoding enc = BufferObject::parseEncoding(encStr);
+                if (enc == BufferObject::Encoding::Invalid)
+                    return v4->currentContext()->throwTypeError(QString("Unknown Encoding: %1").arg(encStr));
+                encoding = enc;
             }
             QV4::Scoped<BufferObject> object(scope, v4->memoryManager->alloc<BufferObject>(v4, callData->args[0].toQStringNoThrow(), encoding));
             return QV4::Encode(object->asReturned<QV4::Object>());
@@ -146,24 +178,6 @@ void BufferPrototype::init(QV4::ExecutionEngine *v4, QV4::Object *ctor)
 
     defineDefaultProperty(QStringLiteral("copy"), method_copy, 4);
     defineDefaultProperty(QStringLiteral("fill"), method_fill, 3);
-}
-
-bool BufferPrototype::isEncoding(const QString &encoding)
-{
-    static QStringList encodings = {
-        QStringLiteral("hex"),
-        QStringLiteral("utf8"),
-        QStringLiteral("utf-8"),
-        QStringLiteral("ascii"),
-        QStringLiteral("binary"),
-        QStringLiteral("base64"),
-        QStringLiteral("raw"),
-        QStringLiteral("ucs2"),
-        QStringLiteral("ucs-2"),
-        QStringLiteral("utf16le"),
-        QStringLiteral("utf-16le")
-    };
-    return encodings.contains(encoding.toLower());
 }
 
 QV4::ReturnedValue BufferPrototype::method_isEncoding(QV4::CallContext *ctx)

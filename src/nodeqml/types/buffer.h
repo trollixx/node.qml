@@ -9,20 +9,34 @@
 namespace NodeQml {
 
 struct BufferObject: QV4::Object {
+    enum class Encoding {
+        Invalid,
+        Ascii,
+        Base64,
+        Binary,
+        Hex,
+        Raw,
+        Ucs2,
+        Utf8,
+        Utf16le
+    };
+
     struct Data : QV4::Object::Data {
         Data(QV4::InternalClass *ic);
         Data(QV4::ExecutionEngine *v4, quint32 size);
-        Data(QV4::ExecutionEngine *v4, const QString &str, const QString &encoding);
+        Data(QV4::ExecutionEngine *v4, const QString &str, BufferObject::Encoding encoding);
         Data(QV4::ExecutionEngine *v4, QV4::ArrayObject *array);
 
         QByteArray value;
     };
     V4_OBJECT(Object)
-    //Q_MANAGED_TYPE(BufferObject)
 
     static QV4::ReturnedValue getIndexed(QV4::Managed *m, quint32 index, bool *hasProperty);
     static void putIndexed(QV4::Managed *m, uint index, const QV4::ValueRef value);
     static bool deleteIndexedProperty(QV4::Managed *m, uint index);
+
+    static Encoding parseEncoding(const QString &str);
+    static bool isEncoding(const QString &str);
 };
 
 struct BufferCtor: QV4::FunctionObject
@@ -39,7 +53,6 @@ struct BufferCtor: QV4::FunctionObject
 struct BufferPrototype: BufferObject
 {
     void init(QV4::ExecutionEngine *v4, QV4::Object *ctor);
-    static bool isEncoding(const QString &encoding);
 
     static QV4::ReturnedValue method_isEncoding(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_isBuffer(QV4::CallContext *ctx);
