@@ -22,6 +22,8 @@ public:
     QJSValue require(const QString &id);
     /// TODO: QJSValue evaluate(const QString &code);
 
+    bool hasException() const;
+
 private:
     EnginePrivate * const d_ptr;
     Q_DECLARE_PRIVATE(Engine)

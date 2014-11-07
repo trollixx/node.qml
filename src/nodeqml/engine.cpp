@@ -37,6 +37,12 @@ QJSValue Engine::require(const QString &id)
     return new QJSValuePrivate(d->require(id));
 }
 
+bool Engine::hasException() const
+{
+    Q_D(const Engine);
+    return d->m_v4->hasException;
+}
+
 QHash<QV4::ExecutionEngine *, EnginePrivate*> EnginePrivate::m_nodeEngines;
 
 EnginePrivate *EnginePrivate::get(QV4::ExecutionEngine *v4)
