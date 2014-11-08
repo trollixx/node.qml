@@ -172,7 +172,8 @@ QV4::Object *ModuleObject::require(QV4::ExecutionContext *ctx, const QString &pa
         }
 
         if (node->hasCachedModule(filename)) {
-            exports = node->cachedModule(filename);
+            qDebug("Module '%s' is already in cache (%s).", qPrintable(path), qPrintable(filename));
+            exports = node->cachedModule(filename)->get(s = v4->newString("exports"));
         } else {
             QV4::Scoped<ModuleObject> module(scope, v4->memoryManager->alloc<ModuleObject>(v4, filename, parent));
             module->load(ctx, filename);
