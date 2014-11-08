@@ -8,7 +8,7 @@
 
 namespace NodeQml {
 
-struct BufferObject: QV4::Object {
+struct BufferObject : QV4::Object {
     enum class Encoding {
         Invalid,
         Ascii,
@@ -39,7 +39,7 @@ struct BufferObject: QV4::Object {
     static bool isEncoding(const QString &str);
 };
 
-struct BufferCtor: QV4::FunctionObject
+struct BufferCtor : QV4::FunctionObject
 {
     struct Data : QV4::FunctionObject::Data {
         Data(QV4::ExecutionContext *scope);
@@ -50,7 +50,7 @@ struct BufferCtor: QV4::FunctionObject
     static QV4::ReturnedValue call(QV4::Managed *that, QV4::CallData *callData);
 };
 
-struct BufferPrototype: BufferObject
+struct BufferPrototype : BufferObject
 {
     void init(QV4::ExecutionEngine *v4, QV4::Object *ctor);
 

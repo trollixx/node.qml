@@ -5,7 +5,7 @@
 
 namespace NodeQml {
 
-struct ModuleObject: QV4::Object {
+struct ModuleObject : QV4::Object {
     struct Data : QV4::Object::Data {
         Data(QV4::ExecutionEngine *v4, const QString &moduleId, ModuleObject *moduleParent = nullptr);
 
