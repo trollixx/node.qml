@@ -213,8 +213,11 @@ QString ModuleObject::resolveModule(QV4::ExecutionContext *ctx, const QString &r
     if (fi.isRelative())
         fi.setFile(QDir(parentPath).filePath(request));
 
-    if (!fi.exists())
-        return QString();
+    if (!fi.exists()) {
+        fi.setFile(fi.absoluteFilePath() + QStringLiteral(".js"));
+        if (!fi.exists() || fi.isDir())
+            return QString();
+    }
 
     if (fi.isFile())
         return fi.absoluteFilePath();
