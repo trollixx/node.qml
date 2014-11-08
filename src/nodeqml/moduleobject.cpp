@@ -132,8 +132,7 @@ QV4::Object *ModuleObject::compile(QV4::ExecutionContext *ctx)
         QV4::ScopedObject ex(scope, v4->catchException(ctx, &stackTrace));
         QV4::ScopedValue message(scope, ex->get(s = v4->newString(QStringLiteral("message"))));
         qDebug("Exception: %s", qPrintable(message->toQStringNoThrow()));
-        for (int i = stackTrace.size() - 1; i >= 0; --i) {
-            const QV4::StackFrame &frame = stackTrace[i];
+        foreach (const QV4::StackFrame &frame, stackTrace) {
             qDebug("    at %s (%s:%d:%d)",
                    qPrintable(frame.function), qPrintable(frame.source), frame.line, frame.column);
         }
