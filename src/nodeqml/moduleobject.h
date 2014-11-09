@@ -2,6 +2,7 @@
 #define MODULEOBJECT_H
 
 #include <private/qv4object_p.h>
+#include <private/qv4functionobject_p.h>
 
 namespace NodeQml {
 
@@ -42,6 +43,17 @@ struct ModuleObject : QV4::Object {
     static QV4::ReturnedValue property_loaded_getter(QV4::CallContext *ctx);
 
     static QV4::ReturnedValue method_require(QV4::CallContext *ctx);
+};
+
+struct RequireFunction : QV4::FunctionObject
+{
+    struct Data : QV4::FunctionObject::Data {
+        Data(QV4::ExecutionContext *scope, ModuleObject *moduleObject);
+        ModuleObject *module;
+    };
+    V4_OBJECT(FunctionObject)
+
+    static QV4::ReturnedValue call(QV4::Managed *that, QV4::CallData *callData);
 };
 
 } // namespace NodeQml

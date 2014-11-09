@@ -112,6 +112,11 @@ QV4::Object *ModuleObject::compile(QV4::ExecutionContext *ctx)
     global->defineReadonlyProperty(QStringLiteral("__filename"),
                                    (s = v4->newString(fi.fileName())));
 
+    // Require
+    QV4::Scoped<RequireFunction> requireFunc(scope, v4->memoryManager->alloc<RequireFunction>(ctx, this));
+    global->defineReadonlyProperty(QStringLiteral("require"), requireFunc);
+
+
     QScopedPointer<QFile> file(new QFile(d()->filename));
     if (!file->open(QIODevice::ReadOnly)) {
         v4->currentContext()->throwError(QString("require: Cannot open file '%1'").arg(file->fileName()));
@@ -263,3 +268,26 @@ QV4::ReturnedValue ModuleObject::method_require(QV4::CallContext *ctx)
     return exports.asReturnedValue();
 }
 
+DEFINE_OBJECT_VTABLE(RequireFunction);
+
+RequireFunction::Data::Data(QV4::ExecutionContext *scope, ModuleObject *moduleObject) :
+    QV4::FunctionObject::Data(scope, QStringLiteral("require")),
+    module(moduleObject)
+{
+    setVTable(staticVTable());
+}
+
+QV4::ReturnedValue RequireFunction::call(QV4::Managed *that, QV4::CallData *callData)
+{
+    QV4::ExecutionEngine *v4 = that->engine();
+    QV4::Scope scope(v4);
+    QV4::Scoped<RequireFunction> self(scope, that->as<RequireFunction>());
+    QV4::Scoped<ModuleObject> module(scope, self->d()->module);
+    QV4::ScopedString s(scope);
+    QV4::Scoped<QV4::BuiltinFunction> require(
+                scope, module->get(s = v4->newString(QStringLiteral("require"))));
+    QV4::ScopedCallData cd(scope, 1);
+    cd->thisObject = module;
+    cd->args[0] = callData->args[0];
+    return require->call(require.getPointer(), cd);
+}
