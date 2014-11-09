@@ -106,17 +106,18 @@ QV4::ReturnedValue EnginePrivate::require(const QString &id, QV4::ExecutionConte
 
 QV4::ReturnedValue EnginePrivate::setTimeout(QV4::CallContext *ctx)
 {
-    if (ctx->d()->callData->argc < 2)
+    const QV4::CallData * const callData = ctx->d()->callData;
+    if (callData->argc < 2)
         return ctx->throwError("setTimeout: missing arguments");
 
-    QV4::FunctionObject *cb = ctx->d()->callData->args[0].asFunctionObject();
+    QV4::FunctionObject *cb = callData->args[0].asFunctionObject();
     if (!cb)
         return ctx->throwTypeError("setTimeout: callback must be a function");
 
-    if (!ctx->d()->callData->args[1].isInt32())
+    if (!callData->args[1].isNumber())
         return ctx->throwTypeError("setTimeout: timeout must be an integer");
 
-    int delay = ctx->d()->callData->args[1].toInt32();
+    int delay = callData->args[1].toInt32();
     if (delay <= 0)
         delay = 1;
 
@@ -132,13 +133,14 @@ QV4::ReturnedValue EnginePrivate::setTimeout(QV4::CallContext *ctx)
 
 QV4::ReturnedValue EnginePrivate::clearTimeout(QV4::CallContext *ctx)
 {
-    if (ctx->d()->callData->argc < 1)
+    const QV4::CallData * const callData = ctx->d()->callData;
+    if (callData->argc < 1)
         return ctx->throwError("clearTimeout: missing arguments");
 
-    if (!ctx->d()->callData->args[0].isInt32())
+    if (!callData->args[0].isNumber())
         return ctx->throwTypeError("clearTimeout: timeout must be an integer (at the moment)");
 
-    int timerId = ctx->d()->callData->args[0].toInt32();
+    int timerId = callData->args[0].toInt32();
     if (m_timeoutCallbacks.contains(timerId)) {
         killTimer(timerId);
         m_timeoutCallbacks.remove(timerId);
@@ -149,17 +151,18 @@ QV4::ReturnedValue EnginePrivate::clearTimeout(QV4::CallContext *ctx)
 
 QV4::ReturnedValue EnginePrivate::setInterval(QV4::CallContext *ctx)
 {
-    if (ctx->d()->callData->argc < 2)
+    const QV4::CallData * const callData = ctx->d()->callData;
+    if (callData->argc < 2)
         return ctx->throwError("setInterval: missing arguments");
 
-    QV4::FunctionObject *cb = ctx->d()->callData->args[0].asFunctionObject();
+    QV4::FunctionObject *cb = callData->args[0].asFunctionObject();
     if (!cb)
         return ctx->throwTypeError("setInterval: callback must be a function");
 
-    if (!ctx->d()->callData->args[1].isInt32())
+    if (!callData->args[1].isNumber())
         return ctx->throwTypeError("setInterval: timeout must be an integer");
 
-    int delay = ctx->d()->callData->args[1].toInt32();
+    int delay = callData->args[1].toInt32();
     if (delay <= 0)
         delay = 1;
 
@@ -175,13 +178,14 @@ QV4::ReturnedValue EnginePrivate::setInterval(QV4::CallContext *ctx)
 
 QV4::ReturnedValue EnginePrivate::clearInterval(QV4::CallContext *ctx)
 {
-    if (ctx->d()->callData->argc < 1)
+    const QV4::CallData * const callData = ctx->d()->callData;
+    if (callData->argc < 1)
         return ctx->throwError("clearInterval: missing arguments");
 
-    if (!ctx->d()->callData->args[0].isInt32())
+    if (!callData->args[0].isNumber())
         return ctx->throwTypeError("clearInterval: timeout must be an integer (at the moment)");
 
-    int timerId = ctx->d()->callData->args[0].toInt32();
+    int timerId = callData->args[0].toInt32();
     if (!m_intervalCallbacks.contains(timerId)) {
         killTimer(timerId);
         m_intervalCallbacks.remove(timerId);
