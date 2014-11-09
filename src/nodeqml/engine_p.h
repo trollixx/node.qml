@@ -5,6 +5,7 @@
 #include <QObject>
 
 #include <private/qv4engine_p.h>
+#include <private/qv4persistent_p.h>
 
 class QQmlEngine;
 
@@ -55,8 +56,8 @@ private:
     QV4::ExecutionEngine *m_v4;
     QHash<QString, QV4::Object *> m_coreModules;
     QHash<QString, ModuleObject *> m_cachedModules;
-    QHash<int, QV4::FunctionObject *> m_timeoutCallbacks;
-    QHash<int, QV4::FunctionObject *> m_intervalCallbacks;
+    QHash<int, QV4::PersistentValue> m_timeoutCallbacks;
+    QHash<int, QV4::PersistentValue> m_intervalCallbacks;
 
     static QHash<QV4::ExecutionEngine *, EnginePrivate*> m_nodeEngines;
 };

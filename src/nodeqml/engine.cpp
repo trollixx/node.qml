@@ -110,7 +110,9 @@ QV4::ReturnedValue EnginePrivate::setTimeout(QV4::CallContext *ctx)
     if (callData->argc < 2)
         return ctx->throwError("setTimeout: missing arguments");
 
-    QV4::FunctionObject *cb = callData->args[0].asFunctionObject();
+    QV4::Scope scope(ctx);
+    QV4::ScopedFunctionObject cb(scope, callData->args[0].asFunctionObject());
+
     if (!cb)
         return ctx->throwTypeError("setTimeout: callback must be a function");
 
@@ -125,7 +127,7 @@ QV4::ReturnedValue EnginePrivate::setTimeout(QV4::CallContext *ctx)
     if (!timerId)
         return ctx->throwError("setTimeout: cannot start timer");
 
-    m_timeoutCallbacks.insert(timerId, cb);
+    m_timeoutCallbacks.insert(timerId, cb.asReturnedValue());
 
     /// TODO: Return an object similar to Node's
     return QV4::Encode(timerId);
@@ -155,7 +157,9 @@ QV4::ReturnedValue EnginePrivate::setInterval(QV4::CallContext *ctx)
     if (callData->argc < 2)
         return ctx->throwError("setInterval: missing arguments");
 
-    QV4::FunctionObject *cb = callData->args[0].asFunctionObject();
+    QV4::Scope scope(ctx);
+    QV4::ScopedFunctionObject cb(scope, callData->args[0].asFunctionObject());
+
     if (!cb)
         return ctx->throwTypeError("setInterval: callback must be a function");
 
@@ -170,7 +174,7 @@ QV4::ReturnedValue EnginePrivate::setInterval(QV4::CallContext *ctx)
     if (!timerId)
         return ctx->throwError("setInterval: cannot start timer");
 
-    m_intervalCallbacks.insert(timerId, cb);
+    m_intervalCallbacks.insert(timerId, cb.asReturnedValue());
 
     /// TODO: Return an object similar to Node's
     return QV4::Encode(timerId);
@@ -197,7 +201,9 @@ QV4::ReturnedValue EnginePrivate::clearInterval(QV4::CallContext *ctx)
 void EnginePrivate::timerEvent(QTimerEvent *event)
 {
     int timerId = event->timerId();
-    QV4::FunctionObject *cb;
+
+    QV4::Scope scope(m_v4);
+    QV4::ScopedFunctionObject cb(scope);
 
     if (m_timeoutCallbacks.contains(timerId)) {
         killTimer(timerId);
@@ -210,10 +216,9 @@ void EnginePrivate::timerEvent(QTimerEvent *event)
 
     event->accept();
 
-    QV4::Scope scope(m_v4);
     QV4::ScopedCallData callData(scope, 0);
     callData->thisObject = m_v4->globalObject->asReturnedValue();
-    cb->call(callData);
+    QV4::SimpleScriptFunction::call(cb, callData);
 }
 
 void EnginePrivate::registerTypes()
