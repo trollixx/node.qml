@@ -123,7 +123,7 @@ QV4::ReturnedValue EnginePrivate::setTimeout(QV4::CallContext *ctx)
     if (delay <= 0)
         delay = 1;
 
-    int timerId = startTimer(delay, Qt::PreciseTimer);
+    const int timerId = startTimer(delay, Qt::PreciseTimer);
     if (!timerId)
         return ctx->throwError("setTimeout: cannot start timer");
 
@@ -142,7 +142,7 @@ QV4::ReturnedValue EnginePrivate::clearTimeout(QV4::CallContext *ctx)
     if (!callData->args[0].isNumber())
         return ctx->throwTypeError("clearTimeout: timeout must be an integer (at the moment)");
 
-    int timerId = callData->args[0].toInt32();
+    const int timerId = callData->args[0].toInt32();
     if (m_timeoutCallbacks.contains(timerId)) {
         killTimer(timerId);
         m_timeoutCallbacks.remove(timerId);
@@ -170,7 +170,7 @@ QV4::ReturnedValue EnginePrivate::setInterval(QV4::CallContext *ctx)
     if (delay <= 0)
         delay = 1;
 
-    int timerId = startTimer(delay, Qt::PreciseTimer);
+    const int timerId = startTimer(delay, Qt::PreciseTimer);
     if (!timerId)
         return ctx->throwError("setInterval: cannot start timer");
 
@@ -189,7 +189,7 @@ QV4::ReturnedValue EnginePrivate::clearInterval(QV4::CallContext *ctx)
     if (!callData->args[0].isNumber())
         return ctx->throwTypeError("clearInterval: timeout must be an integer (at the moment)");
 
-    int timerId = callData->args[0].toInt32();
+    const int timerId = callData->args[0].toInt32();
     if (!m_intervalCallbacks.contains(timerId)) {
         killTimer(timerId);
         m_intervalCallbacks.remove(timerId);
@@ -200,7 +200,7 @@ QV4::ReturnedValue EnginePrivate::clearInterval(QV4::CallContext *ctx)
 
 void EnginePrivate::timerEvent(QTimerEvent *event)
 {
-    int timerId = event->timerId();
+    const int timerId = event->timerId();
 
     QV4::Scope scope(m_v4);
     QV4::ScopedFunctionObject cb(scope);
