@@ -37,7 +37,7 @@ struct ProcessModule : QV4::Object
     /// TODO: process.kill(pid, [signal])
     /// TODO: process.title
     /// TODO: process.memoryUsage()
-    /// TODO: process.nextTick(callback)
+    static QV4::ReturnedValue method_nextTick(QV4::CallContext *ctx);
     /// TODO: process.maxTickDepth
     /// TODO: process.umask([mask])
     /// TODO: process.uptime()

@@ -1,5 +1,7 @@
 #include "process.h"
 
+#include "../engine_p.h"
+
 #include <QCoreApplication>
 #include <QDir>
 
@@ -27,6 +29,7 @@ ProcessModule::Data::Data(QV4::ExecutionEngine *v4) :
     o->defineDefaultProperty(QStringLiteral("chdir"), method_chdir);
     o->defineDefaultProperty(QStringLiteral("cwd"), method_cwd);
     o->defineDefaultProperty(QStringLiteral("exit"), method_exit);
+    o->defineDefaultProperty(QStringLiteral("nextTick"), method_nextTick);
 }
 
 QV4::ReturnedValue ProcessModule::property_pid_getter(QV4::CallContext *ctx)
@@ -72,6 +75,11 @@ QV4::ReturnedValue ProcessModule::method_exit(QV4::CallContext *ctx)
 
     QCoreApplication::exit(code);
     return QV4::Encode::undefined();
+}
+
+QV4::ReturnedValue ProcessModule::method_nextTick(QV4::CallContext *ctx)
+{
+    return EnginePrivate::get(ctx->engine())->nextTick(ctx);
 }
 
 QString ProcessModule::arch()

@@ -9,6 +9,7 @@
 #include "modules/util.h"
 #include "types/buffer.h"
 
+#include <QCoreApplication>
 #include <QFileInfo>
 #include <QLoggingCategory>
 #include <QQmlEngine>
@@ -23,6 +24,35 @@ const QLoggingCategory logCategory("nodeqml.core");
 }
 
 using namespace NodeQml;
+
+class NextTickEvent : public QEvent
+{
+public:
+    NextTickEvent(const QV4::PersistentValue &callback) :
+        QEvent(NextTickEvent::eventType()),
+        m_callback(callback)
+    {
+
+    }
+
+    QV4::PersistentValue callback() const
+    {
+        return m_callback;
+    }
+
+    static QEvent::Type eventType()
+    {
+        if (m_type == QEvent::None)
+            m_type = static_cast<QEvent::Type>(QEvent::registerEventType());
+        return m_type;
+    }
+
+private:
+    static QEvent::Type m_type;
+    QV4::PersistentValue m_callback;
+};
+
+QEvent::Type NextTickEvent::m_type = QEvent::None;
 
 Engine::Engine(QQmlEngine *qmlEngine, QObject *parent) :
     QObject(parent),
@@ -196,6 +226,41 @@ QV4::ReturnedValue EnginePrivate::clearInterval(QV4::CallContext *ctx)
     }
 
     return QV4::Encode::undefined();
+}
+
+QV4::ReturnedValue EnginePrivate::nextTick(QV4::CallContext *ctx)
+{
+    const QV4::CallData * const callData = ctx->d()->callData;
+    if (!callData->argc)
+        return ctx->throwError("setInterval: missing arguments");
+
+    QV4::Scope scope(ctx);
+    QV4::ScopedFunctionObject cb(scope, callData->args[0].asFunctionObject());
+
+    if (!cb)
+        return ctx->throwTypeError("setInterval: callback must be a function");
+
+    NextTickEvent *e = new NextTickEvent(cb.asReturnedValue());
+    qApp->postEvent(this, e, INT_MAX);
+
+    return QV4::Encode::undefined();
+}
+
+void EnginePrivate::customEvent(QEvent *event)
+{
+    if (event->type() != NextTickEvent::eventType()) {
+        QObject::customEvent(event);
+        return;
+    }
+
+    event->accept();
+
+    NextTickEvent *e = reinterpret_cast<NextTickEvent *>(event);
+    QV4::Scope scope(m_v4);
+    QV4::ScopedFunctionObject cb(scope, e->callback());
+    QV4::ScopedCallData callData(scope, 0);
+    callData->thisObject = m_v4->globalObject->asReturnedValue();
+    cb->call(callData);
 }
 
 void EnginePrivate::timerEvent(QTimerEvent *event)
