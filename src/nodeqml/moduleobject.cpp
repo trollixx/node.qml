@@ -95,7 +95,7 @@ void ModuleObject::load(QV4::ExecutionContext *ctx, const QString &path)
 QV4::Object *ModuleObject::compile(QV4::ExecutionContext *ctx)
 {
     QV4::ExecutionEngine *v4 = ctx->engine();
-    QV4::Scope scope(v4);
+    QV4::Scope scope(ctx);
     QV4::Scoped<ModuleObject> self(scope, this);
 
     QV4::ScopedObject global(scope, v4->newObject());
@@ -106,7 +106,6 @@ QV4::Object *ModuleObject::compile(QV4::ExecutionContext *ctx)
     global->defineDefaultProperty(QStringLiteral("exports"), exports);
 
     QFileInfo fi(d()->filename);
-    //QV4::ScopedString s(scope);
     global->defineReadonlyProperty(QStringLiteral("__dirname"),
                                    (s = v4->newString(fi.absoluteFilePath())));
     global->defineReadonlyProperty(QStringLiteral("__filename"),
