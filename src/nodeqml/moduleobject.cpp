@@ -122,6 +122,7 @@ QV4::Object *ModuleObject::compile(QV4::ExecutionContext *ctx)
         return nullptr;
     }
 
+    QV4::ContextStateSaver ctxSaver(ctx);
     QV4::Script script(v4, global, file->readAll(), d()->filename);
     script.strictMode = v4->currentContext()->d()->strictMode;
     script.inheritContext = true; /// NOTE: Is it needed?
