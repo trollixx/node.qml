@@ -15,11 +15,13 @@ struct ModuleObject : QV4::Object {
         QString dirname;
         bool loaded;
         QV4::Object *exportsObject;
-        ModuleObject *parent;
-        QV4::ArrayObject *childrenArray;
+        ModuleObject *parent = nullptr;
+        QV4::ArrayObject *childrenArray = nullptr;
     };
 
     V4_OBJECT(Object)
+
+    static void markObjects(QV4::Managed *that, QV4::ExecutionEngine *e);
 
     void load(QV4::ExecutionContext *ctx, const QString &path);
     QV4::Object *compile(QV4::ExecutionContext *ctx);

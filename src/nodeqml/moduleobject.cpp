@@ -18,12 +18,16 @@ ModuleObject::Data::Data(QV4::ExecutionEngine *v4, const QString &moduleId, Modu
     QV4::Object::Data(v4),
     id(moduleId),
     loaded(false),
-    parent(moduleParent),
-    childrenArray(v4->newArrayObject()->getPointer())
+    parent(moduleParent)
 {
+    QV4::Scope scope(v4);
+    QV4::ScopedValue protectThis(scope, this);
+    Q_UNUSED(protectThis)
+
     setVTable(staticVTable());
 
-    QV4::Scope scope(v4);
+    childrenArray = v4->newArrayObject()->getPointer();
+
     QV4::Scoped<ModuleObject> self(scope, this);
     QV4::ScopedString s(scope);
     QV4::ScopedValue v(scope);
@@ -49,6 +53,14 @@ ModuleObject::Data::Data(QV4::ExecutionEngine *v4, const QString &moduleId, Modu
     self->defineDefaultProperty(QStringLiteral("require"), method_require);
 }
 
+void ModuleObject::markObjects(QV4::Managed *that, QV4::ExecutionEngine *e)
+{
+    ModuleObject *o = static_cast<ModuleObject *>(that);
+    if (o->d()->childrenArray)
+        o->d()->childrenArray->mark(e);
+
+    Object::markObjects(that, e);
+}
 
 void ModuleObject::load(QV4::ExecutionContext *ctx, const QString &path)
 {
