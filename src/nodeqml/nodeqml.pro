@@ -17,7 +17,8 @@ SOURCES += \
     modules/path.cpp \
     modules/process.cpp \
     modules/util.cpp \
-    types/buffer.cpp
+    types/buffer.cpp \
+    types/errnoexception.cpp
 
 HEADERS_PUBLIC += \
     nodeqml_global.h \
@@ -34,7 +35,8 @@ HEADERS_PRIVATE += \
     modules/path.h \
     modules/process.h \
     modules/util.h \
-    types/buffer.h
+    types/buffer.h \
+    types/errnoexception.h
 
 HEADERS += $$HEADERS_PUBLIC $$HEADERS_PRIVATE
 

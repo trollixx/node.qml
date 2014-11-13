@@ -44,6 +44,8 @@ public:
     QV4::Value bufferCtor;
     QV4::InternalClass *bufferClass;
 
+    QV4::InternalClass *errnoExceptionClass;
+
 protected:
     void customEvent(QEvent *event) override;
     void timerEvent(QTimerEvent *event) override;
