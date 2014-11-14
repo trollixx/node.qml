@@ -209,12 +209,8 @@ QV4::Object *ModuleObject::require(QV4::ExecutionContext *ctx, const QString &pa
 
 QString ModuleObject::resolveModule(QV4::ExecutionContext *ctx, const QString &request, const QString &parentPath)
 {
-    Q_UNUSED(parentPath)
+    EnginePrivate *node = EnginePrivate::get(ctx->engine());
 
-    QV4::ExecutionEngine *v4 = ctx->engine();
-    QV4::Scope scope(v4);
-
-    EnginePrivate *node = EnginePrivate::get(v4);
     if (node->hasNativeModule(request))
         return request;
 
