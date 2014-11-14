@@ -9,18 +9,18 @@ OsModule::Data::Data(QV4::ExecutionEngine *v4) :
     QV4::Object::Data(v4)
 {
     QV4::Scope scope(v4);
-    QV4::ScopedObject o(scope, this);
+    QV4::ScopedObject self(scope, this);
     QV4::ScopedString s(scope);
 
 #ifdef Q_OS_WIN
-    o->defineReadonlyProperty(QStringLiteral("EOL"), (s = v4->newString(QStringLiteral("\r\n"))));
+    self->defineReadonlyProperty(QStringLiteral("EOL"), (s = v4->newString(QStringLiteral("\r\n"))));
 #else
-    o->defineReadonlyProperty(QStringLiteral("EOL"), (s = v4->newString(QStringLiteral("\n"))));
+    self->defineReadonlyProperty(QStringLiteral("EOL"), (s = v4->newString(QStringLiteral("\n"))));
 #endif
 
-    o->defineDefaultProperty(QStringLiteral("tmpdir"), method_tmpdir);
-    o->defineDefaultProperty(QStringLiteral("endianness"), method_endianness);
-    o->defineDefaultProperty(QStringLiteral("hostname"), method_hostname);
+    self->defineDefaultProperty(QStringLiteral("tmpdir"), method_tmpdir);
+    self->defineDefaultProperty(QStringLiteral("endianness"), method_endianness);
+    self->defineDefaultProperty(QStringLiteral("hostname"), method_hostname);
 }
 
 

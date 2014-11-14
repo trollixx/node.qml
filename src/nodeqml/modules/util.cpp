@@ -13,16 +13,16 @@ UtilModule::Data::Data(QV4::ExecutionEngine *v4) :
     QV4::Object::Data(v4)
 {
     QV4::Scope scope(v4);
-    QV4::ScopedObject o(scope, this);
+    QV4::ScopedObject self(scope, this);
 
-    o->defineDefaultProperty(QStringLiteral("format"), method_format, 1);
-    o->defineDefaultProperty(QStringLiteral("log"), method_log, 1);
-    o->defineDefaultProperty(QStringLiteral("inspect"), method_inspect, 2);
-    o->defineDefaultProperty(QStringLiteral("isArray"), method_isArray, 1);
-    o->defineDefaultProperty(QStringLiteral("isRegExp"), method_isRegExp, 1);
-    o->defineDefaultProperty(QStringLiteral("isDate"), method_isDate, 1);
-    o->defineDefaultProperty(QStringLiteral("isError"), method_isError, 1);
-    o->defineDefaultProperty(QStringLiteral("inherits"), method_inherits, 2);
+    self->defineDefaultProperty(QStringLiteral("format"), method_format, 1);
+    self->defineDefaultProperty(QStringLiteral("log"), method_log, 1);
+    self->defineDefaultProperty(QStringLiteral("inspect"), method_inspect, 2);
+    self->defineDefaultProperty(QStringLiteral("isArray"), method_isArray, 1);
+    self->defineDefaultProperty(QStringLiteral("isRegExp"), method_isRegExp, 1);
+    self->defineDefaultProperty(QStringLiteral("isDate"), method_isDate, 1);
+    self->defineDefaultProperty(QStringLiteral("isError"), method_isError, 1);
+    self->defineDefaultProperty(QStringLiteral("inherits"), method_inherits, 2);
 }
 
 QV4::ReturnedValue UtilModule::method_format(QV4::CallContext *ctx)

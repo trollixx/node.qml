@@ -9,22 +9,22 @@ PathModule::Data::Data(QV4::ExecutionEngine *v4) :
     QV4::Object::Data(v4)
 {
     QV4::Scope scope(v4);
-    QV4::ScopedObject o(scope, this);
+    QV4::ScopedObject self(scope, this);
     QV4::ScopedString s(scope);
 
 #ifdef Q_OS_WIN
-    o->defineReadonlyProperty(QStringLiteral("delimiter"),
-                              (s = v4->newString(QStringLiteral(";"))));
+    self->defineReadonlyProperty(QStringLiteral("delimiter"),
+                                (s = v4->newString(QStringLiteral(";"))));
 #else
-    o->defineReadonlyProperty(QStringLiteral("delimiter"),
+    self->defineReadonlyProperty(QStringLiteral("delimiter"),
                               (s = v4->newString(QStringLiteral(":"))));
 #endif
-    o->defineReadonlyProperty(QStringLiteral("sep"), (s = v4->newString(QDir::separator())));
+    self->defineReadonlyProperty(QStringLiteral("sep"), (s = v4->newString(QDir::separator())));
 
 
-    o->defineDefaultProperty(QStringLiteral("normalize"), method_normalize);
-    o->defineDefaultProperty(QStringLiteral("dirname"), method_dirname);
-    o->defineDefaultProperty(QStringLiteral("extname"), method_extname);
+    self->defineDefaultProperty(QStringLiteral("normalize"), method_normalize);
+    self->defineDefaultProperty(QStringLiteral("dirname"), method_dirname);
+    self->defineDefaultProperty(QStringLiteral("extname"), method_extname);
 }
 
 QV4::ReturnedValue PathModule::method_normalize(QV4::CallContext *ctx)

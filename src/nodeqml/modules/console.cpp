@@ -17,17 +17,17 @@ ConsoleModule::Data::Data(QV4::ExecutionEngine *v4) :
     setVTable(staticVTable());
 
     QV4::Scope scope(v4);
-    QV4::ScopedObject o(scope, this);
+    QV4::ScopedObject self(scope, this);
 
-    o->defineDefaultProperty(QStringLiteral("log"), method_log);
-    o->defineDefaultProperty(QStringLiteral("info"), method_log);
-    o->defineDefaultProperty(QStringLiteral("error"), method_error);
-    o->defineDefaultProperty(QStringLiteral("warn"), method_error);
-    o->defineDefaultProperty(QStringLiteral("dir"), method_dir);
-    o->defineDefaultProperty(QStringLiteral("time"), method_time);
-    o->defineDefaultProperty(QStringLiteral("timeEnd"), method_timeEnd);
-    o->defineDefaultProperty(QStringLiteral("trace"), method_trace);
-    o->defineDefaultProperty(QStringLiteral("assert"), method_assert);
+    self->defineDefaultProperty(QStringLiteral("log"), method_log);
+    self->defineDefaultProperty(QStringLiteral("info"), method_log);
+    self->defineDefaultProperty(QStringLiteral("error"), method_error);
+    self->defineDefaultProperty(QStringLiteral("warn"), method_error);
+    self->defineDefaultProperty(QStringLiteral("dir"), method_dir);
+    self->defineDefaultProperty(QStringLiteral("time"), method_time);
+    self->defineDefaultProperty(QStringLiteral("timeEnd"), method_timeEnd);
+    self->defineDefaultProperty(QStringLiteral("trace"), method_trace);
+    self->defineDefaultProperty(QStringLiteral("assert"), method_assert);
 }
 
 QV4::ReturnedValue ConsoleModule::method_log(QV4::CallContext *ctx)

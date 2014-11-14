@@ -9,10 +9,10 @@ FileSystemModule::Data::Data(QV4::ExecutionEngine *v4) :
     QV4::Object::Data(v4)
 {
     QV4::Scope scope(v4);
-    QV4::ScopedObject o(scope, this);
+    QV4::ScopedObject self(scope, this);
 
-    o->defineDefaultProperty(QStringLiteral("existsSync"), method_existsSync);
-    o->defineDefaultProperty(QStringLiteral("renameSync"), method_renameSync);
+    self->defineDefaultProperty(QStringLiteral("existsSync"), method_existsSync);
+    self->defineDefaultProperty(QStringLiteral("renameSync"), method_renameSync);
 }
 
 QV4::ReturnedValue FileSystemModule::method_existsSync(QV4::CallContext *ctx)
