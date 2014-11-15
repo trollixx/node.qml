@@ -107,7 +107,9 @@ bool EnginePrivate::hasNativeModule(const QString &id) const
 
 QV4::Object *EnginePrivate::nativeModule(const QString &id) const
 {
-    return m_coreModules.value(id);
+    QV4::Scope scope(m_v4);
+    QV4::Scoped<QV4::Object> module(scope, m_coreModules.value(id));
+    return module.getPointer();
 }
 
 void EnginePrivate::cacheModule(const QString &id, ModuleObject *module)
@@ -303,8 +305,9 @@ void EnginePrivate::registerTypes()
 
 void EnginePrivate::registerModules()
 {
-    m_coreModules.insert(QStringLiteral("fs"), m_v4->memoryManager->alloc<FileSystemModule>(m_v4));
-    m_coreModules.insert(QStringLiteral("os"), m_v4->memoryManager->alloc<OsModule>(m_v4));
-    m_coreModules.insert(QStringLiteral("path"), m_v4->memoryManager->alloc<PathModule>(m_v4));
-    m_coreModules.insert(QStringLiteral("util"), m_v4->memoryManager->alloc<UtilModule>(m_v4));
+    /// FIXME: ->asReturned<QV4::Object>() should work
+    m_coreModules.insert(QStringLiteral("fs"), m_v4->memoryManager->alloc<FileSystemModule>(m_v4)->asReturnedValue());
+    m_coreModules.insert(QStringLiteral("os"), m_v4->memoryManager->alloc<OsModule>(m_v4)->asReturnedValue());
+    m_coreModules.insert(QStringLiteral("path"), m_v4->memoryManager->alloc<PathModule>(m_v4)->asReturnedValue());
+    m_coreModules.insert(QStringLiteral("util"), m_v4->memoryManager->alloc<UtilModule>(m_v4)->asReturnedValue());
 }
