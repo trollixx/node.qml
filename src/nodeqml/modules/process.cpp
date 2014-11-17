@@ -11,25 +11,25 @@ ProcessModule::Data::Data(QV4::ExecutionEngine *v4) :
     QV4::Object::Data(v4)
 {
     QV4::Scope scope(v4);
-    QV4::ScopedObject o(scope, this);
+    QV4::ScopedObject self(scope, this);
     QV4::ScopedValue v(scope);
 
-    o->defineReadonlyProperty(QStringLiteral("arch"), (v = v4->newString(arch())));
-    o->defineReadonlyProperty(QStringLiteral("platform"), (v = v4->newString(platform())));
-    o->defineReadonlyProperty(QStringLiteral("argv"),
+    self->defineReadonlyProperty(QStringLiteral("arch"), (v = v4->newString(arch())));
+    self->defineReadonlyProperty(QStringLiteral("platform"), (v = v4->newString(platform())));
+    self->defineReadonlyProperty(QStringLiteral("argv"),
                               (v = v4->newArrayObject(QCoreApplication::arguments())));
-    o->defineReadonlyProperty(QStringLiteral("execPath"),
+    self->defineReadonlyProperty(QStringLiteral("execPath"),
                               (v = v4->newString(QCoreApplication::applicationFilePath())));
-    o->defineReadonlyProperty(QStringLiteral("version"),
+    self->defineReadonlyProperty(QStringLiteral("version"),
                               (v = v4->newString(QStringLiteral("v0.10.33"))));
 
-    o->defineAccessorProperty(QStringLiteral("pid"), property_pid_getter, nullptr);
+    self->defineAccessorProperty(QStringLiteral("pid"), property_pid_getter, nullptr);
 
-    o->defineDefaultProperty(QStringLiteral("abort"), method_abort);
-    o->defineDefaultProperty(QStringLiteral("chdir"), method_chdir);
-    o->defineDefaultProperty(QStringLiteral("cwd"), method_cwd);
-    o->defineDefaultProperty(QStringLiteral("exit"), method_exit);
-    o->defineDefaultProperty(QStringLiteral("nextTick"), method_nextTick);
+    self->defineDefaultProperty(QStringLiteral("abort"), method_abort);
+    self->defineDefaultProperty(QStringLiteral("chdir"), method_chdir);
+    self->defineDefaultProperty(QStringLiteral("cwd"), method_cwd);
+    self->defineDefaultProperty(QStringLiteral("exit"), method_exit);
+    self->defineDefaultProperty(QStringLiteral("nextTick"), method_nextTick);
 }
 
 QV4::ReturnedValue ProcessModule::property_pid_getter(QV4::CallContext *ctx)
