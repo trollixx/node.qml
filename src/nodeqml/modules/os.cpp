@@ -1,7 +1,13 @@
 #include "os.h"
 
+#include "../engine_p.h"
+
 #include <QDir>
 #include <QHostInfo>
+
+#ifdef Q_OS_LINUX
+#include <sys/utsname.h>
+#endif
 
 using namespace NodeQml;
 
@@ -21,6 +27,7 @@ OsModule::Data::Data(QV4::ExecutionEngine *v4) :
     self->defineDefaultProperty(QStringLiteral("tmpdir"), method_tmpdir);
     self->defineDefaultProperty(QStringLiteral("endianness"), method_endianness);
     self->defineDefaultProperty(QStringLiteral("hostname"), method_hostname);
+    self->defineDefaultProperty(QStringLiteral("type"), method_type);
 }
 
 
@@ -41,4 +48,19 @@ QV4::ReturnedValue OsModule::method_endianness(QV4::CallContext *ctx)
 QV4::ReturnedValue OsModule::method_hostname(QV4::CallContext *ctx)
 {
     return ctx->engine()->newString(QHostInfo::localHostName())->asReturnedValue();
+}
+
+QV4::ReturnedValue OsModule::method_type(QV4::CallContext *ctx)
+{
+#ifdef Q_OS_LINUX
+    QV4::ExecutionEngine *v4 = ctx->engine();
+
+    struct utsname info;
+    if (uname(&info) < 0)
+        return EnginePrivate::get(v4)->throwErrnoException(errno, QStringLiteral("uname"));
+
+    return v4->newString(QString::fromLocal8Bit(info.sysname))->asReturnedValue();
+#else
+    return QV4::Encode::undefined();
+#endif
 }
