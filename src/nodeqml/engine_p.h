@@ -40,6 +40,8 @@ public:
 
     QV4::ReturnedValue nextTick(QV4::CallContext *ctx);
 
+    QV4::ReturnedValue throwErrnoException(int errorNo, const QString &syscall);
+
 public:
     QV4::Value bufferCtor;
     QV4::InternalClass *bufferClass;

@@ -8,6 +8,7 @@
 #include "modules/path.h"
 #include "modules/util.h"
 #include "types/buffer.h"
+#include "types/errnoexception.h"
 
 #include <QCoreApplication>
 #include <QFileInfo>
@@ -248,6 +249,15 @@ QV4::ReturnedValue EnginePrivate::nextTick(QV4::CallContext *ctx)
     return QV4::Encode::undefined();
 }
 
+QV4::ReturnedValue EnginePrivate::throwErrnoException(int errorNo, const QString &syscall)
+{
+    const QString message = QString::fromLocal8Bit(strerror(errorNo));
+
+    QV4::Scope scope(m_v4);
+    QV4::ScopedObject o(scope, m_v4->memoryManager->alloc<ErrnoExceptionObject>(m_v4, message, errorNo, syscall));
+    return m_v4->throwException(o);
+}
+
 void EnginePrivate::customEvent(QEvent *event)
 {
     if (event->type() != NextTickEvent::eventType()) {
@@ -291,6 +301,12 @@ void EnginePrivate::timerEvent(QTimerEvent *event)
 void EnginePrivate::registerTypes()
 {
     QV4::Scope scope(m_v4);
+
+    QV4::ScopedObject errnoExceptionPrototype(
+                scope, m_v4->memoryManager->alloc<QV4::ErrorPrototype>(
+                    QV4::InternalClass::create(m_v4, ErrnoExceptionObject::staticVTable(),
+                                               m_v4->errorClass->prototype)));
+    errnoExceptionClass = QV4::InternalClass::create(m_v4, ErrnoExceptionObject::staticVTable(), errnoExceptionPrototype);
 
     QV4::ScopedObject bufferPrototype(
                 scope, m_v4->memoryManager->alloc<BufferPrototype>(
