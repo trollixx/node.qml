@@ -1,5 +1,6 @@
 #include "os.h"
 
+#include "process.h"
 #include "../engine_p.h"
 
 #include <QDir>
@@ -28,6 +29,8 @@ OsModule::Data::Data(QV4::ExecutionEngine *v4) :
     self->defineDefaultProperty(QStringLiteral("endianness"), method_endianness);
     self->defineDefaultProperty(QStringLiteral("hostname"), method_hostname);
     self->defineDefaultProperty(QStringLiteral("type"), method_type);
+    self->defineDefaultProperty(QStringLiteral("platform"), method_platform);
+    self->defineDefaultProperty(QStringLiteral("arch"), method_arch);
 }
 
 
@@ -63,4 +66,18 @@ QV4::ReturnedValue OsModule::method_type(QV4::CallContext *ctx)
 #else
     return QV4::Encode::undefined();
 #endif
+}
+
+QV4::ReturnedValue OsModule::method_platform(QV4::CallContext *ctx)
+{
+    QV4::Scope scope(ctx);
+    QV4::ScopedString s(scope, ctx->engine()->newString(ProcessModule::platform()));
+    return s->asReturnedValue();
+}
+
+QV4::ReturnedValue OsModule::method_arch(QV4::CallContext *ctx)
+{
+    QV4::Scope scope(ctx);
+    QV4::ScopedString s(scope, ctx->engine()->newString(ProcessModule::arch()));
+    return s->asReturnedValue();
 }
