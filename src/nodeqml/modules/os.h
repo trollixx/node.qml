@@ -15,7 +15,6 @@ struct OsModule : QV4::Object
     static QV4::ReturnedValue method_endianness(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_hostname(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_type(QV4::CallContext *ctx);
-    /// TODO: os.type()
     /// TODO: os.platform()
     /// TODO: os.arch()
     /// TODO: os.release()
