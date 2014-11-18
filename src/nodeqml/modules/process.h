@@ -43,9 +43,8 @@ struct ProcessModule : QV4::Object
     /// TODO: process.uptime()
     /// TODO: process.hrtime()
 
-private:
-    static inline QString arch();
-    static inline QString platform();
+    static QString arch();
+    static QString platform();
 };
 
 } // namespace NodeQml
