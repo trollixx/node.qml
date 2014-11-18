@@ -31,6 +31,7 @@ OsModule::Data::Data(QV4::ExecutionEngine *v4) :
     self->defineDefaultProperty(QStringLiteral("type"), method_type);
     self->defineDefaultProperty(QStringLiteral("platform"), method_platform);
     self->defineDefaultProperty(QStringLiteral("arch"), method_arch);
+    self->defineDefaultProperty(QStringLiteral("release"), method_release);
 }
 
 
@@ -80,4 +81,19 @@ QV4::ReturnedValue OsModule::method_arch(QV4::CallContext *ctx)
     QV4::Scope scope(ctx);
     QV4::ScopedString s(scope, ctx->engine()->newString(ProcessModule::arch()));
     return s->asReturnedValue();
+}
+
+QV4::ReturnedValue OsModule::method_release(QV4::CallContext *ctx)
+{
+#ifdef Q_OS_LINUX
+    QV4::ExecutionEngine *v4 = ctx->engine();
+
+    struct utsname info;
+    if (uname(&info) < 0)
+        return EnginePrivate::get(v4)->throwErrnoException(errno, QStringLiteral("uname"));
+
+    return v4->newString(QString::fromLocal8Bit(info.release))->asReturnedValue();
+#else
+    return QV4::Encode::undefined();
+#endif
 }
