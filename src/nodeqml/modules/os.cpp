@@ -7,6 +7,7 @@
 #include <QHostInfo>
 
 #ifdef Q_OS_LINUX
+#include <sys/sysinfo.h>
 #include <sys/utsname.h>
 #endif
 
@@ -32,6 +33,7 @@ OsModule::Data::Data(QV4::ExecutionEngine *v4) :
     self->defineDefaultProperty(QStringLiteral("platform"), method_platform);
     self->defineDefaultProperty(QStringLiteral("arch"), method_arch);
     self->defineDefaultProperty(QStringLiteral("release"), method_release);
+    self->defineDefaultProperty(QStringLiteral("loadavg"), method_loadavg);
 }
 
 
@@ -93,6 +95,31 @@ QV4::ReturnedValue OsModule::method_release(QV4::CallContext *ctx)
         return EnginePrivate::get(v4)->throwErrnoException(errno, QStringLiteral("uname"));
 
     return v4->newString(QString::fromLocal8Bit(info.release))->asReturnedValue();
+#else
+    return QV4::Encode::undefined();
+#endif
+}
+
+QV4::ReturnedValue OsModule::method_loadavg(QV4::CallContext *ctx)
+{
+#ifdef Q_OS_LINUX
+    QV4::ExecutionEngine *v4 = ctx->engine();
+
+    struct sysinfo info;
+
+    if (sysinfo(&info) < 0)
+        return EnginePrivate::get(v4)->throwErrnoException(errno, QStringLiteral("sysinfo"));
+
+    QV4::Scope scope(v4);
+    QV4::ScopedArrayObject array(scope, v4->newArrayObject(3));
+    array->arrayPut(0, QV4::Primitive::fromDouble(static_cast<double>(info.loads[0]) / 65536.0));
+    array->arrayPut(1, QV4::Primitive::fromDouble(static_cast<double>(info.loads[1]) / 65536.0));
+    array->arrayPut(2, QV4::Primitive::fromDouble(static_cast<double>(info.loads[2]) / 65536.0));
+
+    QV4::ScopedValue v(scope, array->asReturnedValue());
+    v->toQStringNoThrow();
+
+    return array->asReturnedValue();
 #else
     return QV4::Encode::undefined();
 #endif
