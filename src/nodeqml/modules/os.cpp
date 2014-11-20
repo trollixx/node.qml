@@ -5,6 +5,7 @@
 
 #include <QDir>
 #include <QHostInfo>
+#include <QNetworkInterface>
 
 #ifdef Q_OS_LINUX
 #include <sys/sysinfo.h>
@@ -37,6 +38,7 @@ OsModule::Data::Data(QV4::ExecutionEngine *v4) :
     self->defineDefaultProperty(QStringLiteral("loadavg"), method_loadavg);
     self->defineDefaultProperty(QStringLiteral("totalmem"), method_totalmem);
     self->defineDefaultProperty(QStringLiteral("freemem"), method_freemem);
+    self->defineDefaultProperty(QStringLiteral("networkInterfaces"), method_networkInterfaces);
 }
 
 
@@ -174,4 +176,45 @@ QV4::ReturnedValue OsModule::method_freemem(QV4::CallContext *ctx)
 #else
     return QV4::Encode::undefined();
 #endif
+}
+
+QV4::ReturnedValue OsModule::method_networkInterfaces(QV4::CallContext *ctx)
+{
+    QV4::ExecutionEngine *v4 = ctx->engine();
+    QV4::Scope scope(v4);
+
+    QV4::ScopedObject info(scope, v4->newObject());
+    QV4::ScopedValue v(scope);
+    QV4::ScopedString s(scope);
+
+    foreach (const QNetworkInterface &interface, QNetworkInterface::allInterfaces()) {
+        const QList<QNetworkAddressEntry> addresses = interface.addressEntries();
+
+        if (addresses.isEmpty())
+            continue;
+
+        QV4::ScopedArrayObject addressArray(scope, v4->newArrayObject());
+
+        foreach (const QNetworkAddressEntry &address, addresses) {
+            QV4::ScopedObject addressObject(scope, v4->newObject());
+            // insertMember() to make it enumerable
+            const QHostAddress ip = address.ip();
+            addressObject->insertMember((s = v4->newString(QStringLiteral("address"))).getPointer(), (v = v4->newString(ip.toString())));
+            addressObject->insertMember((s = v4->newString(QStringLiteral("netmask"))).getPointer(), (v = v4->newString(address.netmask().toString())));
+            if (ip.protocol() == QAbstractSocket::IPv4Protocol)
+                addressObject->insertMember((s = v4->newString(QStringLiteral("family"))).getPointer(), (v = v4->newString(QStringLiteral("IPv4"))));
+            else if (ip.protocol() == QAbstractSocket::IPv6Protocol)
+                addressObject->insertMember((s = v4->newString(QStringLiteral("family"))).getPointer(), (v = v4->newString(QStringLiteral("IPv6"))));
+            addressObject->insertMember((s = v4->newString(QStringLiteral("mac"))).getPointer(), (v = v4->newString(interface.hardwareAddress())));
+            if (!ip.scopeId().isEmpty())
+                addressObject->insertMember((s = v4->newString(QStringLiteral("scopeid"))).getPointer(), (v = v4->newString(ip.scopeId())));
+            addressObject->insertMember((s = v4->newString(QStringLiteral("internal"))).getPointer(), QV4::Primitive::fromBoolean(ip.isLoopback()));
+
+            addressArray->push_back((v = addressObject));
+        }
+
+        info->insertMember((s = v4->newString(interface.name())).getPointer(), (v = addressArray));
+    }
+
+    return info->asReturnedValue();
 }

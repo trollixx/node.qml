@@ -23,7 +23,7 @@ struct OsModule : QV4::Object
     static QV4::ReturnedValue method_totalmem(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_freemem(QV4::CallContext *ctx);
     /// TODO: os.cpus()
-    /// TODO: os.networkInterfaces()
+    static QV4::ReturnedValue method_networkInterfaces(QV4::CallContext *ctx);
 
 };
 
