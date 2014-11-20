@@ -20,8 +20,8 @@ struct OsModule : QV4::Object
     static QV4::ReturnedValue method_release(QV4::CallContext *ctx);
     /// TODO: os.uptime()
     static QV4::ReturnedValue method_loadavg(QV4::CallContext *ctx);
-    /// TODO: os.totalmem()
-    /// TODO: os.freemem()
+    static QV4::ReturnedValue method_totalmem(QV4::CallContext *ctx);
+    static QV4::ReturnedValue method_freemem(QV4::CallContext *ctx);
     /// TODO: os.cpus()
     /// TODO: os.networkInterfaces()
 

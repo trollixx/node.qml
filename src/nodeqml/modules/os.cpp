@@ -7,6 +7,7 @@
 #include <QHostInfo>
 
 #ifdef Q_OS_LINUX
+#include <unistd.h>
 #include <sys/sysinfo.h>
 #include <sys/utsname.h>
 #endif
@@ -34,6 +35,8 @@ OsModule::Data::Data(QV4::ExecutionEngine *v4) :
     self->defineDefaultProperty(QStringLiteral("arch"), method_arch);
     self->defineDefaultProperty(QStringLiteral("release"), method_release);
     self->defineDefaultProperty(QStringLiteral("loadavg"), method_loadavg);
+    self->defineDefaultProperty(QStringLiteral("totalmem"), method_totalmem);
+    self->defineDefaultProperty(QStringLiteral("freemem"), method_freemem);
 }
 
 
@@ -120,6 +123,28 @@ QV4::ReturnedValue OsModule::method_loadavg(QV4::CallContext *ctx)
     v->toQStringNoThrow();
 
     return array->asReturnedValue();
+#else
+    return QV4::Encode::undefined();
+#endif
+}
+
+QV4::ReturnedValue OsModule::method_totalmem(QV4::CallContext *ctx)
+{
+    Q_UNUSED(ctx)
+#ifdef Q_OS_LINUX
+    const double amount = static_cast<quint64>(sysconf(_SC_PAGESIZE)) * sysconf(_SC_PHYS_PAGES);
+    return QV4::Primitive::fromDouble(amount).asReturnedValue();
+#else
+    return QV4::Encode::undefined();
+#endif
+}
+
+QV4::ReturnedValue OsModule::method_freemem(QV4::CallContext *ctx)
+{
+    Q_UNUSED(ctx)
+#ifdef Q_OS_LINUX
+    const double amount = static_cast<quint64>(sysconf(_SC_PAGESIZE)) * sysconf(_SC_AVPHYS_PAGES);
+    return QV4::Primitive::fromDouble(amount).asReturnedValue();
 #else
     return QV4::Encode::undefined();
 #endif
