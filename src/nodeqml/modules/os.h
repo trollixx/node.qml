@@ -18,7 +18,7 @@ struct OsModule : QV4::Object
     static QV4::ReturnedValue method_platform(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_arch(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_release(QV4::CallContext *ctx);
-    /// TODO: os.uptime()
+    static QV4::ReturnedValue method_uptime(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_loadavg(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_totalmem(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_freemem(QV4::CallContext *ctx);

@@ -34,6 +34,7 @@ OsModule::Data::Data(QV4::ExecutionEngine *v4) :
     self->defineDefaultProperty(QStringLiteral("platform"), method_platform);
     self->defineDefaultProperty(QStringLiteral("arch"), method_arch);
     self->defineDefaultProperty(QStringLiteral("release"), method_release);
+    self->defineDefaultProperty(QStringLiteral("uptime"), method_uptime);
     self->defineDefaultProperty(QStringLiteral("loadavg"), method_loadavg);
     self->defineDefaultProperty(QStringLiteral("totalmem"), method_totalmem);
     self->defineDefaultProperty(QStringLiteral("freemem"), method_freemem);
@@ -98,6 +99,22 @@ QV4::ReturnedValue OsModule::method_release(QV4::CallContext *ctx)
         return EnginePrivate::get(v4)->throwErrnoException(errno, QStringLiteral("uname"));
 
     return v4->newString(QString::fromLocal8Bit(info.release))->asReturnedValue();
+#else
+    return QV4::Encode::undefined();
+#endif
+}
+
+QV4::ReturnedValue OsModule::method_uptime(QV4::CallContext *ctx)
+{
+#ifdef Q_OS_LINUX
+    QV4::ExecutionEngine *v4 = ctx->engine();
+
+    struct sysinfo info;
+
+    if (sysinfo(&info) < 0)
+        return EnginePrivate::get(v4)->throwErrnoException(errno, QStringLiteral("sysinfo"));
+
+    return QV4::Primitive::fromDouble(info.uptime).asReturnedValue();
 #else
     return QV4::Encode::undefined();
 #endif
