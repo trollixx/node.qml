@@ -27,6 +27,7 @@ HEADERS_PUBLIC += \
 HEADERS_PRIVATE += \
     engine_p.h \
     globalextensions.h \
+    v4integration.h \
     moduleobject.h \
     modules/console.h \
     modules/dns.h \
