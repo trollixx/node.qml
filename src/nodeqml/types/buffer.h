@@ -1,6 +1,8 @@
 #ifndef BUFFER_H
 #define BUFFER_H
 
+#include "../v4integration.h"
+
 #include <QByteArray>
 
 #include <private/qv4object_p.h>
@@ -8,34 +10,42 @@
 
 namespace NodeQml {
 
+enum class BufferEncoding {
+    Invalid,
+    Ascii,
+    Base64,
+    Binary,
+    Hex,
+    Raw,
+    Ucs2,
+    Utf8,
+    Utf16le
+};
+
+namespace Heap {
+
+struct BufferObject : QV4::Heap::Object {
+    BufferObject(QV4::InternalClass *ic);
+    BufferObject(QV4::ExecutionEngine *v4, quint32 size);
+    BufferObject(QV4::ExecutionEngine *v4, const QString &str, BufferEncoding encoding);
+    BufferObject(QV4::ExecutionEngine *v4, QV4::ArrayObject *array);
+    BufferObject(QV4::ExecutionEngine *v4, const QByteArray &data);
+
+    QByteArray value;
+};
+
+} // namespace Heap
+
 struct BufferObject : QV4::Object {
-    enum class Encoding {
-        Invalid,
-        Ascii,
-        Base64,
-        Binary,
-        Hex,
-        Raw,
-        Ucs2,
-        Utf8,
-        Utf16le
-    };
 
-    struct Data : QV4::Object::Data {
-        Data(QV4::InternalClass *ic);
-        Data(QV4::ExecutionEngine *v4, quint32 size);
-        Data(QV4::ExecutionEngine *v4, const QString &str, BufferObject::Encoding encoding);
-        Data(QV4::ExecutionEngine *v4, QV4::ArrayObject *array);
 
-        QByteArray value;
-    };
-    V4_OBJECT(Object)
+    NODE_V4_OBJECT(BufferObject, Object)
 
     static QV4::ReturnedValue getIndexed(QV4::Managed *m, quint32 index, bool *hasProperty);
     static void putIndexed(QV4::Managed *m, uint index, const QV4::ValueRef value);
     static bool deleteIndexedProperty(QV4::Managed *m, uint index);
 
-    static Encoding parseEncoding(const QString &str);
+    static BufferEncoding parseEncoding(const QString &str);
     static bool isEncoding(const QString &str);
 };
 

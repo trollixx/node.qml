@@ -8,20 +8,20 @@ using namespace NodeQml;
 
 DEFINE_OBJECT_VTABLE(BufferObject);
 
-BufferObject::Data::Data(QV4::InternalClass *ic) :
-    Object::Data(ic)
+Heap::BufferObject::BufferObject(QV4::InternalClass *ic) :
+    QV4::Heap::Object(ic)
 {
-    Q_ASSERT(internalClass->vtable == staticVTable());
+    Q_ASSERT(internalClass->vtable == NodeQml::BufferObject::staticVTable());
 
     QV4::Scope scope(ic->engine);
     QV4::ScopedObject s(scope, this);
     s->defineReadonlyProperty(ic->engine->id_length, QV4::Primitive::fromInt32(0));
 }
 
-BufferObject::Data::Data(QV4::ExecutionEngine *v4, quint32 size) :
-    Object::Data(EnginePrivate::get(v4)->bufferClass)
+Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, quint32 size) :
+    QV4::Heap::Object(EnginePrivate::get(v4)->bufferClass)
 {
-    setVTable(staticVTable());
+    setVTable(NodeQml::BufferObject::staticVTable());
     value.resize(size);
 
     QV4::Scope scope(v4);
@@ -29,16 +29,16 @@ BufferObject::Data::Data(QV4::ExecutionEngine *v4, quint32 size) :
     o->defineReadonlyProperty(v4->id_length, QV4::Primitive::fromInt32(size));
 }
 
-BufferObject::Data::Data(QV4::ExecutionEngine *v4, const QString &str, Encoding encoding) :
-    Object::Data(EnginePrivate::get(v4)->bufferClass)
+Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, const QString &str, BufferEncoding encoding) :
+    QV4::Heap::Object(EnginePrivate::get(v4)->bufferClass)
 {
-    setVTable(staticVTable());
+    setVTable(NodeQml::BufferObject::staticVTable());
 }
 
-BufferObject::Data::Data(QV4::ExecutionEngine *v4, QV4::ArrayObject *array) :
-    Object::Data(EnginePrivate::get(v4)->bufferClass)
+Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, QV4::ArrayObject *array) :
+    QV4::Heap::Object(EnginePrivate::get(v4)->bufferClass)
 {
-    setVTable(staticVTable());
+    setVTable(NodeQml::BufferObject::staticVTable());
 
     QV4::Scope scope(v4);
     QV4::ScopedObject o(scope, this);
@@ -52,6 +52,18 @@ BufferObject::Data::Data(QV4::ExecutionEngine *v4, QV4::ArrayObject *array) :
         v = array->getIndexed(i);
         value[i] = v->toInt32() & 0xff;
     }
+}
+
+Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, const QByteArray &data) :
+    QV4::Heap::Object(EnginePrivate::get(v4)->bufferClass)
+{
+    setVTable(NodeQml::BufferObject::staticVTable());
+
+    QV4::Scope scope(v4);
+    QV4::ScopedObject o(scope, this);
+
+    value = data;
+    o->defineReadonlyProperty(v4->id_length, QV4::Primitive::fromInt32(value.size()));
 }
 
 QV4::ReturnedValue BufferObject::getIndexed(QV4::Managed *m, quint32 index, bool *hasProperty)
@@ -91,39 +103,38 @@ bool BufferObject::deleteIndexedProperty(QV4::Managed *m, uint index)
     return true;
 }
 
-BufferObject::Encoding BufferObject::parseEncoding(const QString &str)
+BufferEncoding BufferObject::parseEncoding(const QString &str)
 {
-    static QHash<QString, Encoding> encodings = {
-        std::pair<QString, Encoding>(QStringLiteral("hex"), Encoding::Hex),
-        std::pair<QString, Encoding>(QStringLiteral("utf8"), Encoding::Utf8),
-        std::pair<QString, Encoding>(QStringLiteral("utf-8"), Encoding::Utf8),
-        std::pair<QString, Encoding>(QStringLiteral("ascii"), Encoding::Ascii),
-        std::pair<QString, Encoding>(QStringLiteral("binary"), Encoding::Binary),
-        std::pair<QString, Encoding>(QStringLiteral("base64"), Encoding::Base64),
-        std::pair<QString, Encoding>(QStringLiteral("raw"), Encoding::Raw),
-        std::pair<QString, Encoding>(QStringLiteral("ucs2"), Encoding::Ucs2),
-        std::pair<QString, Encoding>(QStringLiteral("ucs-2"), Encoding::Ucs2),
-        std::pair<QString, Encoding>(QStringLiteral("utf16le"), Encoding::Utf16le),
-        std::pair<QString, Encoding>(QStringLiteral("utf-16le"), Encoding::Utf16le)
+    static QHash<QString, BufferEncoding> encodings = {
+        std::pair<QString, BufferEncoding>(QStringLiteral("hex"), BufferEncoding::Hex),
+        std::pair<QString, BufferEncoding>(QStringLiteral("utf8"), BufferEncoding::Utf8),
+        std::pair<QString, BufferEncoding>(QStringLiteral("utf-8"), BufferEncoding::Utf8),
+        std::pair<QString, BufferEncoding>(QStringLiteral("ascii"), BufferEncoding::Ascii),
+        std::pair<QString, BufferEncoding>(QStringLiteral("binary"), BufferEncoding::Binary),
+        std::pair<QString, BufferEncoding>(QStringLiteral("base64"), BufferEncoding::Base64),
+        std::pair<QString, BufferEncoding>(QStringLiteral("raw"), BufferEncoding::Raw),
+        std::pair<QString, BufferEncoding>(QStringLiteral("ucs2"), BufferEncoding::Ucs2),
+        std::pair<QString, BufferEncoding>(QStringLiteral("ucs-2"), BufferEncoding::Ucs2),
+        std::pair<QString, BufferEncoding>(QStringLiteral("utf16le"), BufferEncoding::Utf16le),
+        std::pair<QString, BufferEncoding>(QStringLiteral("utf-16le"), BufferEncoding::Utf16le)
     };
 
     const QString encodingStr = str.toLower();
 
     if (!encodings.contains(encodingStr))
-        return Encoding::Invalid;
+        return BufferEncoding::Invalid;
     return encodings.value(encodingStr);
 }
 
 bool BufferObject::isEncoding(const QString &str)
 {
-    return parseEncoding(str) != Encoding::Invalid;
+    return parseEncoding(str) != BufferEncoding::Invalid;
 }
-
 
 DEFINE_OBJECT_VTABLE(BufferCtor);
 
 BufferCtor::Data::Data(QV4::ExecutionContext *scope)
-    : FunctionObject::Data(scope, QStringLiteral("Buffer"))
+    : QV4::Heap::FunctionObject(scope, QStringLiteral("Buffer"))
 {
     setVTable(staticVTable());
 }
@@ -135,23 +146,23 @@ QV4::ReturnedValue BufferCtor::construct(QV4::Managed *m, QV4::CallData *callDat
     if (callData->argc) {
         if (callData->args[0].isInt32()) {
             QV4::Scoped<BufferObject> object(scope, v4->memoryManager->alloc<BufferObject>(v4, callData->args[0].toInt32()));
-            return QV4::Encode(object->asReturned<QV4::Object>());
+            return object->asReturnedValue();
         } else if (callData->args[0].asArrayObject()) {
             QV4::Scoped<BufferObject> object(scope, v4->memoryManager->alloc<BufferObject>(v4, callData->args[0].asArrayObject()));
             return object->asReturnedValue();
         } else if (callData->args[0].isString()) {
-            BufferObject::Encoding encoding = BufferObject::Encoding::Utf8;
+            BufferEncoding encoding = BufferEncoding::Utf8;
             if (callData->argc > 1) {
                 if (!callData->args[1].isString())
-                    return v4->currentContext()->throwTypeError(QStringLiteral("Encoding must me a string"));
+                    return v4->throwTypeError(QStringLiteral("Encoding must me a string"));
                 const QString encStr = callData->args[1].toQStringNoThrow();
-                BufferObject::Encoding enc = BufferObject::parseEncoding(encStr);
-                if (enc == BufferObject::Encoding::Invalid)
-                    return v4->currentContext()->throwTypeError(QString("Unknown Encoding: %1").arg(encStr));
+                BufferEncoding enc = BufferObject::parseEncoding(encStr);
+                if (enc == BufferEncoding::Invalid)
+                    return v4->throwTypeError(QString("Unknown Encoding: %1").arg(encStr));
                 encoding = enc;
             }
             QV4::Scoped<BufferObject> object(scope, v4->memoryManager->alloc<BufferObject>(v4, callData->args[0].toQStringNoThrow(), encoding));
-            return QV4::Encode(object->asReturned<QV4::Object>());
+            return object->asReturnedValue();
         }
     }
 
