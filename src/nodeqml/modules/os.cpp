@@ -7,6 +7,8 @@
 #include <QHostInfo>
 #include <QNetworkInterface>
 
+#include <private/qv4context_p.h>
+
 #ifdef Q_OS_LINUX
 #include <sys/sysinfo.h>
 #include <sys/utsname.h>
@@ -14,8 +16,8 @@
 
 using namespace NodeQml;
 
-OsModule::Data::Data(QV4::ExecutionEngine *v4) :
-    QV4::Object::Data(v4)
+Heap::OsModule::OsModule(QV4::ExecutionEngine *v4) :
+    QV4::Heap::Object(v4)
 {
     QV4::Scope scope(v4);
     QV4::ScopedObject self(scope, this);
@@ -27,18 +29,18 @@ OsModule::Data::Data(QV4::ExecutionEngine *v4) :
     self->defineReadonlyProperty(QStringLiteral("EOL"), (s = v4->newString(QStringLiteral("\n"))));
 #endif
 
-    self->defineDefaultProperty(QStringLiteral("tmpdir"), method_tmpdir);
-    self->defineDefaultProperty(QStringLiteral("endianness"), method_endianness);
-    self->defineDefaultProperty(QStringLiteral("hostname"), method_hostname);
-    self->defineDefaultProperty(QStringLiteral("type"), method_type);
-    self->defineDefaultProperty(QStringLiteral("platform"), method_platform);
-    self->defineDefaultProperty(QStringLiteral("arch"), method_arch);
-    self->defineDefaultProperty(QStringLiteral("release"), method_release);
-    self->defineDefaultProperty(QStringLiteral("uptime"), method_uptime);
-    self->defineDefaultProperty(QStringLiteral("loadavg"), method_loadavg);
-    self->defineDefaultProperty(QStringLiteral("totalmem"), method_totalmem);
-    self->defineDefaultProperty(QStringLiteral("freemem"), method_freemem);
-    self->defineDefaultProperty(QStringLiteral("networkInterfaces"), method_networkInterfaces);
+    self->defineDefaultProperty(QStringLiteral("tmpdir"), NodeQml::OsModule::method_tmpdir);
+    self->defineDefaultProperty(QStringLiteral("endianness"), NodeQml::OsModule::method_endianness);
+    self->defineDefaultProperty(QStringLiteral("hostname"), NodeQml::OsModule::method_hostname);
+    self->defineDefaultProperty(QStringLiteral("type"), NodeQml::OsModule::method_type);
+    self->defineDefaultProperty(QStringLiteral("platform"), NodeQml::OsModule::method_platform);
+    self->defineDefaultProperty(QStringLiteral("arch"), NodeQml::OsModule::method_arch);
+    self->defineDefaultProperty(QStringLiteral("release"), NodeQml::OsModule::method_release);
+    self->defineDefaultProperty(QStringLiteral("uptime"), NodeQml::OsModule::method_uptime);
+    self->defineDefaultProperty(QStringLiteral("loadavg"), NodeQml::OsModule::method_loadavg);
+    self->defineDefaultProperty(QStringLiteral("totalmem"), NodeQml::OsModule::method_totalmem);
+    self->defineDefaultProperty(QStringLiteral("freemem"), NodeQml::OsModule::method_freemem);
+    self->defineDefaultProperty(QStringLiteral("networkInterfaces"), NodeQml::OsModule::method_networkInterfaces);
 }
 
 

@@ -1,15 +1,23 @@
 #ifndef OS_H
 #define OS_H
 
+#include "../v4integration.h"
+
 #include <private/qv4object_p.h>
 
 namespace NodeQml {
 
+namespace Heap {
+
+struct OsModule : QV4::Heap::Object {
+    OsModule(QV4::ExecutionEngine *v4);
+};
+
+}
+
 struct OsModule : QV4::Object
 {
-    struct Data : QV4::Object::Data {
-        Data(QV4::ExecutionEngine *v4);
-    };
+    NODE_V4_OBJECT(OsModule, Object)
 
     static QV4::ReturnedValue method_tmpdir(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_endianness(QV4::CallContext *ctx);
