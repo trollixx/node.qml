@@ -14,7 +14,7 @@ using namespace NodeQml;
 
 DEFINE_OBJECT_VTABLE(ModuleObject);
 
-ModuleObject::Data::Data(QV4::ExecutionEngine *v4, const QString &moduleId, ModuleObject *moduleParent) :
+Heap::ModuleObject::ModuleObject(QV4::ExecutionEngine *v4, const QString &moduleId, NodeQml::ModuleObject *moduleParent) :
     QV4::Object::Data(v4),
     id(moduleId),
     loaded(false),
@@ -24,17 +24,15 @@ ModuleObject::Data::Data(QV4::ExecutionEngine *v4, const QString &moduleId, Modu
     QV4::ScopedValue protectThis(scope, this);
     Q_UNUSED(protectThis)
 
-    setVTable(staticVTable());
+    setVTable(NodeQml::ModuleObject::staticVTable());
 
-    childrenArray = v4->newArrayObject()->getPointer();
-
-    QV4::Scoped<ModuleObject> self(scope, this);
+    QV4::Scoped<NodeQml::ModuleObject> self(scope, this);
     QV4::ScopedString s(scope);
     QV4::ScopedValue v(scope);
 
     self->defineDefaultProperty(QStringLiteral("id"), (s = v4->newString(id)));
-    self->defineAccessorProperty(QStringLiteral("filename"), property_filename_getter, nullptr);
-    self->defineAccessorProperty(QStringLiteral("loaded"), property_loaded_getter, nullptr);
+    self->defineAccessorProperty(QStringLiteral("filename"), NodeQml::ModuleObject::property_filename_getter, nullptr);
+    self->defineAccessorProperty(QStringLiteral("loaded"), NodeQml::ModuleObject::property_loaded_getter, nullptr);
 
     self->defineDefaultProperty(QStringLiteral("parent"), parent
                                  ? (v = parent->asReturnedValue())
@@ -43,21 +41,21 @@ ModuleObject::Data::Data(QV4::ExecutionEngine *v4, const QString &moduleId, Modu
         parent->d()->childrenArray->push_back(self);
 
     QV4::ScopedObject exports(scope, v4->newObject());
-    exportsObject = exports->asObject();
+    exportsObject = exports;
     self->defineDefaultProperty(QStringLiteral("exports"), exports);
 
     QV4::ScopedArrayObject children(scope, v4->newArrayObject());
     childrenArray = children->asArrayObject();
     self->defineDefaultProperty(QStringLiteral("children"), children);
 
-    self->defineDefaultProperty(QStringLiteral("require"), method_require);
+    self->defineDefaultProperty(QStringLiteral("require"), NodeQml::ModuleObject::method_require);
 }
 
-void ModuleObject::markObjects(QV4::Managed *that, QV4::ExecutionEngine *e)
+void ModuleObject::markObjects(QV4::Heap::Base *that, QV4::ExecutionEngine *e)
 {
-    ModuleObject *o = static_cast<ModuleObject *>(that);
-    if (o->d()->childrenArray)
-        o->d()->childrenArray->mark(e);
+    Heap::ModuleObject *o = static_cast<Heap::ModuleObject *>(that);
+    if (o->childrenArray)
+        o->childrenArray->mark(e);
 
     Object::markObjects(that, e);
 }
@@ -146,7 +144,7 @@ QV4::Object *ModuleObject::compile(QV4::ExecutionContext *ctx)
 
     if (v4->hasException) {
         QV4::StackTrace stackTrace;
-        QV4::ScopedObject ex(scope, v4->catchException(ctx, &stackTrace));
+        QV4::ScopedObject ex(scope, v4->catchException(&stackTrace));
         QV4::ScopedValue message(scope, ex->get(s = v4->newString(QStringLiteral("message"))));
         qDebug("Exception: %s", qPrintable(message->toQStringNoThrow()));
         foreach (const QV4::StackFrame &frame, stackTrace) {
@@ -175,10 +173,12 @@ QV4::Object *ModuleObject::require(QV4::ExecutionContext *ctx, const QString &pa
 
     EnginePrivate *node = EnginePrivate::get(v4);
     if (node->hasNativeModule(path)) {
+        qDebug("Native module: %s", qPrintable(path));
         filename = path;
         exports = node->nativeModule(path);
     } else {
         const QString parentPath = parent ? parent->d()->dirname : QString();
+        qDebug("Parent path: %s", qPrintable(parentPath));
         filename = resolveModule(ctx, path, parentPath);
         qDebug("Resolved module path: %s", qPrintable(filename));
 
@@ -278,11 +278,16 @@ QV4::ReturnedValue ModuleObject::method_require(QV4::CallContext *ctx)
 
 DEFINE_OBJECT_VTABLE(RequireFunction);
 
-RequireFunction::Data::Data(QV4::ExecutionContext *scope, ModuleObject *moduleObject) :
-    QV4::FunctionObject::Data(scope, QStringLiteral("require")),
-    module(moduleObject)
+Heap::RequireFunction::RequireFunction(QV4::ExecutionContext *ctx, NodeQml::ModuleObject *moduleObject) :
+    QV4::Heap::FunctionObject(ctx, QStringLiteral("require"))
 {
-    setVTable(staticVTable());
+    setVTable(NodeQml::RequireFunction::staticVTable());
+
+    QV4::Scope scope(ctx->engine());
+    QV4::ScopedValue protectThis(scope, this);
+    Q_UNUSED(protectThis)
+
+    module = moduleObject;
 }
 
 QV4::ReturnedValue RequireFunction::call(QV4::Managed *that, QV4::CallData *callData)
