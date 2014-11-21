@@ -5,17 +5,19 @@
 #include <QCoreApplication>
 #include <QDir>
 
+#include <private/qv4context_p.h>
+
 using namespace NodeQml;
 
-ProcessModule::Data::Data(QV4::ExecutionEngine *v4) :
-    QV4::Object::Data(v4)
+Heap::ProcessModule::ProcessModule(QV4::ExecutionEngine *v4) :
+    QV4::Heap::Object(v4)
 {
     QV4::Scope scope(v4);
     QV4::ScopedObject self(scope, this);
     QV4::ScopedValue v(scope);
 
-    self->defineReadonlyProperty(QStringLiteral("arch"), (v = v4->newString(arch())));
-    self->defineReadonlyProperty(QStringLiteral("platform"), (v = v4->newString(platform())));
+    self->defineReadonlyProperty(QStringLiteral("arch"), (v = v4->newString(NodeQml::ProcessModule::arch())));
+    self->defineReadonlyProperty(QStringLiteral("platform"), (v = v4->newString(NodeQml::ProcessModule::platform())));
     self->defineReadonlyProperty(QStringLiteral("argv"),
                               (v = v4->newArrayObject(QCoreApplication::arguments())));
     self->defineReadonlyProperty(QStringLiteral("execPath"),
@@ -23,13 +25,13 @@ ProcessModule::Data::Data(QV4::ExecutionEngine *v4) :
     self->defineReadonlyProperty(QStringLiteral("version"),
                               (v = v4->newString(QStringLiteral("v0.10.33"))));
 
-    self->defineAccessorProperty(QStringLiteral("pid"), property_pid_getter, nullptr);
+    self->defineAccessorProperty(QStringLiteral("pid"), NodeQml::ProcessModule::property_pid_getter, nullptr);
 
-    self->defineDefaultProperty(QStringLiteral("abort"), method_abort);
-    self->defineDefaultProperty(QStringLiteral("chdir"), method_chdir);
-    self->defineDefaultProperty(QStringLiteral("cwd"), method_cwd);
-    self->defineDefaultProperty(QStringLiteral("exit"), method_exit);
-    self->defineDefaultProperty(QStringLiteral("nextTick"), method_nextTick);
+    self->defineDefaultProperty(QStringLiteral("abort"), NodeQml::ProcessModule::method_abort);
+    self->defineDefaultProperty(QStringLiteral("chdir"), NodeQml::ProcessModule::method_chdir);
+    self->defineDefaultProperty(QStringLiteral("cwd"), NodeQml::ProcessModule::method_cwd);
+    self->defineDefaultProperty(QStringLiteral("exit"), NodeQml::ProcessModule::method_exit);
+    self->defineDefaultProperty(QStringLiteral("nextTick"), NodeQml::ProcessModule::method_nextTick);
 }
 
 QV4::ReturnedValue ProcessModule::property_pid_getter(QV4::CallContext *ctx)

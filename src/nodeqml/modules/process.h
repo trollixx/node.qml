@@ -1,15 +1,23 @@
 #ifndef PROCESS_H
 #define PROCESS_H
 
+#include "../v4integration.h"
+
 #include <private/qv4object_p.h>
 
 namespace NodeQml {
 
+namespace Heap {
+
+struct ProcessModule : QV4::Heap::Object {
+    ProcessModule(QV4::ExecutionEngine *v4);
+};
+
+} // namespace Heap
+
 struct ProcessModule : QV4::Object
 {
-    struct Data : QV4::Object::Data {
-        Data(QV4::ExecutionEngine *v4);
-    };
+    NODE_V4_OBJECT(ProcessModule, Object)
 
     static QV4::ReturnedValue property_pid_getter(QV4::CallContext *ctx);
 
