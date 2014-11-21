@@ -3,10 +3,12 @@
 #include <QDir>
 #include <QFileInfo>
 
+#include <private/qv4context_p.h>
+
 using namespace NodeQml;
 
-PathModule::Data::Data(QV4::ExecutionEngine *v4) :
-    QV4::Object::Data(v4)
+Heap::PathModule::PathModule(QV4::ExecutionEngine *v4) :
+    QV4::Heap::Object(v4)
 {
     QV4::Scope scope(v4);
     QV4::ScopedObject self(scope, this);
@@ -22,9 +24,9 @@ PathModule::Data::Data(QV4::ExecutionEngine *v4) :
     self->defineReadonlyProperty(QStringLiteral("sep"), (s = v4->newString(QDir::separator())));
 
 
-    self->defineDefaultProperty(QStringLiteral("normalize"), method_normalize);
-    self->defineDefaultProperty(QStringLiteral("dirname"), method_dirname);
-    self->defineDefaultProperty(QStringLiteral("extname"), method_extname);
+    self->defineDefaultProperty(QStringLiteral("normalize"), NodeQml::PathModule::method_normalize);
+    self->defineDefaultProperty(QStringLiteral("dirname"), NodeQml::PathModule::method_dirname);
+    self->defineDefaultProperty(QStringLiteral("extname"), NodeQml::PathModule::method_extname);
 }
 
 QV4::ReturnedValue PathModule::method_normalize(QV4::CallContext *ctx)
