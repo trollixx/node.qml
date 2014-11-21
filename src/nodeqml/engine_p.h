@@ -61,8 +61,10 @@ private:
 
     QQmlEngine *m_qmlEngine;
     QV4::ExecutionEngine *m_v4;
+
     QHash<QString, QV4::PersistentValue> m_coreModules;
     QHash<QString, ModuleObject *> m_cachedModules;
+
     QHash<int, QV4::PersistentValue> m_timeoutCallbacks;
     QHash<int, QV4::PersistentValue> m_intervalCallbacks;
 

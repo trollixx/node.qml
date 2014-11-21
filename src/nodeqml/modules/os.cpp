@@ -43,7 +43,6 @@ Heap::OsModule::OsModule(QV4::ExecutionEngine *v4) :
     self->defineDefaultProperty(QStringLiteral("networkInterfaces"), NodeQml::OsModule::method_networkInterfaces);
 }
 
-
 QV4::ReturnedValue OsModule::method_tmpdir(QV4::CallContext *ctx)
 {
     return ctx->engine()->newString(QDir::tempPath())->asReturnedValue();

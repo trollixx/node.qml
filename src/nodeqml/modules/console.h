@@ -17,7 +17,7 @@ struct ConsoleModule : QV4::Heap::Object {
     QHash<QV4::ReturnedValue, qint64> timeMarks;
 };
 
-}
+} // namespace Heap
 
 struct ConsoleModule : QV4::Object
 {

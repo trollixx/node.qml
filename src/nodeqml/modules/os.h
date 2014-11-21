@@ -13,7 +13,7 @@ struct OsModule : QV4::Heap::Object {
     OsModule(QV4::ExecutionEngine *v4);
 };
 
-}
+} // namespace Heap
 
 struct OsModule : QV4::Object
 {

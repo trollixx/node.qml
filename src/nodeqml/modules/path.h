@@ -13,7 +13,7 @@ struct PathModule : QV4::Heap::Object {
     PathModule(QV4::ExecutionEngine *v4);
 };
 
-}
+} // namespace Heap
 
 struct PathModule : QV4::Object
 {

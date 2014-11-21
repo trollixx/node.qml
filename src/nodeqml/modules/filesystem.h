@@ -13,7 +13,7 @@ struct FileSystemModule : QV4::Heap::Object {
     FileSystemModule(QV4::ExecutionEngine *v4);
 };
 
-}
+} // namespace Heap
 
 struct FileSystemModule : QV4::Object
 {

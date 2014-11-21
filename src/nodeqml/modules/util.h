@@ -13,7 +13,7 @@ struct UtilModule : QV4::Heap::Object {
     UtilModule(QV4::ExecutionEngine *v4);
 };
 
-}
+} // namespace Heap
 
 struct UtilModule : QV4::Object
 {
