@@ -1,15 +1,23 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+#include "../v4integration.h"
+
 #include <private/qv4object_p.h>
 
 namespace NodeQml {
 
+namespace Heap {
+
+struct UtilModule : QV4::Heap::Object {
+    UtilModule(QV4::ExecutionEngine *v4);
+};
+
+}
+
 struct UtilModule : QV4::Object
 {
-    struct Data : QV4::Object::Data {
-        Data(QV4::ExecutionEngine *v4);
-    };
+    NODE_V4_OBJECT(UtilModule, Object)
 
     static QV4::ReturnedValue method_format(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_log(QV4::CallContext *ctx);

@@ -4,25 +4,26 @@
 #include <QTextStream>
 #include <QRegularExpression>
 
-#include <private/qv4regexpobject_p.h>
+#include <private/qv4context_p.h>
 #include <private/qv4jsonobject_p.h>
+#include <private/qv4regexpobject_p.h>
 
 using namespace NodeQml;
 
-UtilModule::Data::Data(QV4::ExecutionEngine *v4) :
-    QV4::Object::Data(v4)
+Heap::UtilModule::UtilModule(QV4::ExecutionEngine *v4) :
+    QV4::Heap::Object(v4)
 {
     QV4::Scope scope(v4);
     QV4::ScopedObject self(scope, this);
 
-    self->defineDefaultProperty(QStringLiteral("format"), method_format, 1);
-    self->defineDefaultProperty(QStringLiteral("log"), method_log, 1);
-    self->defineDefaultProperty(QStringLiteral("inspect"), method_inspect, 2);
-    self->defineDefaultProperty(QStringLiteral("isArray"), method_isArray, 1);
-    self->defineDefaultProperty(QStringLiteral("isRegExp"), method_isRegExp, 1);
-    self->defineDefaultProperty(QStringLiteral("isDate"), method_isDate, 1);
-    self->defineDefaultProperty(QStringLiteral("isError"), method_isError, 1);
-    self->defineDefaultProperty(QStringLiteral("inherits"), method_inherits, 2);
+    self->defineDefaultProperty(QStringLiteral("format"), NodeQml::UtilModule::method_format, 1);
+    self->defineDefaultProperty(QStringLiteral("log"), NodeQml::UtilModule::method_log, 1);
+    self->defineDefaultProperty(QStringLiteral("inspect"), NodeQml::UtilModule::method_inspect, 2);
+    self->defineDefaultProperty(QStringLiteral("isArray"), NodeQml::UtilModule::method_isArray, 1);
+    self->defineDefaultProperty(QStringLiteral("isRegExp"), NodeQml::UtilModule::method_isRegExp, 1);
+    self->defineDefaultProperty(QStringLiteral("isDate"), NodeQml::UtilModule::method_isDate, 1);
+    self->defineDefaultProperty(QStringLiteral("isError"), NodeQml::UtilModule::method_isError, 1);
+    self->defineDefaultProperty(QStringLiteral("inherits"), NodeQml::UtilModule::method_inherits, 2);
 }
 
 QV4::ReturnedValue UtilModule::method_format(QV4::CallContext *ctx)
