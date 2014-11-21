@@ -3,16 +3,18 @@
 #include <QFile>
 #include <QFileInfo>
 
+#include <private/qv4context_p.h>
+
 using namespace NodeQml;
 
-FileSystemModule::Data::Data(QV4::ExecutionEngine *v4) :
-    QV4::Object::Data(v4)
+Heap::FileSystemModule::FileSystemModule(QV4::ExecutionEngine *v4) :
+    QV4::Heap::Object(v4)
 {
     QV4::Scope scope(v4);
     QV4::ScopedObject self(scope, this);
 
-    self->defineDefaultProperty(QStringLiteral("existsSync"), method_existsSync);
-    self->defineDefaultProperty(QStringLiteral("renameSync"), method_renameSync);
+    self->defineDefaultProperty(QStringLiteral("existsSync"), NodeQml::FileSystemModule::method_existsSync);
+    self->defineDefaultProperty(QStringLiteral("renameSync"), NodeQml::FileSystemModule::method_renameSync);
 }
 
 QV4::ReturnedValue FileSystemModule::method_existsSync(QV4::CallContext *ctx)
