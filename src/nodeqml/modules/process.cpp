@@ -50,12 +50,12 @@ QV4::ReturnedValue ProcessModule::method_chdir(QV4::CallContext *ctx)
     const QV4::CallData * const callData = ctx->d()->callData;
 
     if (!callData->argc || !callData->args[0].isString())
-        return ctx->throwError(QStringLiteral("chdir: Bad argument"));
+        return ctx->engine()->throwError(QStringLiteral("chdir: Bad argument"));
 
     /// TODO: Should have fs error code, like ENOENT or NOACCES
     // { [Error: ENOENT, no such file or directory] errno: 34, code: 'ENOENT', syscall: 'uv_chdir' }
     if (!QDir::setCurrent(callData->args[0].toQStringNoThrow()))
-        return ctx->throwError(QStringLiteral("chdir: Cannot change directory"));
+        return ctx->engine()->throwError(QStringLiteral("chdir: Cannot change directory"));
 
     return QV4::Encode::undefined();
 }

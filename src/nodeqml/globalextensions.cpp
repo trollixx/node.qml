@@ -33,12 +33,13 @@ void GlobalExtensions::init(QQmlEngine *qmlEngine)
 
 QV4::ReturnedValue GlobalExtensions::method_require(QV4::CallContext *ctx)
 {
+    QV4::ExecutionEngine *v4 = ctx->engine();
     const QV4::CallData * const callData = ctx->d()->callData;
 
     if (!callData->argc)
-        return ctx->throwError("require() requires an argument");
+        return v4->throwError("require() requires an argument");
     if (!callData->args[0].isString())
-        return ctx->throwTypeError("require(): argument (id) must be a string");
+        return v4->throwTypeError("require(): argument (id) must be a string");
 
     const QString id = callData->args[0].toQStringNoThrow();
     return EnginePrivate::get(ctx->engine())->require(id, ctx);

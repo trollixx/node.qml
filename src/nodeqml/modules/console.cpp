@@ -52,7 +52,7 @@ QV4::ReturnedValue ConsoleModule::method_error(QV4::CallContext *ctx)
 
 QV4::ReturnedValue ConsoleModule::method_dir(QV4::CallContext *ctx)
 {
-    return ctx->throwUnimplemented(QStringLiteral("console.dir()"));
+    return ctx->engine()->throwUnimplemented(QStringLiteral("console.dir()"));
 }
 
 QV4::ReturnedValue ConsoleModule::method_time(QV4::CallContext *ctx)
@@ -79,7 +79,7 @@ QV4::ReturnedValue ConsoleModule::method_timeEnd(QV4::CallContext *ctx)
 
     if (!self->d()->timeMarks.contains(key.asReturnedValue())) {
         qDebug("No such label: %s", qPrintable(key->toQStringNoThrow()));
-        return ctx->throwError(QString("No such label: %1").arg(key->toQStringNoThrow()));
+        return ctx->engine()->throwError(QString("No such label: %1").arg(key->toQStringNoThrow()));
     }
 
     const qint64 delta
@@ -92,10 +92,10 @@ QV4::ReturnedValue ConsoleModule::method_timeEnd(QV4::CallContext *ctx)
 
 QV4::ReturnedValue ConsoleModule::method_trace(QV4::CallContext *ctx)
 {
-    return ctx->throwUnimplemented(QStringLiteral("console.trace()"));
+    return ctx->engine()->throwUnimplemented(QStringLiteral("console.trace()"));
 }
 
 QV4::ReturnedValue ConsoleModule::method_assert(QV4::CallContext *ctx)
 {
-    return ctx->throwUnimplemented(QStringLiteral("console.assert()"));
+    return ctx->engine()->throwUnimplemented(QStringLiteral("console.assert()"));
 }

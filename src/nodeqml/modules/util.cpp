@@ -139,12 +139,12 @@ QV4::ReturnedValue UtilModule::method_inherits(QV4::CallContext *ctx)
     const QV4::CallData * const callData = ctx->d()->callData;
 
     if (callData->argc < 2)
-        return ctx->throwError(QStringLiteral("inherits: two arguments are required"));
+        return ctx->engine()->throwError(QStringLiteral("inherits: two arguments are required"));
 
     if (!callData->args[0].isObject())
-        return ctx->throwTypeError(QStringLiteral("inherits: constructor must be an object"));
+        return ctx->engine()->throwTypeError(QStringLiteral("inherits: constructor must be an object"));
     if (!callData->args[1].isObject())
-        return ctx->throwTypeError(QStringLiteral("inherits: super constructor must be an object"));
+        return ctx->engine()->throwTypeError(QStringLiteral("inherits: super constructor must be an object"));
 
     QV4::ExecutionEngine *v4 = ctx->engine();
 

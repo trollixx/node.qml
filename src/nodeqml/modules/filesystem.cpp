@@ -19,7 +19,7 @@ QV4::ReturnedValue FileSystemModule::method_existsSync(QV4::CallContext *ctx)
 {
     const QV4::CallData * const callData = ctx->d()->callData;
     if (!callData->argc)
-        return ctx->throwError(QStringLiteral("existsSync: argument is required"));
+        return ctx->engine()->throwError(QStringLiteral("existsSync: argument is required"));
 
     return QV4::Encode(QFileInfo::exists(callData->args[0].toQStringNoThrow()));
 }
@@ -28,11 +28,11 @@ QV4::ReturnedValue FileSystemModule::method_renameSync(QV4::CallContext *ctx)
 {
     const QV4::CallData * const callData = ctx->d()->callData;
     if (callData->argc < 2)
-        return ctx->throwError(QStringLiteral("renameSync: two arguments are required"));
+        ctx->engine()->throwError(QStringLiteral("renameSync: two arguments are required"));
     if (!callData->args[0].isString())
-        return ctx->throwError(QStringLiteral("renameSync: old path must be a string"));
+        ctx->engine()->throwError(QStringLiteral("renameSync: old path must be a string"));
     if (!callData->args[1].isString())
-        return ctx->throwError(QStringLiteral("renameSync: new path must be a string"));
+        ctx->engine()->throwError(QStringLiteral("renameSync: new path must be a string"));
 
     return QV4::Encode(QFile::rename(callData->args[0].toQStringNoThrow(),
                        callData->args[1].toQStringNoThrow()));

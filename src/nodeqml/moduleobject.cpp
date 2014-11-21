@@ -79,13 +79,13 @@ void ModuleObject::load(QV4::ExecutionContext *ctx, const QString &path)
     } else if (suffix == QStringLiteral("json")) {
         QScopedPointer<QFile> file(new QFile(d()->filename));
         if (!file->open(QIODevice::ReadOnly)) {
-            v4->currentContext()->throwError(QString("require: Cannot open file '%1'").arg(file->fileName()));
+            v4->throwError(QString("require: Cannot open file '%1'").arg(file->fileName()));
             return;
         }
         QJsonDocument json = QJsonDocument::fromJson(file->readAll());
 
         if (json.isNull()) {
-            ctx->throwSyntaxError(QStringLiteral("Unexpected end of input"));
+            v4->throwSyntaxError(QStringLiteral("Unexpected end of input"));
             return;
         }
 
@@ -130,7 +130,7 @@ QV4::Object *ModuleObject::compile(QV4::ExecutionContext *ctx)
 
     QScopedPointer<QFile> file(new QFile(d()->filename));
     if (!file->open(QIODevice::ReadOnly)) {
-        v4->currentContext()->throwError(QString("require: Cannot open file '%1'").arg(file->fileName()));
+        v4->throwError(QString("require: Cannot open file '%1'").arg(file->fileName()));
         return nullptr;
     }
 
@@ -184,7 +184,7 @@ QV4::Object *ModuleObject::require(QV4::ExecutionContext *ctx, const QString &pa
 
         if (filename.isEmpty()) {
             qWarning() << QString("Cannot find module '%1'").arg(path);
-            v4->currentContext()->throwError(QString("Cannot find module '%1'").arg(path));
+            v4->throwError(QString("Cannot find module '%1'").arg(path));
             return nullptr;
         }
 
@@ -196,7 +196,7 @@ QV4::Object *ModuleObject::require(QV4::ExecutionContext *ctx, const QString &pa
             module->load(ctx, filename);
 
             if (v4->hasException) {
-                v4->currentContext()->throwError(QString("Cannot load module '%1'").arg(path));
+                v4->throwError(QString("Cannot load module '%1'").arg(path));
                 return nullptr;
             }
 
@@ -269,7 +269,7 @@ QV4::ReturnedValue ModuleObject::method_require(QV4::CallContext *ctx)
     const QV4::CallData * const callData = ctx->d()->callData;
 
     if (!callData->argc || !callData->args[0].isString())
-        return ctx->throwError(QStringLiteral("require: path must be a string"));
+        return ctx->engine()->throwError(QStringLiteral("require: path must be a string"));
 
     QV4::Scope scope(ctx->engine());
     QV4::ScopedObject exports(scope, require(ctx, callData->args[0].toQStringNoThrow(), self));
