@@ -313,7 +313,7 @@ void EnginePrivate::registerTypes()
                     QV4::InternalClass::create(m_v4, BufferPrototype::staticVTable(),
                                                m_v4->objectClass->prototype)));
     bufferClass = QV4::InternalClass::create(m_v4, BufferObject::staticVTable(), bufferPrototype);
-    bufferCtor = m_v4->memoryManager->alloc<BufferCtor>(m_v4->rootContext);
+    bufferCtor = QV4::Value::fromHeapObject(m_v4->memoryManager->alloc<BufferCtor>(m_v4->rootContext));
     static_cast<BufferPrototype *>(bufferPrototype.getPointer())->init(m_v4, bufferCtor.asObject());
     m_v4->globalObject->defineDefaultProperty(QStringLiteral("Buffer"), bufferCtor);
     m_v4->globalObject->defineDefaultProperty(QStringLiteral("SlowBuffer"), bufferCtor);
@@ -321,7 +321,6 @@ void EnginePrivate::registerTypes()
 
 void EnginePrivate::registerModules()
 {
-    /// FIXME: ->asReturned<QV4::Object>() should work
     m_coreModules.insert(QStringLiteral("fs"), m_v4->memoryManager->alloc<FileSystemModule>(m_v4)->asReturnedValue());
     m_coreModules.insert(QStringLiteral("os"), m_v4->memoryManager->alloc<OsModule>(m_v4)->asReturnedValue());
     m_coreModules.insert(QStringLiteral("path"), m_v4->memoryManager->alloc<PathModule>(m_v4)->asReturnedValue());
