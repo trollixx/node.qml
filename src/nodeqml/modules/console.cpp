@@ -5,29 +5,30 @@
 #include <QDateTime>
 #include <QTextStream>
 
+#include <private/qv4context_p.h>
 #include <private/qv4global_p.h>
 
 using namespace NodeQml;
 
 DEFINE_OBJECT_VTABLE(ConsoleModule);
 
-ConsoleModule::Data::Data(QV4::ExecutionEngine *v4) :
-    QV4::Object::Data(v4)
+Heap::ConsoleModule::ConsoleModule(QV4::ExecutionEngine *v4) :
+    QV4::Heap::Object(v4)
 {
-    setVTable(staticVTable());
+    setVTable(NodeQml::ConsoleModule::staticVTable());
 
     QV4::Scope scope(v4);
     QV4::ScopedObject self(scope, this);
 
-    self->defineDefaultProperty(QStringLiteral("log"), method_log);
-    self->defineDefaultProperty(QStringLiteral("info"), method_log);
-    self->defineDefaultProperty(QStringLiteral("error"), method_error);
-    self->defineDefaultProperty(QStringLiteral("warn"), method_error);
-    self->defineDefaultProperty(QStringLiteral("dir"), method_dir);
-    self->defineDefaultProperty(QStringLiteral("time"), method_time);
-    self->defineDefaultProperty(QStringLiteral("timeEnd"), method_timeEnd);
-    self->defineDefaultProperty(QStringLiteral("trace"), method_trace);
-    self->defineDefaultProperty(QStringLiteral("assert"), method_assert);
+    self->defineDefaultProperty(QStringLiteral("log"), NodeQml::ConsoleModule::method_log);
+    self->defineDefaultProperty(QStringLiteral("info"), NodeQml::ConsoleModule::method_log);
+    self->defineDefaultProperty(QStringLiteral("error"), NodeQml::ConsoleModule::method_error);
+    self->defineDefaultProperty(QStringLiteral("warn"), NodeQml::ConsoleModule::method_error);
+    self->defineDefaultProperty(QStringLiteral("dir"), NodeQml::ConsoleModule::method_dir);
+    self->defineDefaultProperty(QStringLiteral("time"), NodeQml::ConsoleModule::method_time);
+    self->defineDefaultProperty(QStringLiteral("timeEnd"), NodeQml::ConsoleModule::method_timeEnd);
+    self->defineDefaultProperty(QStringLiteral("trace"), NodeQml::ConsoleModule::method_trace);
+    self->defineDefaultProperty(QStringLiteral("assert"), NodeQml::ConsoleModule::method_assert);
 }
 
 QV4::ReturnedValue ConsoleModule::method_log(QV4::CallContext *ctx)

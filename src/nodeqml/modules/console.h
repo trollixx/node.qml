@@ -1,20 +1,27 @@
 #ifndef FILESYSTEM_H
 #define FILESYSTEM_H
 
+#include "../v4integration.h"
+
 #include <QHash>
 
 #include <private/qv4object_p.h>
 
 namespace NodeQml {
 
+namespace Heap {
+
+struct ConsoleModule : QV4::Heap::Object {
+    ConsoleModule(QV4::ExecutionEngine *v4);
+
+    QHash<QV4::ReturnedValue, qint64> timeMarks;
+};
+
+}
+
 struct ConsoleModule : QV4::Object
 {
-    struct Data : QV4::Object::Data {
-        Data(QV4::ExecutionEngine *v4);
-
-        QHash<QV4::ReturnedValue, qint64> timeMarks;
-    };
-    V4_OBJECT(Object)
+    NODE_V4_OBJECT(ConsoleModule, Object)
 
     static QV4::ReturnedValue method_log(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_error(QV4::CallContext *ctx);
