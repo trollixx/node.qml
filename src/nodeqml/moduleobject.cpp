@@ -15,7 +15,7 @@ using namespace NodeQml;
 DEFINE_OBJECT_VTABLE(ModuleObject);
 
 Heap::ModuleObject::ModuleObject(QV4::ExecutionEngine *v4, const QString &moduleId, NodeQml::ModuleObject *moduleParent) :
-    QV4::Object::Data(v4),
+    QV4::Heap::Object(v4),
     id(moduleId),
     loaded(false),
     parent(moduleParent)
