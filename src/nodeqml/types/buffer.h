@@ -34,11 +34,14 @@ struct BufferObject : QV4::Heap::Object {
     QByteArray value;
 };
 
+struct BufferCtor : QV4::Heap::FunctionObject {
+    BufferCtor(QV4::ExecutionContext *scope);
+};
+
 } // namespace Heap
 
-struct BufferObject : QV4::Object {
-
-
+struct BufferObject : QV4::Object
+{
     NODE_V4_OBJECT(BufferObject, Object)
 
     static QV4::ReturnedValue getIndexed(QV4::Managed *m, quint32 index, bool *hasProperty);
@@ -51,10 +54,7 @@ struct BufferObject : QV4::Object {
 
 struct BufferCtor : QV4::FunctionObject
 {
-    struct Data : QV4::FunctionObject::Data {
-        Data(QV4::ExecutionContext *scope);
-    };
-    V4_OBJECT(FunctionObject)
+    NODE_V4_OBJECT(BufferCtor, FunctionObject)
 
     static QV4::ReturnedValue construct(QV4::Managed *m, QV4::CallData *callData);
     static QV4::ReturnedValue call(QV4::Managed *that, QV4::CallData *callData);

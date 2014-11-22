@@ -133,10 +133,10 @@ bool BufferObject::isEncoding(const QString &str)
 
 DEFINE_OBJECT_VTABLE(BufferCtor);
 
-BufferCtor::Data::Data(QV4::ExecutionContext *scope)
-    : QV4::Heap::FunctionObject(scope, QStringLiteral("Buffer"))
+Heap::BufferCtor::BufferCtor(QV4::ExecutionContext *scope) :
+    QV4::Heap::FunctionObject(scope, QStringLiteral("Buffer"))
 {
-    setVTable(staticVTable());
+    setVTable(NodeQml::BufferCtor::staticVTable());
 }
 
 QV4::ReturnedValue BufferCtor::construct(QV4::Managed *m, QV4::CallData *callData)
