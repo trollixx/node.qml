@@ -12,11 +12,8 @@ before_install:
   - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.9; fi
   - if [ "$CXX" = "g++" ]; then sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 50; fi
   - if [ "$CXX" = "g++" ]; then sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.9 50; fi
-  # TODO: Remove
-  - nproc
-  - g++ --version
-  - pwd
   # Qt
+  - cd ..
   - mkdir build
   - cd build
   # qtbase
@@ -24,7 +21,7 @@ before_install:
   - cd qtbase
   - git checkout dev
   - ./configure -prefix ~/qt -nomake examples -nomake tests -opensource -confirm-license -release -qt-xcb -no-widgets
-  - make -j$(nproc)
+  - make -j2
   - make install
   - cd ..
   - rm -rf qtbase
@@ -35,12 +32,13 @@ before_install:
   # https://codereview.qt-project.org/100434
   - git fetch --depth 1 https://codereview.qt-project.org/qt/qtdeclarative refs/changes/34/100434/2 && git checkout FETCH_HEAD
   - ~/qt/bin/qmake
-  - make -j$(nproc)
+  - make -j2
   - make install
   - cd ..
   - rm -rf qtdeclarative
-  - cd ..
+  # return to node.qml dir
+  - cd node.qml
 
 script:
   - ~/qt/bin/qmake
-  - make -j$(nproc)
+  - make -j2
