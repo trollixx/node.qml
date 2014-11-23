@@ -6,6 +6,7 @@ os:
   - linux
 
 before_install:
+  - sudo apt-get install -qq libx11-xcb-dev
   # GCC 4.9.x
   - if [ "$CXX" = "g++" ]; then sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y; fi
   - if [ "$CXX" = "g++" ]; then sudo apt-get update -qq; fi
@@ -34,6 +35,8 @@ before_install:
   - make install
   - cd ..
   - cd ..
+
+
 
 script:
   - ~/qt/bin/qmake
