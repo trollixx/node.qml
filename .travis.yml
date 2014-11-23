@@ -37,7 +37,7 @@ before_install:
   - cd ..
   - rm -rf qtdeclarative
   # return to node.qml dir
-  - cd node.qml
+  - cd ../node.qml
 
 script:
   - ~/qt/bin/qmake
