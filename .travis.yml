@@ -6,7 +6,6 @@ os:
   - linux
 
 before_install:
-  - sudo apt-get install -qq libx11-xcb-dev
   # GCC 4.9.x
   - if [ "$CXX" = "g++" ]; then sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y; fi
   - if [ "$CXX" = "g++" ]; then sudo apt-get update -qq; fi
@@ -20,7 +19,7 @@ before_install:
   - git clone git://gitorious.org/qt/qtbase.git
   - cd qtbase
   - git checkout dev
-  - ./configure -prefix ~/qt -nomake examples -nomake tests -opensource -confirm-license -release
+  - ./configure -prefix ~/qt -nomake examples -nomake tests -opensource -confirm-license -release -qt-xcb
   - make -j$(nproc)
   - make install
   - cd ..
