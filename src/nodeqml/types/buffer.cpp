@@ -8,16 +8,6 @@ using namespace NodeQml;
 
 DEFINE_OBJECT_VTABLE(BufferObject);
 
-Heap::BufferObject::BufferObject(QV4::InternalClass *ic) :
-    QV4::Heap::Object(ic)
-{
-    Q_ASSERT(internalClass->vtable == NodeQml::BufferObject::staticVTable());
-
-    QV4::Scope scope(ic->engine);
-    QV4::ScopedObject s(scope, this);
-    s->defineReadonlyProperty(ic->engine->id_length, QV4::Primitive::fromInt32(0));
-}
-
 Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, quint32 size) :
     QV4::Heap::Object(EnginePrivate::get(v4)->bufferClass)
 {
@@ -195,7 +185,7 @@ QV4::ReturnedValue BufferPrototype::method_isEncoding(QV4::CallContext *ctx)
 {
     NODE_CTX_CALLDATA(ctx);
     return QV4::Encode(callData->argc && callData->args[0].isString()
-            && isEncoding(callData->args[0].toQStringNoThrow()));
+            && BufferObject::isEncoding(callData->args[0].toQStringNoThrow()));
 }
 
 QV4::ReturnedValue BufferPrototype::method_isBuffer(QV4::CallContext *ctx)
@@ -213,7 +203,7 @@ QV4::ReturnedValue BufferPrototype::method_byteLength(QV4::CallContext *ctx)
 
     QString encoding;
     if (callData->argc > 1 && callData->args[1].isString()
-            && isEncoding(callData->args[1].toQStringNoThrow())) {
+            && BufferObject::isEncoding(callData->args[1].toQStringNoThrow())) {
         encoding = callData->args[1].toQStringNoThrow();
     } else {
         encoding = QStringLiteral("utf8");

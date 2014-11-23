@@ -308,13 +308,11 @@ void EnginePrivate::registerTypes()
                                                m_v4->errorClass->prototype)));
     errnoExceptionClass = QV4::InternalClass::create(m_v4, ErrnoExceptionObject::staticVTable(), errnoExceptionPrototype);
 
-    QV4::ScopedObject bufferPrototype(
-                scope, m_v4->memoryManager->alloc<BufferPrototype>(
-                    QV4::InternalClass::create(m_v4, BufferPrototype::staticVTable(),
-                                               m_v4->objectClass->prototype)));
-    bufferClass = QV4::InternalClass::create(m_v4, BufferObject::staticVTable(), bufferPrototype);
     bufferCtor = QV4::Value::fromHeapObject(m_v4->memoryManager->alloc<BufferCtor>(m_v4->rootContext));
-    static_cast<BufferPrototype *>(bufferPrototype.getPointer())->init(m_v4, bufferCtor.asObject());
+    QV4::Scoped<BufferPrototype> bufferPrototype(scope, m_v4->memoryManager->alloc<BufferPrototype>(m_v4->objectClass));
+    bufferPrototype->init(m_v4, bufferCtor.asObject());
+    bufferClass = QV4::InternalClass::create(m_v4, BufferObject::staticVTable(), bufferPrototype);
+
     m_v4->globalObject->defineDefaultProperty(QStringLiteral("Buffer"), bufferCtor);
     m_v4->globalObject->defineDefaultProperty(QStringLiteral("SlowBuffer"), bufferCtor);
 }

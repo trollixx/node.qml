@@ -25,7 +25,6 @@ enum class BufferEncoding {
 namespace Heap {
 
 struct BufferObject : QV4::Heap::Object {
-    BufferObject(QV4::InternalClass *ic);
     BufferObject(QV4::ExecutionEngine *v4, quint32 size);
     BufferObject(QV4::ExecutionEngine *v4, const QString &str, BufferEncoding encoding);
     BufferObject(QV4::ExecutionEngine *v4, QV4::ArrayObject *array);
@@ -60,7 +59,7 @@ struct BufferCtor : QV4::FunctionObject
     static QV4::ReturnedValue call(QV4::Managed *that, QV4::CallData *callData);
 };
 
-struct BufferPrototype : BufferObject
+struct BufferPrototype : QV4::Object
 {
     void init(QV4::ExecutionEngine *v4, QV4::Object *ctor);
 
