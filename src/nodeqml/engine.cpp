@@ -300,6 +300,8 @@ void EnginePrivate::timerEvent(QTimerEvent *event)
 
 void EnginePrivate::registerTypes()
 {
+    QV4::MemoryManager::GCBlocker gcBlocker(m_v4->memoryManager);
+
     QV4::Scope scope(m_v4);
 
     QV4::Scoped<ErrnoExceptionPrototype> errnoExceptionPrototype(scope, m_v4->memoryManager->alloc<ErrnoExceptionPrototype>(m_v4->errorClass));
