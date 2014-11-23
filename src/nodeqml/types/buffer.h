@@ -104,9 +104,6 @@ struct BufferPrototype : BufferObject
     /// TODO: buf.writeFloatBE(value, offset, [noAssert])
     /// TODO: buf.writeDoubleLE(value, offset, [noAssert])
     /// TODO: buf.writeDoubleBE(value, offset, [noAssert])
-
-private:
-    static BufferObject *getThis(QV4::ExecutionContext *ctx);
 };
 
 } // namespace NodeQml

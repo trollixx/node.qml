@@ -193,20 +193,20 @@ void BufferPrototype::init(QV4::ExecutionEngine *v4, QV4::Object *ctor)
 
 QV4::ReturnedValue BufferPrototype::method_isEncoding(QV4::CallContext *ctx)
 {
-    const QV4::CallData * const callData = ctx->d()->callData;
+    NODE_CTX_CALLDATA(ctx);
     return QV4::Encode(callData->argc && callData->args[0].isString()
             && isEncoding(callData->args[0].toQStringNoThrow()));
 }
 
 QV4::ReturnedValue BufferPrototype::method_isBuffer(QV4::CallContext *ctx)
 {
-    const QV4::CallData * const callData = ctx->d()->callData;
+    NODE_CTX_CALLDATA(ctx);
     return QV4::Encode(callData->argc && callData->args[0].as<BufferObject>());
 }
 
 QV4::ReturnedValue BufferPrototype::method_byteLength(QV4::CallContext *ctx)
 {
-    const QV4::CallData * const callData = ctx->d()->callData;
+    NODE_CTX_CALLDATA(ctx);
 
     if (!callData->argc || !callData->args[0].isString())
         return ctx->engine()->throwTypeError(QStringLiteral("byteLength: argument must be a string"));
@@ -246,13 +246,12 @@ QV4::ReturnedValue BufferPrototype::method_concat(QV4::CallContext *ctx)
 // copy(targetBuffer, [targetStart], [sourceStart], [sourceEnd])
 QV4::ReturnedValue BufferPrototype::method_copy(QV4::CallContext *ctx)
 {
-    const QV4::CallData * const callData = ctx->d()->callData;
+    NODE_CTX_CALLDATA(ctx);
 
     if (!callData->argc || !callData->args[0].as<BufferObject>())
         return ctx->engine()->throwTypeError(QStringLiteral("copy: First arg should be a Buffer"));
 
-    QV4::Scope scope(ctx);
-    QV4::Scoped<BufferObject> self(scope, getThis(ctx));
+    NODE_CTX_SELF(BufferObject, ctx);
 
     QV4::Scoped<BufferObject> target(scope, callData->args[0].as<BufferObject>());
 
@@ -306,9 +305,8 @@ QV4::ReturnedValue BufferPrototype::method_copy(QV4::CallContext *ctx)
 // fill(value, [offset], [end])
 QV4::ReturnedValue BufferPrototype::method_fill(QV4::CallContext *ctx)
 {
-    const QV4::CallData * const callData = ctx->d()->callData;
-    QV4::Scope scope(ctx);
-    QV4::Scoped<BufferObject> self(scope, getThis(ctx));
+    NODE_CTX_CALLDATA(ctx);
+    NODE_CTX_SELF(BufferObject, ctx);
 
     /// TODO: SLICE_START_END (https://github.com/joyent/node/blob/master/src/node_buffer.cc#L52)
 
@@ -370,11 +368,4 @@ QV4::ReturnedValue BufferPrototype::method_fill(QV4::CallContext *ctx)
         memcpy(ptr, startPtr, length - in_there);
 
     return QV4::Encode::undefined();
-}
-
-BufferObject *BufferPrototype::getThis(QV4::ExecutionContext *ctx)
-{
-    QV4::Scope scope(ctx);
-    QV4::Scoped<BufferObject> self(scope, ctx->d()->callData->thisObject);
-    return self.getPointer();
 }
