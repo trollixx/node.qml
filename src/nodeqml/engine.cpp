@@ -302,10 +302,7 @@ void EnginePrivate::registerTypes()
 {
     QV4::Scope scope(m_v4);
 
-    QV4::ScopedObject errnoExceptionPrototype(
-                scope, m_v4->memoryManager->alloc<QV4::ErrorPrototype>(
-                    QV4::InternalClass::create(m_v4, ErrnoExceptionObject::staticVTable(),
-                                               m_v4->errorClass->prototype)));
+    QV4::Scoped<ErrnoExceptionPrototype> errnoExceptionPrototype(scope, m_v4->memoryManager->alloc<ErrnoExceptionPrototype>(m_v4->errorClass));
     errnoExceptionClass = QV4::InternalClass::create(m_v4, ErrnoExceptionObject::staticVTable(), errnoExceptionPrototype);
 
     bufferCtor = QV4::Value::fromHeapObject(m_v4->memoryManager->alloc<BufferCtor>(m_v4->rootContext));
