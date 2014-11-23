@@ -122,7 +122,7 @@ QV4::Object *ModuleObject::compile(QV4::ExecutionContext *ctx)
                                    (s = v4->newString(fi.fileName())));
 
     // Require
-    QV4::Scoped<RequireFunction> requireFunc(scope, v4->memoryManager->alloc<RequireFunction>(ctx, this));
+    QV4::Scoped<RequireFunction> requireFunc(scope, v4->memoryManager->alloc<RequireFunction>(v4->rootContext, this));
     global->defineReadonlyProperty(QStringLiteral("require"), requireFunc);
 
 
