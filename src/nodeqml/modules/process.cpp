@@ -49,7 +49,7 @@ QV4::ReturnedValue ProcessModule::method_abort(QV4::CallContext *ctx)
 
 QV4::ReturnedValue ProcessModule::method_chdir(QV4::CallContext *ctx)
 {
-    const QV4::CallData * const callData = ctx->d()->callData;
+    NODE_CTX_CALLDATA(ctx);
 
     if (!callData->argc || !callData->args[0].isString())
         return ctx->engine()->throwError(QStringLiteral("chdir: Bad argument"));
@@ -69,7 +69,7 @@ QV4::ReturnedValue ProcessModule::method_cwd(QV4::CallContext *ctx)
 
 QV4::ReturnedValue ProcessModule::method_exit(QV4::CallContext *ctx)
 {
-    const QV4::CallData * const callData = ctx->d()->callData;
+    NODE_CTX_CALLDATA(ctx);
 
     int code = 0;
     if (callData->argc)

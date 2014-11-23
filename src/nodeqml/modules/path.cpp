@@ -31,7 +31,7 @@ Heap::PathModule::PathModule(QV4::ExecutionEngine *v4) :
 
 QV4::ReturnedValue PathModule::method_normalize(QV4::CallContext *ctx)
 {
-    const QV4::CallData * const callData = ctx->d()->callData;
+    NODE_CTX_CALLDATA(ctx);
     if (!callData->argc || !callData->args[0].isString())
         ctx->engine()->throwTypeError(QStringLiteral("path.normalize: argument must be a string"));
 
@@ -59,7 +59,7 @@ QV4::ReturnedValue PathModule::method_relative(QV4::CallContext *ctx)
 
 QV4::ReturnedValue PathModule::method_dirname(QV4::CallContext *ctx)
 {
-    const QV4::CallData * const callData = ctx->d()->callData;
+    NODE_CTX_CALLDATA(ctx);
     if (!callData->argc || !callData->args[0].isString())
         return ctx->engine()->throwTypeError(QStringLiteral("path.dirname: argument must be a string"));
 
@@ -69,7 +69,7 @@ QV4::ReturnedValue PathModule::method_dirname(QV4::CallContext *ctx)
 
 QV4::ReturnedValue PathModule::method_basename(QV4::CallContext *ctx)
 {
-    const QV4::CallData * const callData = ctx->d()->callData;
+    NODE_CTX_CALLDATA(ctx);
     if (!callData->argc || !callData->args[0].isString())
         return ctx->engine()->throwTypeError(QStringLiteral("path.basename: argument must be a string"));
 
@@ -87,7 +87,7 @@ QV4::ReturnedValue PathModule::method_basename(QV4::CallContext *ctx)
 
 QV4::ReturnedValue PathModule::method_extname(QV4::CallContext *ctx)
 {
-    const QV4::CallData * const callData = ctx->d()->callData;
+    NODE_CTX_CALLDATA(ctx);
     if (!callData->argc || !callData->args[0].isString())
         return ctx->engine()->throwTypeError(QStringLiteral("path.extname: argument must be a string"));
 

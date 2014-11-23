@@ -19,7 +19,7 @@ Heap::FileSystemModule::FileSystemModule(QV4::ExecutionEngine *v4) :
 
 QV4::ReturnedValue FileSystemModule::method_existsSync(QV4::CallContext *ctx)
 {
-    const QV4::CallData * const callData = ctx->d()->callData;
+    NODE_CTX_CALLDATA(ctx);
     if (!callData->argc)
         return ctx->engine()->throwError(QStringLiteral("existsSync: argument is required"));
 
@@ -28,7 +28,7 @@ QV4::ReturnedValue FileSystemModule::method_existsSync(QV4::CallContext *ctx)
 
 QV4::ReturnedValue FileSystemModule::method_renameSync(QV4::CallContext *ctx)
 {
-    const QV4::CallData * const callData = ctx->d()->callData;
+    NODE_CTX_CALLDATA(ctx);
     if (callData->argc < 2)
         ctx->engine()->throwError(QStringLiteral("renameSync: two arguments are required"));
     if (!callData->args[0].isString())

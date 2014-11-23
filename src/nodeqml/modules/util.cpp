@@ -29,7 +29,7 @@ Heap::UtilModule::UtilModule(QV4::ExecutionEngine *v4) :
 QV4::ReturnedValue UtilModule::method_format(QV4::CallContext *ctx)
 {
     QV4::ExecutionEngine *v4 = ctx->engine();
-    const QV4::CallData * const callData = ctx->d()->callData;
+    NODE_CTX_CALLDATA(ctx);
 
     QV4::Scope scope(ctx);
     QV4::ScopedString s(scope);
@@ -95,7 +95,7 @@ QV4::ReturnedValue UtilModule::method_log(QV4::CallContext *ctx)
 
 QV4::ReturnedValue UtilModule::method_inspect(QV4::CallContext *ctx)
 {
-    const QV4::CallData * const callData = ctx->d()->callData;
+    NODE_CTX_CALLDATA(ctx);
 
     QV4::Scope scope(ctx);
     QV4::ScopedString s(scope);
@@ -116,28 +116,28 @@ QV4::ReturnedValue UtilModule::method_isRegExp(QV4::CallContext *ctx)
 
 QV4::ReturnedValue UtilModule::method_isDate(QV4::CallContext *ctx)
 {
-    const QV4::CallData * const callData = ctx->d()->callData;
+    NODE_CTX_CALLDATA(ctx);
     bool isDate = callData->argc && callData->args[0].asDateObject();
     return QV4::Encode(isDate);
 }
 
 QV4::ReturnedValue UtilModule::method_isError(QV4::CallContext *ctx)
 {
-    const QV4::CallData * const callData = ctx->d()->callData;
+    NODE_CTX_CALLDATA(ctx);
     bool isError = callData->argc && callData->args[0].asErrorObject();
     return QV4::Encode(isError);
 }
 
 QV4::ReturnedValue UtilModule::method_isUndefined(QV4::CallContext *ctx)
 {
-    const QV4::CallData * const callData = ctx->d()->callData;
+    NODE_CTX_CALLDATA(ctx);
     bool isUndefined = callData->argc && callData->args[0].isUndefined();
     return QV4::Encode(isUndefined);
 }
 
 QV4::ReturnedValue UtilModule::method_inherits(QV4::CallContext *ctx)
 {
-    const QV4::CallData * const callData = ctx->d()->callData;
+    NODE_CTX_CALLDATA(ctx);
 
     if (callData->argc < 2)
         return ctx->engine()->throwError(QStringLiteral("inherits: two arguments are required"));
