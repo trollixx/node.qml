@@ -8,15 +8,22 @@ using namespace NodeQml;
 
 DEFINE_OBJECT_VTABLE(BufferObject);
 
-Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, quint32 size) :
+Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, size_t length) :
     QV4::Heap::Object(EnginePrivate::get(v4)->bufferClass)
 {
     setVTable(NodeQml::BufferObject::staticVTable());
-    value.resize(size);
+
+    data = QTypedArrayData<char>::allocate(length + 1);
+    if (!data) {
+        data = nullptr;
+        v4->throwRangeError(QStringLiteral("Buffer: Out of memory"));
+        return;
+    }
+    data->size = length;
 
     QV4::Scope scope(v4);
     QV4::ScopedObject o(scope, this);
-    o->defineReadonlyProperty(v4->id_length, QV4::Primitive::fromInt32(size));
+    o->defineReadonlyProperty(v4->id_length, QV4::Primitive::fromInt32(length));
 }
 
 Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, const QString &str, BufferEncoding encoding) :
@@ -31,29 +38,49 @@ Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, QV4::ArrayObject *arr
     setVTable(NodeQml::BufferObject::staticVTable());
 
     QV4::Scope scope(v4);
-    QV4::ScopedObject o(scope, this);
     QV4::ScopedArrayObject a(scope, array);
     QV4::ScopedValue v(scope);
 
     const uint length = a->getLength();
-    o->defineReadonlyProperty(v4->id_length, QV4::Primitive::fromInt32(length));
-    value.resize(length);
+
+    data = QTypedArrayData<char>::allocate(length + 1);
+    if (!data) {
+        data = nullptr;
+        v4->throwRangeError(QStringLiteral("Buffer: Out of memory"));
+        return;
+    }
+    data->size = length;
+
     for (uint i = 0; i < length; ++i) {
         v = array->getIndexed(i);
-        value[i] = v->toInt32() & 0xff;
+        data->data()[i] = v->toInt32() & 0xff;
     }
+
+    QV4::ScopedObject o(scope, this);
+    o->defineReadonlyProperty(v4->id_length, QV4::Primitive::fromInt32(length));
 }
 
-Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, const QByteArray &data) :
+Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, const QByteArray &ba) :
     QV4::Heap::Object(EnginePrivate::get(v4)->bufferClass)
 {
     setVTable(NodeQml::BufferObject::staticVTable());
 
+    const size_t length = ba.length();
+
+    data = QTypedArrayData<char>::allocate(length + 1);
+    if (!data) {
+        data = nullptr;
+        v4->throwRangeError(QStringLiteral("Buffer: Out of memory"));
+        return;
+    }
+    data->size = length;
+
+    for (uint i = 0; i < length; ++i)
+        data->data()[i] = ba.at(i) & 0xff;
+
     QV4::Scope scope(v4);
     QV4::ScopedObject o(scope, this);
-
-    value = data;
-    o->defineReadonlyProperty(v4->id_length, QV4::Primitive::fromInt32(value.size()));
+    o->defineReadonlyProperty(v4->id_length, QV4::Primitive::fromInt32(length));
 }
 
 QV4::ReturnedValue BufferObject::getIndexed(QV4::Managed *m, quint32 index, bool *hasProperty)
@@ -62,7 +89,7 @@ QV4::ReturnedValue BufferObject::getIndexed(QV4::Managed *m, quint32 index, bool
     QV4::Scope scope(v4);
     QV4::Scoped<BufferObject> that(scope, static_cast<BufferObject *>(m));
 
-    if (index >= static_cast<quint32>(that->d()->value.size())) {
+    if (index >= static_cast<quint32>(that->d()->data->size)) {
         if (hasProperty)
             *hasProperty = false;
         return QV4::Encode::undefined();
@@ -71,7 +98,7 @@ QV4::ReturnedValue BufferObject::getIndexed(QV4::Managed *m, quint32 index, bool
     if (hasProperty)
         *hasProperty = true;
 
-    return QV4::Primitive::fromUInt32(that->d()->value.at(index) & 0xff).asReturnedValue();
+    return QV4::Primitive::fromUInt32(that->d()->data->data()[index] & 0xff).asReturnedValue();
 }
 
 void BufferObject::putIndexed(QV4::Managed *m, uint index, const QV4::ValueRef value)
@@ -80,10 +107,10 @@ void BufferObject::putIndexed(QV4::Managed *m, uint index, const QV4::ValueRef v
     QV4::Scope scope(v4);
     QV4::Scoped<BufferObject> that(scope, static_cast<BufferObject *>(m));
 
-    if (index >= static_cast<quint32>(that->d()->value.size()))
+    if (index >= static_cast<quint32>(that->d()->data->size))
         return;
 
-    that->d()->value[index] = value->toInt32();
+    that->d()->data->data()[index] = value->toInt32();
 }
 
 bool BufferObject::deleteIndexedProperty(QV4::Managed *m, uint index)
@@ -91,6 +118,13 @@ bool BufferObject::deleteIndexedProperty(QV4::Managed *m, uint index)
     Q_UNUSED(m)
     Q_UNUSED(index)
     return true;
+}
+
+void BufferObject::destroy(QV4::Managed *m)
+{
+    BufferObject *buffer = static_cast<BufferObject *>(m);
+    if (!buffer->d()->data->ref.deref())
+        QTypedArrayData<char>::deallocate(buffer->d()->data);
 }
 
 BufferEncoding BufferObject::parseEncoding(const QString &str)
@@ -288,7 +322,7 @@ QV4::ReturnedValue BufferPrototype::method_copy(QV4::CallContext *ctx)
         sourceEnd = sourceStart + targetLength - targetStart;
     size_t to_copy = qMin(qMin(sourceEnd - sourceStart, targetLength - targetStart),
                           self->getLength() - sourceStart);
-    memmove(target->d()->value.data() + targetStart, self->d()->value.constData() + sourceStart, to_copy);
+    memmove(target->d()->data->data() + targetStart, self->d()->data->data() + sourceStart, to_copy);
     return QV4::Primitive::fromUInt32(to_copy).asReturnedValue();
 }
 
@@ -301,7 +335,7 @@ QV4::ReturnedValue BufferPrototype::method_fill(QV4::CallContext *ctx)
     /// TODO: SLICE_START_END (https://github.com/joyent/node/blob/master/src/node_buffer.cc#L52)
 
     int offset = 0;
-    int end = self->d()->value.size();
+    int end = self->d()->data->size;
 
     if (!callData->argc)
         return QV4::Encode::undefined();
@@ -323,7 +357,7 @@ QV4::ReturnedValue BufferPrototype::method_fill(QV4::CallContext *ctx)
     }
 
     const int length = end - offset;
-    char * const startPtr = self->d()->value.data() + offset;
+    char * const startPtr = self->d()->data->data() + offset;
 
     if (callData->args[0].isNumber()) {
         const quint8 value = callData->args[0].toUInt32() & 0xff;

@@ -25,12 +25,12 @@ enum class BufferEncoding {
 namespace Heap {
 
 struct BufferObject : QV4::Heap::Object {
-    BufferObject(QV4::ExecutionEngine *v4, quint32 size);
+    BufferObject(QV4::ExecutionEngine *v4, size_t length);
     BufferObject(QV4::ExecutionEngine *v4, const QString &str, BufferEncoding encoding);
     BufferObject(QV4::ExecutionEngine *v4, QV4::ArrayObject *array);
-    BufferObject(QV4::ExecutionEngine *v4, const QByteArray &data);
+    BufferObject(QV4::ExecutionEngine *v4, const QByteArray &ba);
 
-    QByteArray value;
+    QTypedArrayData<char> *data = nullptr;
 };
 
 struct BufferCtor : QV4::Heap::FunctionObject {
