@@ -34,7 +34,7 @@ void GlobalExtensions::init(QQmlEngine *qmlEngine)
 QV4::ReturnedValue GlobalExtensions::method_require(QV4::CallContext *ctx)
 {
     QV4::ExecutionEngine *v4 = ctx->engine();
-    const QV4::CallData * const callData = ctx->d()->callData;
+    NODE_CTX_CALLDATA(ctx);
 
     if (!callData->argc)
         return v4->throwError("require() requires an argument");
