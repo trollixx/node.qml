@@ -58,10 +58,8 @@ QV4::ReturnedValue ConsoleModule::method_dir(QV4::CallContext *ctx)
 
 QV4::ReturnedValue ConsoleModule::method_time(QV4::CallContext *ctx)
 {
-    const QV4::CallData * const callData = ctx->d()->callData;
-
-    QV4::Scope scope(ctx);
-    QV4::Scoped<ConsoleModule> self(scope, callData->thisObject.as<ConsoleModule>());
+    NODE_CTX_CALLDATA(ctx);
+    NODE_CTX_SELF(ConsoleModule, ctx);
 
     QV4::ScopedValue key(scope, callData->args[0]);
     self->d()->timeMarks.insert(key.asReturnedValue(), QDateTime::currentMSecsSinceEpoch());
@@ -71,10 +69,8 @@ QV4::ReturnedValue ConsoleModule::method_time(QV4::CallContext *ctx)
 
 QV4::ReturnedValue ConsoleModule::method_timeEnd(QV4::CallContext *ctx)
 {
-    const QV4::CallData * const callData = ctx->d()->callData;
-
-    QV4::Scope scope(ctx);
-    QV4::Scoped<ConsoleModule> self(scope, callData->thisObject.as<ConsoleModule>());
+    NODE_CTX_CALLDATA(ctx);
+    NODE_CTX_SELF(ConsoleModule, ctx);
 
     QV4::ScopedValue key(scope, callData->args[0]);
 
