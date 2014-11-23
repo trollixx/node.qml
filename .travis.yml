@@ -1,0 +1,34 @@
+language: cpp
+compiler:
+  - gcc
+  - clang
+os:
+  - linux
+
+before_install:
+  - mkdir build
+  - cd build
+  # qtbase
+  - git clone git://gitorious.org/qt/qtbase.git
+  - cd qtbase
+  - git checkout dev
+  - ./configure --prefix ~/qt -nomake examples -nomake tests -opensource -confirm-license -release
+  - make -j$(nproc)
+  - make install
+  - cd ..
+  # qtdeclarative
+  - git clone git://gitorious.org/qt/qtdeclarative.git
+  - cd qtdeclarative
+  - git checkout dev
+  # https://codereview.qt-project.org/100434
+  - git fetch https://codereview.qt-project.org/qt/qtdeclarative refs/changes/34/100434/2 && git cherry-pick FETCH_HEAD
+  - ~/qt/bin/qmake
+  - make -j$(nproc)
+  - make install
+  - cd ..
+
+script:
+  - ~/qt/bin/qmake
+  - make -j$(nproc)
+
+    
