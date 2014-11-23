@@ -120,11 +120,9 @@ QV4::Object *ModuleObject::compile(QV4::ExecutionContext *ctx)
                                    (s = v4->newString(fi.absoluteFilePath())));
     global->defineReadonlyProperty(QStringLiteral("__filename"),
                                    (s = v4->newString(fi.fileName())));
-
     // Require
     QV4::Scoped<RequireFunction> requireFunc(scope, v4->memoryManager->alloc<RequireFunction>(v4->rootContext, this));
     global->defineReadonlyProperty(QStringLiteral("require"), requireFunc);
-
 
     QScopedPointer<QFile> file(new QFile(d()->filename));
     if (!file->open(QIODevice::ReadOnly)) {
@@ -289,10 +287,13 @@ QV4::ReturnedValue RequireFunction::call(QV4::Managed *that, QV4::CallData *call
     QV4::Scoped<RequireFunction> self(scope, that->as<RequireFunction>());
     QV4::Scoped<ModuleObject> module(scope, self->d()->module);
     QV4::ScopedString s(scope);
+
     QV4::Scoped<QV4::BuiltinFunction> require(
                 scope, module->get(s = v4->newString(QStringLiteral("require"))));
+
     QV4::ScopedCallData cd(scope, 1);
     cd->thisObject = module;
     cd->args[0] = callData->args[0];
+
     return require->call(require.getPointer(), cd);
 }
