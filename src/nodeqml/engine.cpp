@@ -139,7 +139,7 @@ QV4::ReturnedValue EnginePrivate::require(const QString &id, QV4::ExecutionConte
 
 QV4::ReturnedValue EnginePrivate::setTimeout(QV4::CallContext *ctx)
 {
-    const QV4::CallData * const callData = ctx->d()->callData;
+    NODE_CTX_CALLDATA(ctx);
     if (callData->argc < 2)
         return m_v4->throwError("setTimeout: missing arguments");
 
@@ -168,7 +168,7 @@ QV4::ReturnedValue EnginePrivate::setTimeout(QV4::CallContext *ctx)
 
 QV4::ReturnedValue EnginePrivate::clearTimeout(QV4::CallContext *ctx)
 {
-    const QV4::CallData * const callData = ctx->d()->callData;
+    NODE_CTX_CALLDATA(ctx);
     if (callData->argc < 1)
         return m_v4->throwError("clearTimeout: missing arguments");
 
@@ -186,7 +186,7 @@ QV4::ReturnedValue EnginePrivate::clearTimeout(QV4::CallContext *ctx)
 
 QV4::ReturnedValue EnginePrivate::setInterval(QV4::CallContext *ctx)
 {
-    const QV4::CallData * const callData = ctx->d()->callData;
+    NODE_CTX_CALLDATA(ctx);
     if (callData->argc < 2)
         return m_v4->throwError("setInterval: missing arguments");
 
@@ -215,7 +215,7 @@ QV4::ReturnedValue EnginePrivate::setInterval(QV4::CallContext *ctx)
 
 QV4::ReturnedValue EnginePrivate::clearInterval(QV4::CallContext *ctx)
 {
-    const QV4::CallData * const callData = ctx->d()->callData;
+    NODE_CTX_CALLDATA(ctx);
     if (callData->argc < 1)
         return m_v4->throwError("clearInterval: missing arguments");
 
@@ -233,7 +233,7 @@ QV4::ReturnedValue EnginePrivate::clearInterval(QV4::CallContext *ctx)
 
 QV4::ReturnedValue EnginePrivate::nextTick(QV4::CallContext *ctx)
 {
-    const QV4::CallData * const callData = ctx->d()->callData;
+    NODE_CTX_CALLDATA(ctx);
     if (!callData->argc)
         return m_v4->throwError("setInterval: missing arguments");
 
