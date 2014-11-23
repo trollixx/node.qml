@@ -52,8 +52,6 @@ struct ModuleObject : QV4::Object {
         ChildrenPropertyIndex
     };
 
-    static ModuleObject *getThis(QV4::ExecutionContext *ctx);
-
     static QV4::ReturnedValue property_filename_getter(QV4::CallContext *ctx);
     static QV4::ReturnedValue property_loaded_getter(QV4::CallContext *ctx);
 

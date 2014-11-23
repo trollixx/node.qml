@@ -244,34 +244,26 @@ QString ModuleObject::resolveModule(QV4::ExecutionContext *ctx, const QString &r
     return QString();
 }
 
-ModuleObject *ModuleObject::getThis(QV4::ExecutionContext *ctx)
-{
-    QV4::Scope scope(ctx);
-    QV4::Scoped<ModuleObject> self(scope, ctx->d()->callData->thisObject);
-    return self.getPointer();
-}
-
 QV4::ReturnedValue ModuleObject::property_filename_getter(QV4::CallContext *ctx)
 {
-    ModuleObject *self = getThis(ctx);
+    NODE_CTX_SELF(ModuleObject, ctx);
     return ctx->engine()->newString(self->d()->filename)->asReturnedValue();
 }
 
 QV4::ReturnedValue ModuleObject::property_loaded_getter(QV4::CallContext *ctx)
 {
-    ModuleObject *self = getThis(ctx);
+    NODE_CTX_SELF(ModuleObject, ctx);
     return QV4::Encode(self->d()->loaded);
 }
 
 QV4::ReturnedValue ModuleObject::method_require(QV4::CallContext *ctx)
 {
-    ModuleObject *self = getThis(ctx);
-    const QV4::CallData * const callData = ctx->d()->callData;
+    NODE_CTX_CALLDATA(ctx);
+    NODE_CTX_SELF(ModuleObject, ctx);
 
     if (!callData->argc || !callData->args[0].isString())
         return ctx->engine()->throwError(QStringLiteral("require: path must be a string"));
 
-    QV4::Scope scope(ctx->engine());
     QV4::ScopedObject exports(scope, require(ctx, callData->args[0].toQStringNoThrow(), self));
     return exports.asReturnedValue();
 }
