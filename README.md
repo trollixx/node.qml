@@ -5,6 +5,8 @@ Potentially, QML applications should be able to use majority of Node.js librarie
 
 **The project is in a Work-In-Progress state, and is not ready for any practical use.**
 
+[![Build Status](https://travis-ci.org/trollixx/node.qml.svg?branch=master)](https://travis-ci.org/trollixx/node.qml)
+
 ## Roadmap
 Available [here](https://github.com/trollixx/node.qml/wiki/Roadmap).
 
