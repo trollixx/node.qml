@@ -5,12 +5,15 @@
 #include <QTypeInfo>
 #include <QtAlgorithms>
 
+/// TODO: Clean, refactor and optimise
+
 template<typename T>
 class QTypedArrayDataSlice
 {
 public:
-    explicit QTypedArrayDataSlice() {}
-    explicit QTypedArrayDataSlice(QTypedArrayData<T> *arrayData, int offset = 0, int size = -1);
+    QTypedArrayDataSlice() {}
+    QTypedArrayDataSlice(QTypedArrayData<T> *arrayData, int offset = 0, int size = -1);
+    QTypedArrayDataSlice(const QTypedArrayDataSlice<T> &slice, int offset = 0, int size = -1);
     ~QTypedArrayDataSlice();
 
     QTypedArrayDataSlice &operator=(const QTypedArrayDataSlice&);
@@ -31,8 +34,8 @@ public:
     void setData(QTypedArrayData<T> *arrayData, int offset = 0, int size = -1);
 
 private:
-    QArrayData *m_arrayData = nullptr;
-    void *m_begin = nullptr;
+    QTypedArrayData<T> *m_arrayData = nullptr;
+    T *m_begin = nullptr;
     int m_size = 0;
 };
 
@@ -51,6 +54,15 @@ QTypedArrayDataSlice<T>::QTypedArrayDataSlice(QTypedArrayData<T> *arrayData, int
 }
 
 template<typename T>
+QTypedArrayDataSlice<T>::QTypedArrayDataSlice(const QTypedArrayDataSlice<T> &slice, int offset, int size)
+{
+    offset += slice.m_begin - slice.m_arrayData->data();
+    if (size == -1)
+        size = slice.m_size;
+    setData(slice.m_arrayData, offset, size);
+}
+
+template<typename T>
 QTypedArrayDataSlice<T>::~QTypedArrayDataSlice()
 {
     clearData();
@@ -59,10 +71,8 @@ QTypedArrayDataSlice<T>::~QTypedArrayDataSlice()
 template<typename T>
 QTypedArrayDataSlice<T> &QTypedArrayDataSlice<T>::operator=(const QTypedArrayDataSlice &other)
 {
-    clearData();
-    *this = other;
-    if (m_arrayData)
-        m_arrayData->ref.ref();
+    const int offset = other.m_begin - other.m_arrayData->data();
+    setData(other.m_arrayData, offset, other.m_size);
     return *this;
 }
 
@@ -105,7 +115,7 @@ void QTypedArrayDataSlice<T>::clearData()
     if (!m_arrayData)
         return;
 
-    if (m_arrayData->ref.deref()) {
+    if (!m_arrayData->ref.deref()) {
         if (QTypeInfo<T>::isComplex) {
             for (int i = 0; i < size() ; ++i)
                 at(i).~T();
@@ -129,7 +139,7 @@ void QTypedArrayDataSlice<T>::setData(QTypedArrayData<T> *arrayData, int offset,
     if (arrayData)
         arrayData->ref.ref();
     m_arrayData = arrayData;
-    m_begin = m_arrayData + offset;
+    m_begin = m_arrayData->data() + offset;
     m_size = size == -1 ? arrayData->size : size;
 }
 
