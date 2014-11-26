@@ -1,4 +1,4 @@
-QT += core-private qml qml-private quick network
+QT += core-private qml qml-private network
 CONFIG += c++11
 
 TARGET = $$qtLibraryTarget(nodeqml)
