@@ -82,6 +82,7 @@ bool Heap::BufferObject::allocateData(size_t length)
     arrayData->size = length;
 
     data.setData(arrayData);
+    arrayData->ref.deref(); // Disown data
     return true;
 }
 
