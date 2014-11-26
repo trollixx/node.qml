@@ -37,7 +37,8 @@ HEADERS_PRIVATE += \
     modules/process.h \
     modules/util.h \
     types/buffer.h \
-    types/errnoexception.h
+    types/errnoexception.h \
+    util/qarraydataslice.h
 
 HEADERS += $$HEADERS_PUBLIC $$HEADERS_PRIVATE
 

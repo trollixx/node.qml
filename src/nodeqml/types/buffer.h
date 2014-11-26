@@ -2,8 +2,7 @@
 #define BUFFER_H
 
 #include "../v4integration.h"
-
-#include <QByteArray>
+#include "../util/qarraydataslice.h"
 
 #include <private/qv4object_p.h>
 #include <private/qv4functionobject_p.h>
@@ -30,7 +29,7 @@ struct BufferObject : QV4::Heap::Object {
     BufferObject(QV4::ExecutionEngine *v4, QV4::ArrayObject *array);
     BufferObject(QV4::ExecutionEngine *v4, const QByteArray &ba);
 
-    QTypedArrayData<char> *data = nullptr;
+    QTypedArrayDataSlice<char> data;
 };
 
 struct BufferCtor : QV4::Heap::FunctionObject {
