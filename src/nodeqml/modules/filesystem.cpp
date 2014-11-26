@@ -1,9 +1,13 @@
 #include "filesystem.h"
 
+#include "../engine_p.h"
+
 #include <QFile>
 #include <QFileInfo>
 
 #include <private/qv4context_p.h>
+
+#include <unistd.h>
 
 using namespace NodeQml;
 
@@ -15,6 +19,7 @@ Heap::FileSystemModule::FileSystemModule(QV4::ExecutionEngine *v4) :
 
     self->defineDefaultProperty(QStringLiteral("existsSync"), NodeQml::FileSystemModule::method_existsSync);
     self->defineDefaultProperty(QStringLiteral("renameSync"), NodeQml::FileSystemModule::method_renameSync);
+    self->defineDefaultProperty(QStringLiteral("truncateSync"), NodeQml::FileSystemModule::method_truncateSync);
 }
 
 QV4::ReturnedValue FileSystemModule::method_existsSync(QV4::CallContext *ctx)
@@ -38,4 +43,22 @@ QV4::ReturnedValue FileSystemModule::method_renameSync(QV4::CallContext *ctx)
 
     return QV4::Encode(QFile::rename(callData->args[0].toQStringNoThrow(),
                        callData->args[1].toQStringNoThrow()));
+}
+
+QV4::ReturnedValue FileSystemModule::method_truncateSync(QV4::CallContext *ctx)
+{
+    NODE_CTX_CALLDATA(ctx);
+    NODE_CTX_V4(ctx);
+
+    if (callData->argc < 2)
+        v4->throwError(QStringLiteral("truncateSync: two arguments are required"));
+    if (!callData->args[0].isString())
+        v4->throwTypeError(QStringLiteral("truncateSync: path must be a string"));
+
+    const off_t length = callData->args[1].toInt32();
+
+    if (::truncate(qPrintable(callData->args[0].toQStringNoThrow()), length) == -1)
+        return EnginePrivate::get(v4)->throwErrnoException(errno, QStringLiteral("truncate"));
+
+    return QV4::Encode::undefined();
 }
