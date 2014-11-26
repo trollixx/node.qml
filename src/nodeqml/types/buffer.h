@@ -28,6 +28,7 @@ struct BufferObject : QV4::Heap::Object {
     BufferObject(QV4::ExecutionEngine *v4, const QString &str, BufferEncoding encoding);
     BufferObject(QV4::ExecutionEngine *v4, QV4::ArrayObject *array);
     BufferObject(QV4::ExecutionEngine *v4, const QByteArray &ba);
+    bool allocateData(size_t length);
 
     QTypedArrayDataSlice<char> data;
 };

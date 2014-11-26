@@ -13,14 +13,10 @@ Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, size_t length) :
 {
     setVTable(NodeQml::BufferObject::staticVTable());
 
-    QTypedArrayData<char> *arrayData = QTypedArrayData<char>::allocate(length + 1);
-    if (!arrayData) {
+    if (!allocateData(length)) {
         v4->throwRangeError(QStringLiteral("Buffer: Out of memory"));
         return;
     }
-    arrayData->size = length;
-
-    data.setData(arrayData);
 
     QV4::Scope scope(v4);
     QV4::ScopedObject o(scope, this);
@@ -44,14 +40,10 @@ Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, QV4::ArrayObject *arr
 
     const uint length = a->getLength();
 
-    QTypedArrayData<char> *arrayData = QTypedArrayData<char>::allocate(length + 1);
-    if (!arrayData) {
+    if (!allocateData(length)) {
         v4->throwRangeError(QStringLiteral("Buffer: Out of memory"));
         return;
     }
-    arrayData->size = length;
-
-    data.setData(arrayData);
 
     for (uint i = 0; i < length; ++i) {
         v = array->getIndexed(i);
@@ -69,14 +61,10 @@ Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, const QByteArray &ba)
 
     const size_t length = ba.length();
 
-    QTypedArrayData<char> *arrayData = QTypedArrayData<char>::allocate(length + 1);
-    if (!arrayData) {
+    if (!allocateData(length)) {
         v4->throwRangeError(QStringLiteral("Buffer: Out of memory"));
         return;
     }
-    arrayData->size = length;
-
-    data.setData(arrayData);
 
     for (uint i = 0; i < length; ++i)
         data.data()[i] = ba.at(i) & 0xff;
@@ -84,6 +72,17 @@ Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, const QByteArray &ba)
     QV4::Scope scope(v4);
     QV4::ScopedObject o(scope, this);
     o->defineReadonlyProperty(v4->id_length, QV4::Primitive::fromInt32(length));
+}
+
+bool Heap::BufferObject::allocateData(size_t length)
+{
+    QTypedArrayData<char> *arrayData = QTypedArrayData<char>::allocate(length + 1);
+    if (!arrayData)
+        return false;
+    arrayData->size = length;
+
+    data.setData(arrayData);
+    return true;
 }
 
 QV4::ReturnedValue BufferObject::getIndexed(QV4::Managed *m, quint32 index, bool *hasProperty)
