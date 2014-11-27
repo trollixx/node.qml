@@ -250,31 +250,34 @@ QV4::ReturnedValue BufferPrototype::method_byteLength(QV4::CallContext *ctx)
     if (!callData->argc || !callData->args[0].isString())
         return ctx->engine()->throwTypeError(QStringLiteral("byteLength: argument must be a string"));
 
-    QString encoding;
+    BufferEncoding encoding = BufferEncoding::Utf8;
     if (callData->argc > 1 && callData->args[1].isString()
             && BufferObject::isEncoding(callData->args[1].toQStringNoThrow())) {
-        encoding = callData->args[1].toQStringNoThrow();
-    } else {
-        encoding = QStringLiteral("utf8");
+        encoding = BufferObject::parseEncoding(callData->args[1].toQStringNoThrow());
     }
 
-    quint32 length = 0;
-
-    if (encoding == QStringLiteral("ascii") || encoding == QStringLiteral("binary")
-            || encoding == QStringLiteral("raw")) {
-        length = callData->args[0].stringValue()->d()->length();
-    } else if (encoding == QStringLiteral("ucs2") || encoding == QStringLiteral("ucs-2")
-               || encoding == QStringLiteral("utf16le") || encoding == QStringLiteral("utf-16le")) {
-        length = callData->args[0].stringValue()->d()->length() * 2;
-    } else if (encoding == QStringLiteral("hex")) {
-        length = callData->args[0].stringValue()->d()->length() >> 1;
-    } else if (encoding == QStringLiteral("base64")) {
-        length = QByteArray::fromBase64(callData->args[0].toQStringNoThrow().toUtf8()).length();
-    } else { // utf8
-        length = callData->args[0].toQStringNoThrow().toUtf8().length();
+    switch (encoding) {
+    case BufferEncoding::Ascii:
+    case BufferEncoding::Binary:
+    case BufferEncoding::Raw:
+        return QV4::Encode(callData->args[0].stringValue()->d()->length());
+    case BufferEncoding::Base64:
+        return QV4::Encode(QByteArray::fromBase64(
+                               callData->args[0].toQStringNoThrow().toUtf8()).length());
+    case BufferEncoding::Hex:
+        return QV4::Encode(callData->args[0].stringValue()->d()->length() >> 1);
+        break;
+    case BufferEncoding::Ucs2:
+    case BufferEncoding::Utf16le:
+        return QV4::Encode(callData->args[0].stringValue()->d()->length() * 2);
+        break;
+    case BufferEncoding::Utf8:
+        return QV4::Encode(callData->args[0].toQStringNoThrow().toUtf8().length());
+    case BufferEncoding::Invalid:
+        return QV4::Encode::undefined();
     }
 
-    return QV4::Encode(length);
+    return QV4::Encode::undefined();
 }
 
 QV4::ReturnedValue BufferPrototype::method_concat(QV4::CallContext *ctx)
