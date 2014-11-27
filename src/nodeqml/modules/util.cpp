@@ -104,13 +104,15 @@ QV4::ReturnedValue UtilModule::method_inspect(QV4::CallContext *ctx)
 
 QV4::ReturnedValue UtilModule::method_isArray(QV4::CallContext *ctx)
 {
-    bool isArray = ctx->d()->callData->argc && ctx->d()->callData->args[0].asArrayObject();
+    NODE_CTX_CALLDATA(ctx);
+    const bool isArray = callData->argc && callData->args[0].asArrayObject();
     return QV4::Encode(isArray);
 }
 
 QV4::ReturnedValue UtilModule::method_isRegExp(QV4::CallContext *ctx)
 {
-    bool isRegExp = ctx->d()->callData->argc && ctx->d()->callData->args[0].as<QV4::RegExpObject>();
+    NODE_CTX_CALLDATA(ctx);
+    const bool isRegExp = callData->argc && callData->args[0].as<QV4::RegExpObject>();
     return QV4::Encode(isRegExp);
 }
 
@@ -124,14 +126,14 @@ QV4::ReturnedValue UtilModule::method_isDate(QV4::CallContext *ctx)
 QV4::ReturnedValue UtilModule::method_isError(QV4::CallContext *ctx)
 {
     NODE_CTX_CALLDATA(ctx);
-    bool isError = callData->argc && callData->args[0].asErrorObject();
+    const bool isError = callData->argc && callData->args[0].asErrorObject();
     return QV4::Encode(isError);
 }
 
 QV4::ReturnedValue UtilModule::method_isUndefined(QV4::CallContext *ctx)
 {
     NODE_CTX_CALLDATA(ctx);
-    bool isUndefined = callData->argc && callData->args[0].isUndefined();
+    const bool isUndefined = callData->argc && callData->args[0].isUndefined();
     return QV4::Encode(isUndefined);
 }
 
