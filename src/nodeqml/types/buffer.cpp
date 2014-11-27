@@ -227,6 +227,7 @@ void BufferPrototype::init(QV4::ExecutionEngine *v4, QV4::Object *ctor)
     defineDefaultProperty(QStringLiteral("copy"), method_copy, 4);
     defineDefaultProperty(QStringLiteral("fill"), method_fill, 3);
     defineDefaultProperty(QStringLiteral("slice"), method_slice, 2);
+    defineDefaultProperty(QStringLiteral("toString"), method_toString, 3);
 }
 
 QV4::ReturnedValue BufferPrototype::method_isEncoding(QV4::CallContext *ctx)
@@ -279,6 +280,66 @@ QV4::ReturnedValue BufferPrototype::method_byteLength(QV4::CallContext *ctx)
 QV4::ReturnedValue BufferPrototype::method_concat(QV4::CallContext *ctx)
 {
     return ctx->engine()->throwUnimplemented(QStringLiteral("Buffer.concat()"));
+}
+
+// toString([encoding], [start], [end])
+QV4::ReturnedValue BufferPrototype::method_toString(QV4::CallContext *ctx)
+{
+    NODE_CTX_CALLDATA(ctx);
+    NODE_CTX_SELF(BufferObject, ctx);
+    NODE_CTX_V4(ctx);
+
+    BufferEncoding encoding = BufferEncoding::Utf8;
+    if (callData->argc) {
+        const QString encodingStr = callData->args[0].toQStringNoThrow();
+        encoding = BufferObject::parseEncoding(encodingStr);
+        if (encoding == BufferEncoding::Invalid)
+            return v4->throwTypeError(QString("Unknown encoding: %1").arg(encodingStr));
+    }
+
+    const int dataSize = self->d()->data.size();
+    int start = callData->argc > 1
+            ? qMin(callData->args[1].toInt32(), dataSize) : 0;
+    int end = callData->argc > 2 && !callData->args[2].isUndefined()
+            ? qMin(callData->args[2].toInt32(), dataSize) : dataSize - 1;
+
+    if (start < 0)
+        start = 0;
+    if (end < 0)
+        end = dataSize - 1;
+
+    const char *startPtr = self->d()->data.data() + start;
+    const int size = end - start + 1;
+
+    const QByteArray data = QByteArray::fromRawData(startPtr, size);
+    QString str;
+
+    switch (encoding) {
+    case BufferEncoding::Ascii:
+    case BufferEncoding::Binary:
+    case BufferEncoding::Raw:
+        str = QString::fromLatin1(data);
+        break;
+    case BufferEncoding::Base64:
+        str = QByteArray::fromBase64(data);
+        break;
+    case BufferEncoding::Hex:
+        str = QByteArray::fromHex(data);
+        break;
+    case BufferEncoding::Ucs2:
+    case BufferEncoding::Utf16le:
+        str = QString::fromUtf16(reinterpret_cast<const ushort *>(startPtr), size >> 1);
+        break;
+    case BufferEncoding::Utf8:
+        str = QString::fromUtf8(data);
+        break;
+    case BufferEncoding::Invalid:
+        // Should never happen
+        break;
+    }
+
+    QV4::ScopedString s(scope, v4->newString(str));
+    return s->asReturnedValue();
 }
 
 // copy(targetBuffer, [targetStart], [sourceStart], [sourceEnd])
