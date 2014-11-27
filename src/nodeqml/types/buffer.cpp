@@ -74,6 +74,17 @@ Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, const QByteArray &ba)
     o->defineReadonlyProperty(v4->id_length, QV4::Primitive::fromInt32(length));
 }
 
+Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, const QTypedArrayDataSlice<char> &slice) :
+    QV4::Heap::Object(EnginePrivate::get(v4)->bufferClass),
+    data(slice)
+{
+    setVTable(NodeQml::BufferObject::staticVTable());
+
+    QV4::Scope scope(v4);
+    QV4::ScopedObject o(scope, this);
+    o->defineReadonlyProperty(v4->id_length, QV4::Primitive::fromInt32(data.size()));
+}
+
 bool Heap::BufferObject::allocateData(size_t length)
 {
     QTypedArrayData<char> *arrayData = QTypedArrayData<char>::allocate(length + 1);
@@ -215,6 +226,7 @@ void BufferPrototype::init(QV4::ExecutionEngine *v4, QV4::Object *ctor)
 
     defineDefaultProperty(QStringLiteral("copy"), method_copy, 4);
     defineDefaultProperty(QStringLiteral("fill"), method_fill, 3);
+    defineDefaultProperty(QStringLiteral("slice"), method_slice, 2);
 }
 
 QV4::ReturnedValue BufferPrototype::method_isEncoding(QV4::CallContext *ctx)
@@ -394,4 +406,31 @@ QV4::ReturnedValue BufferPrototype::method_fill(QV4::CallContext *ctx)
         memcpy(ptr, startPtr, length - in_there);
 
     return QV4::Encode::undefined();
+}
+
+// slice([start], [end])
+QV4::ReturnedValue BufferPrototype::method_slice(QV4::CallContext *ctx)
+{
+    NODE_CTX_V4(ctx);
+    NODE_CTX_CALLDATA(ctx);
+    NODE_CTX_SELF(BufferObject, ctx);
+
+    if (!self)
+        return v4->throwTypeError();
+
+    int start = callData->argc > 0 ? callData->args[0].toInt32() : 0;
+    int end = callData->argc < 2 || callData->args[1].isUndefined()
+            ? self->d()->data.size() : callData->args[1].toInt32();
+
+    if (start < 0)
+        start = qMax(self->d()->data.size() + start, 0);
+    if (end < 0)
+        end = qMax(self->d()->data.size() + end, 0);
+
+    if (end < start)
+        return v4->throwRangeError(QStringLiteral("slice: start cannot exceed end"));
+
+    QTypedArrayDataSlice<char> slice(self->d()->data, start, end - start + 1);
+    QV4::Scoped<BufferObject> newBuffer(scope, v4->memoryManager->alloc<BufferObject>(v4, slice));
+    return newBuffer->asReturnedValue();
 }

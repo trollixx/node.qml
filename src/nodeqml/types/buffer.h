@@ -28,6 +28,7 @@ struct BufferObject : QV4::Heap::Object {
     BufferObject(QV4::ExecutionEngine *v4, const QString &str, BufferEncoding encoding);
     BufferObject(QV4::ExecutionEngine *v4, QV4::ArrayObject *array);
     BufferObject(QV4::ExecutionEngine *v4, const QByteArray &ba);
+    BufferObject(QV4::ExecutionEngine *v4, const QTypedArrayDataSlice<char> &slice);
     bool allocateData(size_t length);
 
     QTypedArrayDataSlice<char> data;
@@ -75,7 +76,7 @@ struct BufferPrototype : QV4::Object
 
     static QV4::ReturnedValue method_copy(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_fill(QV4::CallContext *ctx);
-    /// TODO: buf.slice([start], [end])
+    static QV4::ReturnedValue method_slice(QV4::CallContext *ctx);
     /// TODO: buf.readUInt8(offset, [noAssert])
     /// TODO: buf.readUInt16LE(offset, [noAssert])
     /// TODO: buf.readUInt16BE(offset, [noAssert])
