@@ -91,6 +91,9 @@ Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, const QTypedArrayData
 
 bool Heap::BufferObject::allocateData(size_t length)
 {
+    if (!length)
+        return true;
+
     QTypedArrayData<char> *arrayData = QTypedArrayData<char>::allocate(length + 1);
     if (!arrayData)
         return false;
