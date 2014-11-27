@@ -72,7 +72,7 @@ struct BufferPrototype : QV4::Object
 
     /// TODO: buf.write(string, [offset], [length], [encoding])
     static QV4::ReturnedValue method_toString(QV4::CallContext *ctx);
-    /// TODO: buf.toJSON()
+    static QV4::ReturnedValue method_toJSON(QV4::CallContext *ctx);
 
     static QV4::ReturnedValue method_copy(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_fill(QV4::CallContext *ctx);

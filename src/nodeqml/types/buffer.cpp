@@ -2,7 +2,11 @@
 
 #include "../engine_p.h"
 
+#include <QJsonArray>
+#include <QJsonObject>
+
 #include <private/qv4engine_p.h>
+#include <private/qv4jsonobject_p.h>
 
 using namespace NodeQml;
 
@@ -228,6 +232,7 @@ void BufferPrototype::init(QV4::ExecutionEngine *v4, QV4::Object *ctor)
     defineDefaultProperty(QStringLiteral("fill"), method_fill, 3);
     defineDefaultProperty(QStringLiteral("slice"), method_slice, 2);
     defineDefaultProperty(QStringLiteral("toString"), method_toString, 3);
+    defineDefaultProperty(QStringLiteral("toJSON"), method_toJSON);
 }
 
 QV4::ReturnedValue BufferPrototype::method_isEncoding(QV4::CallContext *ctx)
@@ -343,6 +348,22 @@ QV4::ReturnedValue BufferPrototype::method_toString(QV4::CallContext *ctx)
 
     QV4::ScopedString s(scope, v4->newString(str));
     return s->asReturnedValue();
+}
+
+QV4::ReturnedValue BufferPrototype::method_toJSON(QV4::CallContext *ctx)
+{
+    NODE_CTX_SELF(BufferObject, ctx);
+    NODE_CTX_V4(ctx);
+
+    QJsonObject json;
+    json.insert(QStringLiteral("type"), QStringLiteral("Buffer"));
+
+    QJsonArray data;
+    for (int i = 0; i < self->d()->data.size(); ++i)
+        data.append(self->d()->data[i]);
+
+    json.insert(QStringLiteral("data"), data);
+    return QV4::JsonObject::fromJsonObject(v4, json);
 }
 
 // copy(targetBuffer, [targetStart], [sourceStart], [sourceEnd])
