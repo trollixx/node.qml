@@ -29,6 +29,7 @@ struct BufferObject : QV4::Heap::Object {
     BufferObject(QV4::ExecutionEngine *v4, QV4::ArrayObject *array);
     BufferObject(QV4::ExecutionEngine *v4, const QByteArray &ba);
     BufferObject(QV4::ExecutionEngine *v4, const QTypedArrayDataSlice<char> &slice);
+    ~BufferObject();
     bool allocateData(size_t length);
 
     QTypedArrayDataSlice<char> data;
@@ -43,11 +44,11 @@ struct BufferCtor : QV4::Heap::FunctionObject {
 struct BufferObject : QV4::Object
 {
     NODE_V4_OBJECT(BufferObject, Object)
+    V4_NEEDS_DESTROY
 
     static QV4::ReturnedValue getIndexed(QV4::Managed *m, quint32 index, bool *hasProperty);
     static void putIndexed(QV4::Managed *m, uint index, const QV4::ValueRef value);
     static bool deleteIndexedProperty(QV4::Managed *m, uint index);
-    static void destroy(Managed *m);
 
     static BufferEncoding parseEncoding(const QString &str);
     static bool isEncoding(const QString &str);
