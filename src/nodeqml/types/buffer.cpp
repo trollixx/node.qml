@@ -274,11 +274,9 @@ QV4::ReturnedValue BufferPrototype::method_byteLength(QV4::CallContext *ctx)
                                callData->args[0].toQStringNoThrow().toUtf8()).length());
     case BufferEncoding::Hex:
         return QV4::Encode(callData->args[0].stringValue()->d()->length() >> 1);
-        break;
     case BufferEncoding::Ucs2:
     case BufferEncoding::Utf16le:
         return QV4::Encode(callData->args[0].stringValue()->d()->length() * 2);
-        break;
     case BufferEncoding::Utf8:
         return QV4::Encode(callData->args[0].toQStringNoThrow().toUtf8().length());
     case BufferEncoding::Invalid:
