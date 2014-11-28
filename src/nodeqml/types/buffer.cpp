@@ -149,7 +149,7 @@ void BufferObject::destroy(QV4::Managed *m)
 
 BufferEncoding BufferObject::parseEncoding(const QString &str)
 {
-    static QHash<QString, BufferEncoding> encodings = {
+    const static QHash<QString, BufferEncoding> encodings = {
         std::pair<QString, BufferEncoding>(QStringLiteral("hex"), BufferEncoding::Hex),
         std::pair<QString, BufferEncoding>(QStringLiteral("utf8"), BufferEncoding::Utf8),
         std::pair<QString, BufferEncoding>(QStringLiteral("utf-8"), BufferEncoding::Utf8),
