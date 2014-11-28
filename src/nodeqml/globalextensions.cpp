@@ -29,6 +29,14 @@ void GlobalExtensions::init(QQmlEngine *qmlEngine)
 
     QV4::ScopedObject console(scope, v4->memoryManager->alloc<ConsoleModule>(v4));
     globalObject->defineDefaultProperty(QStringLiteral("console"), console);
+
+    // Error object modification
+    // See: https://code.google.com/p/v8/wiki/JavaScriptStackTraceApi
+    // TODO: Replace with a custom Error object?
+    QV4::ScopedString s(scope, v4->newString(QStringLiteral("Error")));
+    QV4::ScopedObject errorObject(scope, globalObject->get(s));
+    errorObject->defineDefaultProperty(QStringLiteral("captureStackTrace"), method_captureStackTrace);
+    errorObject->defineDefaultProperty(QStringLiteral("stackTraceLimit"), QV4::Primitive::fromInt32(10));
 }
 
 QV4::ReturnedValue GlobalExtensions::method_require(QV4::CallContext *ctx)
@@ -63,4 +71,10 @@ QV4::ReturnedValue GlobalExtensions::method_setInterval(QV4::CallContext *ctx)
 QV4::ReturnedValue GlobalExtensions::method_clearInterval(QV4::CallContext *ctx)
 {
     return EnginePrivate::get(ctx->engine())->clearInterval(ctx);
+}
+
+QV4::ReturnedValue GlobalExtensions::method_captureStackTrace(QV4::CallContext *ctx)
+{
+    qWarning("captureStackTrace() is not implemented!");
+    return QV4::Encode::undefined();
 }

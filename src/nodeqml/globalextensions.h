@@ -17,6 +17,8 @@ struct GlobalExtensions {
 
     static QV4::ReturnedValue method_setInterval(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_clearInterval(QV4::CallContext *ctx);
+
+    static QV4::ReturnedValue method_captureStackTrace(QV4::CallContext *ctx);
 };
 
 } // namespace NodeQml
