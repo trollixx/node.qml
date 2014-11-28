@@ -27,6 +27,7 @@ Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, size_t length) :
     o->defineReadonlyProperty(v4->id_length, QV4::Primitive::fromInt32(length));
 }
 
+/// TODO: new Buffer(str, [encoding])
 Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, const QString &str, BufferEncoding encoding) :
     QV4::Heap::Object(EnginePrivate::get(v4)->bufferClass)
 {
