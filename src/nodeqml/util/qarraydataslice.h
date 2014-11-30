@@ -48,7 +48,7 @@ inline bool operator == (const QTypedArrayDataSlice<T> &a, const QTypedArrayData
 template<typename T>
 QTypedArrayDataSlice<T>::QTypedArrayDataSlice(QTypedArrayData<T> *arrayData, int offset, int size)
 {
-    if (!arrayData)
+    if (!arrayData || !size)
         return;
     setData(arrayData, offset, size);
 }
@@ -56,8 +56,10 @@ QTypedArrayDataSlice<T>::QTypedArrayDataSlice(QTypedArrayData<T> *arrayData, int
 template<typename T>
 QTypedArrayDataSlice<T>::QTypedArrayDataSlice(const QTypedArrayDataSlice<T> &slice, int offset, int size)
 {
+    if (!slice.m_arrayData || !size)
+        return;
     offset += slice.m_begin - slice.m_arrayData->data();
-    if (size == -1)
+    if (size == -1 && slice.size())
         size = slice.m_size;
     setData(slice.m_arrayData, offset, size);
 }
@@ -131,7 +133,7 @@ template<typename T>
 void QTypedArrayDataSlice<T>::setData(QTypedArrayData<T> *arrayData, int offset, int size)
 {
     Q_ASSERT(arrayData);
-    Q_ASSERT_X(offset >= 0 && offset < arrayData->size,
+    Q_ASSERT_X((offset > 0 && offset < arrayData->size) || offset == 0,
                "QTypedArrayDataSlice<T>::setData", "offset out of range");
     Q_ASSERT_X(size == -1 || (size > 0 && offset + size <= arrayData->size),
                "QTypedArrayDataSlice<T>::setData", "size out of range");
