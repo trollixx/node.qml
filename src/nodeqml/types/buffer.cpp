@@ -510,7 +510,7 @@ QV4::ReturnedValue BufferPrototype::method_slice(QV4::CallContext *ctx)
 
     int start = callData->argc > 0 ? callData->args[0].toInt32() : 0;
     int end = callData->argc < 2 || callData->args[1].isUndefined()
-            ? self->d()->data.size() - 1 : callData->args[1].toInt32();
+            ? self->d()->data.size() : callData->args[1].toInt32();
 
     if (start < 0)
         start = qMax(self->d()->data.size() + start, 0);
@@ -520,7 +520,7 @@ QV4::ReturnedValue BufferPrototype::method_slice(QV4::CallContext *ctx)
     if (end < start)
         return v4->throwRangeError(QStringLiteral("slice: start cannot exceed end"));
 
-    QTypedArrayDataSlice<char> slice(self->d()->data, start, end - start + 1);
+    QTypedArrayDataSlice<char> slice(self->d()->data, start, end - start);
     QV4::Scoped<BufferObject> newBuffer(scope, v4->memoryManager->alloc<BufferObject>(v4, slice));
     return newBuffer->asReturnedValue();
 }
