@@ -27,13 +27,6 @@ Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, size_t length) :
     o->defineReadonlyProperty(v4->id_length, QV4::Primitive::fromInt32(length));
 }
 
-/// TODO: new Buffer(str, [encoding])
-Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, const QString &str, BufferEncoding encoding) :
-    QV4::Heap::Object(EnginePrivate::get(v4)->bufferClass)
-{
-    setVTable(NodeQml::BufferObject::staticVTable());
-}
-
 Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, QV4::ArrayObject *array) :
     QV4::Heap::Object(EnginePrivate::get(v4)->bufferClass)
 {
@@ -200,6 +193,47 @@ int BufferObject::byteLength(const QString &str, BufferEncoding encoding)
         return str.toUtf8().size();
     }
 }
+
+QTypedArrayData<char> *BufferObject::fromString(const QString &str, BufferEncoding encoding)
+{
+    QByteArray ba;
+
+    switch (encoding) {
+    case BufferEncoding::Ascii:
+    case BufferEncoding::Binary:
+    case BufferEncoding::Raw:
+        ba = str.toLatin1();
+        break;
+    case BufferEncoding::Base64:
+        ba = QByteArray::fromBase64(str.toUtf8());
+        break;
+    case BufferEncoding::Hex:
+        ba = QByteArray::fromHex(str.toUtf8());
+        break;
+    case BufferEncoding::Ucs2:
+    case BufferEncoding::Utf16le: {
+        /// TODO: Better solution?
+        const QByteArray utf8Ba = str.toUtf8();
+        ba = QString::fromUtf16(reinterpret_cast<const ushort *>(utf8Ba.data()),
+                                utf8Ba.size()).toUtf8();
+        break;
+    }
+    case BufferEncoding::Utf8:
+    case BufferEncoding::Invalid:
+    default:
+        ba = str.toUtf8();
+    }
+
+    QTypedArrayData<char> *arrayData = QTypedArrayData<char>::allocate(ba.size() + 1);
+    if (!arrayData)
+        return nullptr;
+
+    ::memcpy(arrayData->data(), ba.constData(), ba.size());
+    arrayData->size = ba.size();
+    arrayData->data()[ba.size()] = 0;
+
+    return arrayData;
+}
 DEFINE_OBJECT_VTABLE(BufferCtor);
 
 Heap::BufferCtor::BufferCtor(QV4::ExecutionContext *scope) :
@@ -230,7 +264,13 @@ QV4::ReturnedValue BufferCtor::construct(QV4::Managed *m, QV4::CallData *callDat
                     return v4->throwTypeError(QString("Unknown Encoding: %1").arg(encStr));
                 encoding = enc;
             }
-            QV4::Scoped<BufferObject> object(scope, v4->memoryManager->alloc<BufferObject>(v4, callData->args[0].toQStringNoThrow(), encoding));
+
+            QTypedArrayData<char> *arrayData
+                    = NodeQml::BufferObject::fromString(callData->args[0].toQStringNoThrow(), encoding);
+
+            QTypedArrayDataSlice<char> slice(arrayData);
+            arrayData->ref.deref(); // Disown data
+            QV4::Scoped<BufferObject> object(scope, v4->memoryManager->alloc<BufferObject>(v4, slice));
             return object->asReturnedValue();
         }
     }

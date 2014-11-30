@@ -25,7 +25,6 @@ namespace Heap {
 
 struct BufferObject : QV4::Heap::Object {
     BufferObject(QV4::ExecutionEngine *v4, size_t length);
-    BufferObject(QV4::ExecutionEngine *v4, const QString &str, BufferEncoding encoding);
     BufferObject(QV4::ExecutionEngine *v4, QV4::ArrayObject *array);
     BufferObject(QV4::ExecutionEngine *v4, const QByteArray &ba);
     BufferObject(QV4::ExecutionEngine *v4, const QTypedArrayDataSlice<char> &slice);
@@ -53,6 +52,7 @@ struct BufferObject : QV4::Object
     static BufferEncoding parseEncoding(const QString &str);
     static bool isEncoding(const QString &str);
     static int byteLength(const QString &str, BufferEncoding encoding);
+    static QTypedArrayData<char> *fromString(const QString &str, BufferEncoding encoding);
 };
 
 struct BufferCtor : QV4::FunctionObject
