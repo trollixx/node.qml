@@ -30,7 +30,7 @@ before_install:
   - cd qtdeclarative
   - git log -n1
   # https://codereview.qt-project.org/100434
-  - git fetch https://codereview.qt-project.org/qt/qtdeclarative refs/changes/34/100434/2 && git cherry-pick FETCH_HEAD
+  - git fetch --depth 1 https://codereview.qt-project.org/qt/qtdeclarative refs/changes/34/100434/2 && git cherry-pick FETCH_HEAD
   - ~/qt/bin/qmake
   - make -j2
   - make install
