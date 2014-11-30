@@ -452,8 +452,6 @@ QV4::ReturnedValue BufferPrototype::method_copy(QV4::CallContext *ctx)
         sourceEnd = callData->args[3].toInt32();
     }
 
-    qDebug("Target length: %u", target->getLength());
-
     // Copy zero bytes, we're done
     if (targetStart >= target->getLength() || sourceStart >= sourceEnd)
         return QV4::Encode(0);
