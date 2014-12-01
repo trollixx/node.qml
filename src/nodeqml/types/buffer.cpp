@@ -10,6 +10,7 @@
 
 using namespace NodeQml;
 
+DEFINE_OBJECT_VTABLE(BufferCtor);
 DEFINE_OBJECT_VTABLE(BufferObject);
 
 Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, size_t length) :
@@ -236,7 +237,6 @@ QTypedArrayData<char> *BufferObject::fromString(const QString &str, BufferEncodi
 
     return arrayData;
 }
-DEFINE_OBJECT_VTABLE(BufferCtor);
 
 Heap::BufferCtor::BufferCtor(QV4::ExecutionContext *scope) :
     QV4::Heap::FunctionObject(scope, QStringLiteral("Buffer"))

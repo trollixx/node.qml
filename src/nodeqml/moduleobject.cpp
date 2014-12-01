@@ -13,6 +13,7 @@
 using namespace NodeQml;
 
 DEFINE_OBJECT_VTABLE(ModuleObject);
+DEFINE_OBJECT_VTABLE(RequireFunction);
 
 Heap::ModuleObject::ModuleObject(QV4::ExecutionEngine *v4, const QString &moduleId, NodeQml::ModuleObject *moduleParent) :
     QV4::Heap::Object(v4),
@@ -265,8 +266,6 @@ QV4::ReturnedValue ModuleObject::method_require(QV4::CallContext *ctx)
     QV4::ScopedObject exports(scope, require(ctx, callData->args[0].toQStringNoThrow(), self));
     return exports.asReturnedValue();
 }
-
-DEFINE_OBJECT_VTABLE(RequireFunction);
 
 Heap::RequireFunction::RequireFunction(QV4::ExecutionContext *ctx, NodeQml::ModuleObject *moduleObject) :
     QV4::Heap::FunctionObject(ctx, QStringLiteral("require"))
