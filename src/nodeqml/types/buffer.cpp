@@ -93,10 +93,12 @@ bool Heap::BufferObject::allocateData(size_t length)
     if (!length)
         return true;
 
+    /// TODO: Check if +1 is actually needed
     QTypedArrayData<char> *arrayData = QTypedArrayData<char>::allocate(length + 1);
     if (!arrayData)
         return false;
     arrayData->size = length;
+    arrayData->data()[length] = 0;
 
     data.setData(arrayData);
     arrayData->ref.deref(); // Disown data
