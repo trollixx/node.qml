@@ -356,15 +356,17 @@ QV4::ReturnedValue BufferPrototype::method_toString(QV4::CallContext *ctx)
     int start = callData->argc > 1
             ? qMin(callData->args[1].toInt32(), dataSize) : 0;
     int end = callData->argc > 2 && !callData->args[2].isUndefined()
-            ? qMin(callData->args[2].toInt32(), dataSize) : dataSize - 1;
+            ? qMin(callData->args[2].toInt32(), dataSize) : dataSize;
 
     if (start < 0)
         start = 0;
-    if (end < 0)
-        end = dataSize - 1;
+    if (end > dataSize)
+        end = dataSize;
+    if (end <= start)
+        return QV4::ScopedString(scope, v4->newString(QString()))->asReturnedValue();
 
     const char *startPtr = self->d()->data.data() + start;
-    const int size = end - start + 1;
+    const int size = end - start;
 
     const QByteArray data = QByteArray::fromRawData(startPtr, size);
     QString str;
