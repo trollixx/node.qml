@@ -247,37 +247,41 @@ Heap::BufferCtor::BufferCtor(QV4::ExecutionContext *scope) :
 QV4::ReturnedValue BufferCtor::construct(QV4::Managed *m, QV4::CallData *callData)
 {
     QV4::ExecutionEngine *v4 = m->engine();
+    if (!callData->argc)
+        return v4->throwTypeError(QStringLiteral("Buffer: First argument needs to be a number, array or string."));
+
     QV4::Scope scope(v4);
-    if (callData->argc) {
-        if (callData->args[0].isInt32()) {
-            QV4::Scoped<BufferObject> object(scope, v4->memoryManager->alloc<BufferObject>(v4, callData->args[0].toInt32()));
-            return object->asReturnedValue();
-        } else if (callData->args[0].asArrayObject()) {
-            QV4::Scoped<BufferObject> object(scope, v4->memoryManager->alloc<BufferObject>(v4, callData->args[0].asArrayObject()));
-            return object->asReturnedValue();
-        } else if (callData->args[0].isString()) {
-            BufferEncoding encoding = BufferEncoding::Utf8;
-            if (callData->argc > 1) {
-                if (!callData->args[1].isString())
-                    return v4->throwTypeError(QStringLiteral("Encoding must me a string"));
-                const QString encStr = callData->args[1].toQStringNoThrow();
-                BufferEncoding enc = BufferObject::parseEncoding(encStr);
-                if (enc == BufferEncoding::Invalid)
-                    return v4->throwTypeError(QString("Unknown Encoding: %1").arg(encStr));
-                encoding = enc;
-            }
+    QV4::Scoped<BufferObject> buffer(scope);
 
-            QTypedArrayData<char> *arrayData
-                    = NodeQml::BufferObject::fromString(callData->args[0].toQStringNoThrow(), encoding);
-
-            QTypedArrayDataSlice<char> slice(arrayData);
-            arrayData->ref.deref(); // Disown data
-            QV4::Scoped<BufferObject> object(scope, v4->memoryManager->alloc<BufferObject>(v4, slice));
-            return object->asReturnedValue();
+    if (callData->args[0].isInt32()) {
+        buffer = v4->memoryManager->alloc<BufferObject>(v4, callData->args[0].toInt32());
+    } else if (callData->args[0].asArrayObject()) {
+        buffer = v4->memoryManager->alloc<BufferObject>(v4, callData->args[0].asArrayObject());
+    } else if (callData->args[0].isString()) {
+        BufferEncoding encoding = BufferEncoding::Utf8;
+        if (callData->argc > 1) {
+            if (!callData->args[1].isString())
+                return v4->throwTypeError(QStringLiteral("Encoding must me a string"));
+            const QString encStr = callData->args[1].toQStringNoThrow();
+            BufferEncoding enc = BufferObject::parseEncoding(encStr);
+            if (enc == BufferEncoding::Invalid)
+                return v4->throwTypeError(QString("Unknown Encoding: %1").arg(encStr));
+            encoding = enc;
         }
+
+        const QByteArray stringData =
+                NodeQml::BufferObject::decodeString(
+                    callData->args[0].toQStringNoThrow(), encoding);
+        QTypedArrayData<char> *arrayData = NodeQml::BufferObject::fromString(stringData);
+
+        QTypedArrayDataSlice<char> slice(arrayData);
+        arrayData->ref.deref(); // Disown data
+        buffer = v4->memoryManager->alloc<BufferObject>(v4, slice);
+    } else {
+        return v4->throwTypeError(QStringLiteral("Buffer: First argument needs to be a number, array or string."));
     }
 
-    return v4->throwTypeError(QStringLiteral("Buffer: First argument needs to be a number, array or string."));
+    return buffer->asReturnedValue();
 }
 
 QV4::ReturnedValue BufferCtor::call(QV4::Managed *that, QV4::CallData *callData)
