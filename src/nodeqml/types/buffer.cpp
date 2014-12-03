@@ -248,7 +248,7 @@ QV4::ReturnedValue BufferCtor::construct(QV4::Managed *m, QV4::CallData *callDat
 {
     QV4::ExecutionEngine *v4 = m->engine();
     if (!callData->argc)
-        return v4->throwTypeError(QStringLiteral("Buffer: First argument needs to be a number, array or string."));
+        return v4->throwTypeError(QStringLiteral("must start with number, buffer, array or string"));
 
     QV4::Scope scope(v4);
     QV4::Scoped<BufferObject> buffer(scope);
@@ -257,6 +257,9 @@ QV4::ReturnedValue BufferCtor::construct(QV4::Managed *m, QV4::CallData *callDat
         buffer = v4->memoryManager->alloc<BufferObject>(v4, callData->args[0].toInt32());
     } else if (callData->args[0].asArrayObject()) {
         buffer = v4->memoryManager->alloc<BufferObject>(v4, callData->args[0].asArrayObject());
+    } else if (callData->args[0].as<BufferObject>()) {
+        QV4::Scoped<BufferObject> other(scope, callData->args[0].as<BufferObject>());
+        buffer = v4->memoryManager->alloc<BufferObject>(v4, other->d()->data);
     } else if (callData->args[0].isString()) {
         BufferEncoding encoding = BufferEncoding::Utf8;
         if (callData->argc > 1) {
@@ -278,7 +281,7 @@ QV4::ReturnedValue BufferCtor::construct(QV4::Managed *m, QV4::CallData *callDat
         arrayData->ref.deref(); // Disown data
         buffer = v4->memoryManager->alloc<BufferObject>(v4, slice);
     } else {
-        return v4->throwTypeError(QStringLiteral("Buffer: First argument needs to be a number, array or string."));
+        return v4->throwTypeError(QStringLiteral("must start with number, buffer, array or string"));
     }
 
     return buffer->asReturnedValue();
