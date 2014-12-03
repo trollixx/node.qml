@@ -197,7 +197,7 @@ int BufferObject::byteLength(const QString &str, BufferEncoding encoding)
     }
 }
 
-QTypedArrayData<char> *BufferObject::fromString(const QString &str, BufferEncoding encoding)
+QByteArray BufferObject::decodeString(const QString &str, BufferEncoding encoding)
 {
     QByteArray ba;
 
@@ -227,13 +227,18 @@ QTypedArrayData<char> *BufferObject::fromString(const QString &str, BufferEncodi
         ba = str.toUtf8();
     }
 
-    QTypedArrayData<char> *arrayData = QTypedArrayData<char>::allocate(ba.size() + 1);
+    return ba;
+}
+
+QTypedArrayData<char> *BufferObject::fromString(const QByteArray &data)
+{
+    QTypedArrayData<char> *arrayData = QTypedArrayData<char>::allocate(data.size() + 1);
     if (!arrayData)
         return nullptr;
 
-    ::memcpy(arrayData->data(), ba.constData(), ba.size());
-    arrayData->size = ba.size();
-    arrayData->data()[ba.size()] = 0;
+    ::memcpy(arrayData->data(), data.constData(), data.size());
+    arrayData->size = data.size();
+    arrayData->data()[data.size()] = 0;
 
     return arrayData;
 }
