@@ -217,10 +217,11 @@ QByteArray BufferObject::decodeString(const QString &str, BufferEncoding encodin
         break;
     case BufferEncoding::Ucs2:
     case BufferEncoding::Utf16le: {
-        /// TODO: Better solution?
-        const QByteArray utf8Ba = str.toUtf8();
-        ba = QString::fromUtf16(reinterpret_cast<const ushort *>(utf8Ba.data()),
-                                utf8Ba.size()).toUtf8();
+        ba.resize(str.size() * 2);
+        for (int i = 0; i < str.size(); ++i) {
+            ba[2 * i] = str[i].cell();
+            ba[2 * i + 1] = str[i].row();
+        }
         break;
     }
     case BufferEncoding::Utf8:
