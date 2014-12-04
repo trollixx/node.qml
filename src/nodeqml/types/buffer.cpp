@@ -13,6 +13,8 @@ using namespace NodeQml;
 DEFINE_OBJECT_VTABLE(BufferCtor);
 DEFINE_OBJECT_VTABLE(BufferObject);
 
+/// TODO: Document no buf.parent property support (see test-buffer.js)
+
 Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, size_t length) :
     QV4::Heap::Object(EnginePrivate::get(v4)->bufferClass)
 {
