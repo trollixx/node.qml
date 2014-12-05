@@ -25,7 +25,11 @@ Heap::PathModule::PathModule(QV4::ExecutionEngine *v4) :
 
 
     self->defineDefaultProperty(QStringLiteral("normalize"), NodeQml::PathModule::method_normalize);
+    self->defineDefaultProperty(QStringLiteral("join"), NodeQml::PathModule::method_join);
+    self->defineDefaultProperty(QStringLiteral("resolve"), NodeQml::PathModule::method_resolve);
+    self->defineDefaultProperty(QStringLiteral("relative"), NodeQml::PathModule::method_relative);
     self->defineDefaultProperty(QStringLiteral("dirname"), NodeQml::PathModule::method_dirname);
+    self->defineDefaultProperty(QStringLiteral("basename"), NodeQml::PathModule::method_basename);
     self->defineDefaultProperty(QStringLiteral("extname"), NodeQml::PathModule::method_extname);
 }
 
