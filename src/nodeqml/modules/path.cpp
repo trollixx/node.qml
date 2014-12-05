@@ -43,11 +43,18 @@ QV4::ReturnedValue PathModule::method_normalize(QV4::CallContext *ctx)
     return v4->newString(QDir::cleanPath(callData->args[0].toQStringNoThrow()))->asReturnedValue();
 }
 
-/// TODO: path.join([path1], [path2], [...])
 QV4::ReturnedValue PathModule::method_join(QV4::CallContext *ctx)
 {
+    NODE_CTX_CALLDATA(ctx);
     NODE_CTX_V4(ctx);
-    return v4->throwUnimplemented(QStringLiteral("path.join()"));
+    QStringList parts;
+    for (int i = 0; i < callData->argc; ++i) {
+        if (!callData->args[i].isString())
+            return v4->throwTypeError(QStringLiteral("Arguments to path.join must be strings"));
+
+        parts.append(callData->args[i].toQString());
+    }
+    return v4->newString(QDir::cleanPath(parts.join(QLatin1Char('/'))))->asReturnedValue();
 }
 
 /// TODO: path.resolve([from ...], to)
