@@ -32,46 +32,51 @@ Heap::PathModule::PathModule(QV4::ExecutionEngine *v4) :
 QV4::ReturnedValue PathModule::method_normalize(QV4::CallContext *ctx)
 {
     NODE_CTX_CALLDATA(ctx);
+    NODE_CTX_V4(ctx);
     if (!callData->argc || !callData->args[0].isString())
-        ctx->engine()->throwTypeError(QStringLiteral("path.normalize: argument must be a string"));
+        v4->throwTypeError(QStringLiteral("path.normalize: argument must be a string"));
 
-    return ctx->engine()->newString(
-                QDir::cleanPath(callData->args[0].toQStringNoThrow()))->asReturnedValue();
+    return v4->newString(QDir::cleanPath(callData->args[0].toQStringNoThrow()))->asReturnedValue();
 }
 
 /// TODO: path.join([path1], [path2], [...])
 QV4::ReturnedValue PathModule::method_join(QV4::CallContext *ctx)
 {
-    return ctx->engine()->throwUnimplemented(QStringLiteral("path.join()"));
+    NODE_CTX_V4(ctx);
+    return v4->throwUnimplemented(QStringLiteral("path.join()"));
 }
 
 /// TODO: path.resolve([from ...], to)
 QV4::ReturnedValue PathModule::method_resolve(QV4::CallContext *ctx)
 {
-    return ctx->engine()->throwUnimplemented(QStringLiteral("path.resolve()"));
+    NODE_CTX_V4(ctx);
+    return v4->throwUnimplemented(QStringLiteral("path.resolve()"));
 }
 
 /// TODO: path.relative(from, to)
 QV4::ReturnedValue PathModule::method_relative(QV4::CallContext *ctx)
 {
-    return ctx->engine()->throwUnimplemented(QStringLiteral("path.relative()"));
+    NODE_CTX_V4(ctx);
+    return v4->throwUnimplemented(QStringLiteral("path.relative()"));
 }
 
 QV4::ReturnedValue PathModule::method_dirname(QV4::CallContext *ctx)
 {
     NODE_CTX_CALLDATA(ctx);
+    NODE_CTX_V4(ctx);
     if (!callData->argc || !callData->args[0].isString())
-        return ctx->engine()->throwTypeError(QStringLiteral("path.dirname: argument must be a string"));
+        return v4->throwTypeError(QStringLiteral("path.dirname: argument must be a string"));
 
-    return ctx->engine()->newString(
+    return v4->newString(
                 QFileInfo(callData->args[0].toQStringNoThrow()).absolutePath())->asReturnedValue();
 }
 
 QV4::ReturnedValue PathModule::method_basename(QV4::CallContext *ctx)
 {
     NODE_CTX_CALLDATA(ctx);
+    NODE_CTX_V4(ctx);
     if (!callData->argc || !callData->args[0].isString())
-        return ctx->engine()->throwTypeError(QStringLiteral("path.basename: argument must be a string"));
+        return v4->throwTypeError(QStringLiteral("path.basename: argument must be a string"));
 
     const QString path = callData->args[0].toQStringNoThrow();
     const QString fileName = QFileInfo(path).fileName();
@@ -82,15 +87,16 @@ QV4::ReturnedValue PathModule::method_basename(QV4::CallContext *ctx)
     else
         basename = fileName;
 
-    return ctx->engine()->newString(basename)->asReturnedValue();
+    return v4->newString(basename)->asReturnedValue();
 }
 
 QV4::ReturnedValue PathModule::method_extname(QV4::CallContext *ctx)
 {
     NODE_CTX_CALLDATA(ctx);
+    NODE_CTX_V4(ctx);
     if (!callData->argc || !callData->args[0].isString())
-        return ctx->engine()->throwTypeError(QStringLiteral("path.extname: argument must be a string"));
+        return v4->throwTypeError(QStringLiteral("path.extname: argument must be a string"));
 
-    return ctx->engine()->newString(
+    return v4->newString(
                 QFileInfo(callData->args[0].toQStringNoThrow()).completeSuffix())->asReturnedValue();
 }
