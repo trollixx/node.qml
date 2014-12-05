@@ -52,7 +52,7 @@ struct BufferObject : QV4::Object
     static BufferEncoding parseEncoding(const QString &str);
     static bool isEncoding(const QString &str);
     static int byteLength(const QString &str, BufferEncoding encoding);
-    static QByteArray decodeString(const QString &str, BufferEncoding encoding);
+    static QByteArray decodeString(const QString &str, BufferEncoding encoding, int limit = -1);
     static QTypedArrayData<char> *fromString(const QByteArray &data);
 };
 
