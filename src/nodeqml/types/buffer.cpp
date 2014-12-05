@@ -323,6 +323,7 @@ void BufferPrototype::init(QV4::ExecutionEngine *v4, QV4::Object *ctor)
     defineDefaultProperty(QStringLiteral("copy"), method_copy, 4);
     defineDefaultProperty(QStringLiteral("fill"), method_fill, 3);
     defineDefaultProperty(QStringLiteral("slice"), method_slice, 2);
+    defineDefaultProperty(QStringLiteral("write"), method_write, 4);
     defineDefaultProperty(QStringLiteral("toString"), method_toString, 3);
     defineDefaultProperty(QStringLiteral("toJSON"), method_toJSON);
 }
@@ -357,6 +358,69 @@ QV4::ReturnedValue BufferPrototype::method_byteLength(QV4::CallContext *ctx)
 QV4::ReturnedValue BufferPrototype::method_concat(QV4::CallContext *ctx)
 {
     return ctx->engine()->throwUnimplemented(QStringLiteral("Buffer.concat()"));
+}
+
+/// TODO: Move somewhere
+inline bool isFinite(const QV4::Value &value)
+{
+    return value.integerCompatible() || std::isfinite(value.toNumber());
+}
+
+// buf.write(string, [offset], [length], [encoding])
+QV4::ReturnedValue BufferPrototype::method_write(QV4::CallContext *ctx)
+{
+    NODE_CTX_CALLDATA(ctx);
+    NODE_CTX_SELF(BufferObject, ctx);
+    NODE_CTX_V4(ctx);
+
+    if (!callData->argc || !callData->args[0].isString())
+        return ctx->engine()->throwTypeError(QStringLiteral("Argument must be a string"));
+
+    QString string = callData->args[0].toQString();
+
+    // Buffer#write(string);
+    BufferEncoding encoding = BufferEncoding::Utf8;
+    QString encodingStr;
+    int length = self->d()->data.size();
+    int offset = 0;
+
+    // Buffer#write(string, encoding)
+    if (callData->argc == 2 && callData->args[1].isString()) {
+        encodingStr = callData->args[1].toQStringNoThrow();
+    // Buffer#write(string, offset[, length][, encoding])
+    } else if (callData->argc > 1 && isFinite(callData->args[1])) {
+        offset = callData->args[1].toInt32();
+
+        if (callData->argc > 2) {
+            if (isFinite(callData->args[2])) {
+                length = callData->args[2].toInt32();
+                if (callData->argc > 3)
+                    encodingStr = callData->args[3].toQStringNoThrow();
+            } else {
+                encodingStr = callData->args[2].toQStringNoThrow();
+            }
+        }
+    }
+
+    if (length < 0 || offset < 0 || offset >= self->d()->data.size())
+        return v4->throwRangeError(QStringLiteral("attempt to write outside buffer bounds"));
+
+    if (!encodingStr.isEmpty())
+        encoding = BufferObject::parseEncoding(encodingStr);
+
+    if (encoding == BufferEncoding::Invalid)
+        return v4->throwTypeError(QString("Unknown encoding: %1").arg(encodingStr));
+
+    if (string.isEmpty())
+        return QV4::Encode(0);
+
+    if (offset + length > self->d()->data.size())
+        length = self->d()->data.size() - offset;
+    const QByteArray stringData = BufferObject::decodeString(string, encoding, length);
+
+    ::memcpy(self->d()->data.data() + offset, stringData.constData(), stringData.size());
+
+    return QV4::Encode(stringData.size());
 }
 
 // toString([encoding], [start], [end])
