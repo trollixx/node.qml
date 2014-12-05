@@ -460,9 +460,12 @@ QV4::ReturnedValue BufferPrototype::method_toString(QV4::CallContext *ctx)
     switch (encoding) {
     case BufferEncoding::Ascii:
     case BufferEncoding::Binary:
-    case BufferEncoding::Raw:
-        str = QString::fromLatin1(data);
+    case BufferEncoding::Raw: {
+        // Node.js just masks off the highest bit
+        for (int i = 0; i < data.size(); ++i)
+            str.append(data[i] & 0x7f);
         break;
+    }
     case BufferEncoding::Base64:
         str = QByteArray::fromBase64(data);
         break;
