@@ -57,11 +57,25 @@ QV4::ReturnedValue PathModule::method_join(QV4::CallContext *ctx)
     return v4->newString(QDir::cleanPath(parts.join(QLatin1Char('/'))))->asReturnedValue();
 }
 
-/// TODO: path.resolve([from ...], to)
 QV4::ReturnedValue PathModule::method_resolve(QV4::CallContext *ctx)
 {
+    NODE_CTX_CALLDATA(ctx);
     NODE_CTX_V4(ctx);
-    return v4->throwUnimplemented(QStringLiteral("path.resolve()"));
+
+    QStringList parts;
+    for (int i = callData->argc - 1; i >= -1; --i) {
+        if (i >= 0) {
+            if (!callData->args[i].isString())
+                return v4->throwTypeError(QStringLiteral("Arguments to path.resolve must be strings"));
+            parts.prepend(callData->args[i].toQString());
+        } else {
+            parts.prepend(QDir::currentPath());
+        }
+        if (parts.first().startsWith(QLatin1Char('/')))
+            break;
+    }
+
+    return v4->newString(QDir::cleanPath(parts.join(QLatin1Char('/'))))->asReturnedValue();
 }
 
 /// TODO: path.relative(from, to)
