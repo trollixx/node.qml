@@ -9,7 +9,7 @@ DEFINE_OBJECT_VTABLE(ErrnoExceptionObject);
 Heap::ErrnoExceptionObject::ErrnoExceptionObject(QV4::ExecutionEngine *v4, const QString &message,
                                                  int errorNo, const QString &syscall,
                                                  const QString &path) :
-    QV4::Heap::ErrorObject(EnginePrivate::get(v4)->errnoExceptionClass, message)
+    QV4::Heap::ErrorObject(EnginePrivate::get(v4)->errnoExceptionClass, EnginePrivate::get(v4)->errnoExceptionPrototype.asObject(), message)
 {
     QV4::Scope scope(v4);
     QV4::ScopedObject self(scope, this);

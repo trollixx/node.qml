@@ -270,8 +270,8 @@ void EnginePrivate::customEvent(QEvent *event)
     NextTickEvent *e = reinterpret_cast<NextTickEvent *>(event);
     QV4::Scope scope(m_v4);
     QV4::ScopedFunctionObject cb(scope, e->callback());
-    QV4::ScopedCallData callData(scope, 0);
-    callData->thisObject = m_v4->globalObject->asReturnedValue();
+    QV4::ScopedCallData callData(scope);
+    callData->thisObject = m_v4->globalObject();
     cb->call(callData);
 }
 
@@ -293,8 +293,8 @@ void EnginePrivate::timerEvent(QTimerEvent *event)
 
     event->accept();
 
-    QV4::ScopedCallData callData(scope, 0);
-    callData->thisObject = m_v4->globalObject->asReturnedValue();
+    QV4::ScopedCallData callData(scope);
+    callData->thisObject = m_v4->globalObject();
     QV4::SimpleScriptFunction::call(cb, callData);
 }
 
@@ -302,18 +302,17 @@ void EnginePrivate::registerTypes()
 {
     QV4::MemoryManager::GCBlocker gcBlocker(m_v4->memoryManager);
 
-    QV4::Scope scope(m_v4);
+    errnoExceptionPrototype = m_v4->memoryManager->alloc<ErrnoExceptionPrototype>(m_v4->errorClass, m_v4->errorPrototype.asObject());
+    errnoExceptionClass = QV4::InternalClass::create(m_v4, ErrnoExceptionObject::staticVTable());
+    static_cast<ErrnoExceptionPrototype *>(errnoExceptionPrototype.asObject())->init(m_v4, errnoExceptionPrototype.asObject());
 
-    QV4::Scoped<ErrnoExceptionPrototype> errnoExceptionPrototype(scope, m_v4->memoryManager->alloc<ErrnoExceptionPrototype>(m_v4->errorClass));
-    errnoExceptionClass = QV4::InternalClass::create(m_v4, ErrnoExceptionObject::staticVTable(), errnoExceptionPrototype);
+    bufferCtor = QV4::Value::fromHeapObject(m_v4->memoryManager->alloc<BufferCtor>(m_v4->rootContext()));
+    bufferPrototype = m_v4->memoryManager->alloc<BufferPrototype>(m_v4->objectClass, m_v4->objectPrototype.asObject());
+    static_cast<BufferPrototype *>(bufferPrototype.asObject())->init(m_v4, bufferCtor.asObject());
+    bufferClass = QV4::InternalClass::create(m_v4, BufferObject::staticVTable());
 
-    bufferCtor = QV4::Value::fromHeapObject(m_v4->memoryManager->alloc<BufferCtor>(m_v4->rootContext));
-    QV4::Scoped<BufferPrototype> bufferPrototype(scope, m_v4->memoryManager->alloc<BufferPrototype>(m_v4->objectClass));
-    bufferPrototype->init(m_v4, bufferCtor.asObject());
-    bufferClass = QV4::InternalClass::create(m_v4, BufferObject::staticVTable(), bufferPrototype);
-
-    m_v4->globalObject->defineDefaultProperty(QStringLiteral("Buffer"), bufferCtor);
-    m_v4->globalObject->defineDefaultProperty(QStringLiteral("SlowBuffer"), bufferCtor);
+    m_v4->globalObject()->defineDefaultProperty(QStringLiteral("Buffer"), bufferCtor);
+    m_v4->globalObject()->defineDefaultProperty(QStringLiteral("SlowBuffer"), bufferCtor);
 }
 
 void EnginePrivate::registerModules()

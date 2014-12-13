@@ -16,7 +16,7 @@ DEFINE_OBJECT_VTABLE(BufferObject);
 /// TODO: Document no buf.parent property support (see test-buffer.js)
 
 Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, size_t length) :
-    QV4::Heap::Object(EnginePrivate::get(v4)->bufferClass)
+    QV4::Heap::Object(EnginePrivate::get(v4)->bufferClass, EnginePrivate::get(v4)->bufferPrototype.asObject())
 {
     setVTable(NodeQml::BufferObject::staticVTable());
 
@@ -31,7 +31,7 @@ Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, size_t length) :
 }
 
 Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, QV4::ArrayObject *array) :
-    QV4::Heap::Object(EnginePrivate::get(v4)->bufferClass)
+    QV4::Heap::Object(EnginePrivate::get(v4)->bufferClass, EnginePrivate::get(v4)->bufferPrototype.asObject())
 {
     setVTable(NodeQml::BufferObject::staticVTable());
 
@@ -56,7 +56,7 @@ Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, QV4::ArrayObject *arr
 }
 
 Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, const QByteArray &ba) :
-    QV4::Heap::Object(EnginePrivate::get(v4)->bufferClass)
+    QV4::Heap::Object(EnginePrivate::get(v4)->bufferClass, EnginePrivate::get(v4)->bufferPrototype.asObject())
 {
     setVTable(NodeQml::BufferObject::staticVTable());
 
@@ -76,7 +76,7 @@ Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, const QByteArray &ba)
 }
 
 Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, const QTypedArrayDataSlice<char> &slice) :
-    QV4::Heap::Object(EnginePrivate::get(v4)->bufferClass),
+    QV4::Heap::Object(EnginePrivate::get(v4)->bufferClass, EnginePrivate::get(v4)->bufferPrototype.asObject()),
     data(slice)
 {
     setVTable(NodeQml::BufferObject::staticVTable());

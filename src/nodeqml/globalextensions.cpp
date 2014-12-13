@@ -13,7 +13,7 @@ using namespace NodeQml;
 void GlobalExtensions::init(QQmlEngine *qmlEngine)
 {
     QV4::ExecutionEngine *v4 = QV8Engine::getV4(qmlEngine);
-    QV4::Object *globalObject = v4->globalObject;
+    QV4::Object *globalObject = v4->globalObject();
 
     globalObject->defineDefaultProperty(QStringLiteral("require"), method_require);
 

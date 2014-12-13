@@ -44,8 +44,10 @@ public:
 
 public:
     QV4::Value bufferCtor;
+    QV4::Value bufferPrototype;
     QV4::InternalClass *bufferClass;
 
+    QV4::Value errnoExceptionPrototype;
     QV4::InternalClass *errnoExceptionClass;
 
 protected:

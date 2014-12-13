@@ -36,7 +36,7 @@ QV4::ReturnedValue UtilModule::method_format(QV4::CallContext *ctx)
 
     // TODO: Call inspect anyway
     if (!callData->argc)
-        return (s = v4->newString(QString()))->asReturnedValue();
+        return (s = v4->newString())->asReturnedValue();
 
     if (!callData->args[0].isString()) {
         QStringList objects;
