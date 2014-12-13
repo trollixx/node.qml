@@ -467,7 +467,7 @@ QV4::ReturnedValue BufferPrototype::method_toString(QV4::CallContext *ctx)
         break;
     }
     case BufferEncoding::Base64:
-        str = QByteArray::fromBase64(data);
+        str = data.toBase64();
         break;
     case BufferEncoding::Hex:
         str = QByteArray::fromHex(data);
