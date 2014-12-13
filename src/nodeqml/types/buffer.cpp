@@ -208,7 +208,7 @@ QByteArray BufferObject::decodeString(const QString &str, BufferEncoding encodin
     case BufferEncoding::Binary:
     case BufferEncoding::Raw:
         ba = str.toLatin1();
-        if (limit > -1)
+        if (limit > -1 && limit < ba.size())
             ba.resize(limit);
         break;
     case BufferEncoding::Base64:
@@ -217,12 +217,12 @@ QByteArray BufferObject::decodeString(const QString &str, BufferEncoding encodin
         break;
     case BufferEncoding::Hex:
         ba = QByteArray::fromHex(str.toUtf8());
-        if (limit > -1)
+        if (limit > -1 && limit < ba.size())
             ba.resize(limit & ~1);
         break;
     case BufferEncoding::Ucs2:
     case BufferEncoding::Utf16le: {
-        int charCount = limit > -1 ? limit / 2 : str.size();
+        int charCount = (limit > -1 && limit / 2 < str.size()) ? limit / 2 : str.size();
         ba.resize(charCount << 1);
         for (int i = 0; i < charCount; ++i) {
             ba[2 * i] = str[i].cell();
