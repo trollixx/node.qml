@@ -1,11 +1,9 @@
-# Node.qml
+# Node.qml [![Build Status](https://travis-ci.org/trollixx/node.qml.svg?branch=master)](https://travis-ci.org/trollixx/node.qml)
 Node.qml is an effort to provide a [Node.js](http://nodejs.org/) compatibility layer to QML applications.
 
 Potentially, QML applications should be able to use majority of Node.js libraries. Node.js C++ addons will not be supported.
 
 **The project is in a Work-In-Progress state, and is not ready for any practical use.**
-
-[![Build Status](https://travis-ci.org/trollixx/node.qml.svg?branch=master)](https://travis-ci.org/trollixx/node.qml)
 
 ## Roadmap
 Available [here](https://github.com/trollixx/node.qml/wiki/Roadmap).
