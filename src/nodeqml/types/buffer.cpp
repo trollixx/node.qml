@@ -186,7 +186,10 @@ int BufferObject::byteLength(const QString &str, BufferEncoding encoding)
     case BufferEncoding::Raw:
         return str.toLatin1().size();
     case BufferEncoding::Base64:
-        return QByteArray::fromBase64(str.toUtf8()).size();
+        if (str.contains(QLatin1Char('+')) || str.contains(QLatin1Char('/')))
+            return QByteArray::fromBase64(str.toUtf8()).size();
+        else
+            return QByteArray::fromBase64(str.toUtf8(), QByteArray::Base64UrlEncoding).size();
     case BufferEncoding::Hex:
         return str.size() >> 1;
     case BufferEncoding::Ucs2:
@@ -213,7 +216,10 @@ QByteArray BufferObject::decodeString(const QString &str, BufferEncoding encodin
         break;
     case BufferEncoding::Base64:
         /// TODO: Handle 'limit' on per character basis
-        ba = QByteArray::fromBase64(str.toUtf8());
+        if (str.contains(QLatin1Char('+')) || str.contains(QLatin1Char('/')))
+            ba = QByteArray::fromBase64(str.toUtf8());
+        else
+            ba = QByteArray::fromBase64(str.toUtf8(), QByteArray::Base64UrlEncoding);
         break;
     case BufferEncoding::Hex:
         ba = QByteArray::fromHex(str.toUtf8());
