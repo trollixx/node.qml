@@ -455,7 +455,7 @@ QV4::ReturnedValue BufferPrototype::method_toString(QV4::CallContext *ctx)
     if (end > dataSize)
         end = dataSize;
     if (end <= start)
-        return QV4::ScopedString(scope, v4->newString(QString()))->asReturnedValue();
+        return QV4::ScopedString(scope, v4->newString())->asReturnedValue();
 
     const char *startPtr = self->d()->data.data() + start;
     const int size = end - start;
