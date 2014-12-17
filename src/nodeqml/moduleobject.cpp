@@ -63,16 +63,16 @@ void ModuleObject::markObjects(QV4::Heap::Base *that, QV4::ExecutionEngine *e)
 
 void ModuleObject::load(QV4::ExecutionContext *ctx, const QString &path)
 {
-    QV4::ExecutionEngine *v4 = ctx->engine();
+    NODE_CTX_V4(ctx);
     QV4::Scope scope(v4);
     QV4::Scoped<ModuleObject> self(scope, this);
     QV4::ScopedObject exports(scope);
 
+    const QFileInfo fi(path);
     d()->filename = path;
-    d()->dirname = QFileInfo(path).absolutePath();
+    d()->dirname = fi.absolutePath();
 
-    QFileInfo fi(path);
-    QString suffix = fi.suffix();
+    const QString suffix = fi.suffix();
     if (suffix == QStringLiteral("js")) {
         exports = self->compile(ctx);
     } else if (suffix == QStringLiteral("json")) {
@@ -82,7 +82,6 @@ void ModuleObject::load(QV4::ExecutionContext *ctx, const QString &path)
             return;
         }
         QJsonDocument json = QJsonDocument::fromJson(file->readAll());
-
         if (json.isNull()) {
             v4->throwSyntaxError(QStringLiteral("Unexpected end of input"));
             return;
@@ -105,7 +104,7 @@ void ModuleObject::load(QV4::ExecutionContext *ctx, const QString &path)
 
 QV4::Object *ModuleObject::compile(QV4::ExecutionContext *ctx)
 {
-    QV4::ExecutionEngine *v4 = ctx->engine();
+    NODE_CTX_V4(ctx);
     QV4::Scope scope(ctx);
     QV4::Scoped<ModuleObject> self(scope, this);
 
@@ -116,7 +115,7 @@ QV4::Object *ModuleObject::compile(QV4::ExecutionContext *ctx)
     QV4::ScopedObject exports(scope, self->get(s = v4->newString(QStringLiteral("exports"))));
     global->defineDefaultProperty(QStringLiteral("exports"), exports);
 
-    QFileInfo fi(d()->filename);
+    const QFileInfo fi(d()->filename);
     global->defineReadonlyProperty(QStringLiteral("__dirname"),
                                    (s = v4->newString(fi.absoluteFilePath())));
     global->defineReadonlyProperty(QStringLiteral("__filename"),

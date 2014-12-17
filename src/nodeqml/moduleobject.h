@@ -43,15 +43,6 @@ struct ModuleObject : QV4::Object {
     static QV4::Object *require(QV4::ExecutionContext *ctx, const QString &path, ModuleObject *parent = nullptr, bool isMain = false);
     static QString resolveModule(QV4::ExecutionContext *ctx, const QString &request, const QString &parentPath = QString());
 
-    enum {
-        ExportsPropertyIndex = 0,
-        IdPropertyIndex,
-        FileNamePropertyIndex,
-        LoadedPropertyIndex,
-        ParentPropertyIndex,
-        ChildrenPropertyIndex
-    };
-
     static QV4::ReturnedValue property_filename_getter(QV4::CallContext *ctx);
     static QV4::ReturnedValue property_loaded_getter(QV4::CallContext *ctx);
 
