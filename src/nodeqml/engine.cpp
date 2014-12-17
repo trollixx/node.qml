@@ -11,18 +11,12 @@
 #include "types/errnoexception.h"
 
 #include <QCoreApplication>
-#include <QFileInfo>
-#include <QLoggingCategory>
 #include <QQmlEngine>
 #include <QTimerEvent>
 
 #include <private/qjsvalue_p.h>
 #include <private/qv4engine_p.h>
 #include <private/qv8engine_p.h>
-
-namespace {
-const QLoggingCategory logCategory("nodeqml.core");
-}
 
 using namespace NodeQml;
 
