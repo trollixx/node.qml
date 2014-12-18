@@ -19,6 +19,7 @@ Heap::FileSystemModule::FileSystemModule(QV4::ExecutionEngine *v4) :
 
     self->defineDefaultProperty(QStringLiteral("existsSync"), NodeQml::FileSystemModule::method_existsSync);
     self->defineDefaultProperty(QStringLiteral("renameSync"), NodeQml::FileSystemModule::method_renameSync);
+    self->defineDefaultProperty(QStringLiteral("rmdirSync"), NodeQml::FileSystemModule::method_rmdirSync, 2);
     self->defineDefaultProperty(QStringLiteral("truncateSync"), NodeQml::FileSystemModule::method_truncateSync);
 }
 
@@ -47,6 +48,20 @@ QV4::ReturnedValue FileSystemModule::method_renameSync(QV4::CallContext *ctx)
 
     return QV4::Encode(QFile::rename(callData->args[0].toQStringNoThrow(),
                        callData->args[1].toQStringNoThrow()));
+}
+
+QV4::ReturnedValue FileSystemModule::method_rmdirSync(QV4::CallContext *ctx)
+{
+    NODE_CTX_CALLDATA(ctx);
+    NODE_CTX_V4(ctx);
+
+    if (!callData->argc || !callData->args[0].isString())
+        return v4->throwTypeError(QStringLiteral("path must be a string"));
+
+    if (::rmdir(qPrintable(callData->args[0].toQStringNoThrow())))
+        return EnginePrivate::get(v4)->throwErrnoException(errno, QStringLiteral("rmdir"));
+
+    return QV4::Encode::undefined();
 }
 
 QV4::ReturnedValue FileSystemModule::method_truncateSync(QV4::CallContext *ctx)

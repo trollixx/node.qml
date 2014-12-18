@@ -21,6 +21,7 @@ struct FileSystemModule : QV4::Object
 
     static QV4::ReturnedValue method_existsSync(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_renameSync(QV4::CallContext *ctx);
+    static QV4::ReturnedValue method_rmdirSync(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_truncateSync(QV4::CallContext *ctx);
 };
 
