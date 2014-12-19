@@ -18,11 +18,11 @@ Heap::FileSystemModule::FileSystemModule(QV4::ExecutionEngine *v4) :
     QV4::Scope scope(v4);
     QV4::ScopedObject self(scope, this);
 
-    self->defineDefaultProperty(QStringLiteral("existsSync"), NodeQml::FileSystemModule::method_existsSync);
+    self->defineDefaultProperty(QStringLiteral("existsSync"), NodeQml::FileSystemModule::method_existsSync, 1);
     self->defineDefaultProperty(QStringLiteral("mkdirSync"), NodeQml::FileSystemModule::method_mkdirSync, 2);
-    self->defineDefaultProperty(QStringLiteral("renameSync"), NodeQml::FileSystemModule::method_renameSync);
+    self->defineDefaultProperty(QStringLiteral("renameSync"), NodeQml::FileSystemModule::method_renameSync, 2);
     self->defineDefaultProperty(QStringLiteral("rmdirSync"), NodeQml::FileSystemModule::method_rmdirSync, 2);
-    self->defineDefaultProperty(QStringLiteral("truncateSync"), NodeQml::FileSystemModule::method_truncateSync);
+    self->defineDefaultProperty(QStringLiteral("truncateSync"), NodeQml::FileSystemModule::method_truncateSync, 2);
 }
 
 QV4::ReturnedValue FileSystemModule::method_existsSync(QV4::CallContext *ctx)
