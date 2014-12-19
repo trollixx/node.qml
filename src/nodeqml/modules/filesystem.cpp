@@ -8,6 +8,7 @@
 #include <private/qv4context_p.h>
 
 #include <unistd.h>
+#include <sys/stat.h>
 
 using namespace NodeQml;
 
@@ -18,6 +19,7 @@ Heap::FileSystemModule::FileSystemModule(QV4::ExecutionEngine *v4) :
     QV4::ScopedObject self(scope, this);
 
     self->defineDefaultProperty(QStringLiteral("existsSync"), NodeQml::FileSystemModule::method_existsSync);
+    self->defineDefaultProperty(QStringLiteral("mkdirSync"), NodeQml::FileSystemModule::method_mkdirSync, 2);
     self->defineDefaultProperty(QStringLiteral("renameSync"), NodeQml::FileSystemModule::method_renameSync);
     self->defineDefaultProperty(QStringLiteral("rmdirSync"), NodeQml::FileSystemModule::method_rmdirSync, 2);
     self->defineDefaultProperty(QStringLiteral("truncateSync"), NodeQml::FileSystemModule::method_truncateSync);
@@ -32,6 +34,26 @@ QV4::ReturnedValue FileSystemModule::method_existsSync(QV4::CallContext *ctx)
         return v4->throwError(QStringLiteral("existsSync: argument is required"));
 
     return QV4::Encode(QFileInfo::exists(callData->args[0].toQStringNoThrow()));
+}
+
+QV4::ReturnedValue FileSystemModule::method_mkdirSync(QV4::CallContext *ctx)
+{
+    NODE_CTX_CALLDATA(ctx);
+    NODE_CTX_V4(ctx);
+
+    if (!callData->argc || !callData->args[0].isString())
+        return v4->throwTypeError(QStringLiteral("path must be a string"));
+
+    mode_t mode = 0777;
+    /// FIXME: Use QV4::Value::isInt32()
+    /// TODO: QV4::Value::isInt32() should be const
+    if (callData->argc > 1 && callData->args[1].isNumber())
+        mode = callData->args[1].toInt32();
+
+    if (::mkdir(qPrintable(callData->args[0].toQStringNoThrow()), mode) == -1)
+        return EnginePrivate::get(v4)->throwErrnoException(errno, QStringLiteral("mkdir"));
+
+    return QV4::Encode::undefined();
 }
 
 QV4::ReturnedValue FileSystemModule::method_renameSync(QV4::CallContext *ctx)
