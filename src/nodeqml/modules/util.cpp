@@ -158,7 +158,8 @@ QV4::ReturnedValue UtilModule::method_inherits(QV4::CallContext *ctx)
     ctor->defineDefaultProperty(QStringLiteral("super_"), superCtor);
 
     QV4::ScopedObject prototype(scope, v4->newObject());
-    prototype->setPrototype(superCtor->prototype());
+    QV4::ScopedObject superCtorPrototype(scope, superCtor->prototype());
+    prototype->setPrototype(superCtorPrototype);
 
     QV4::ScopedObject constructorProperty(scope, v4->newObject());
     constructorProperty->defineDefaultProperty(QStringLiteral("value"), ctor);

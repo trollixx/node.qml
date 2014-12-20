@@ -121,7 +121,8 @@ QV4::Object *ModuleObject::compile(QV4::ExecutionContext *ctx)
     global->defineReadonlyProperty(QStringLiteral("__filename"),
                                    (s = v4->newString(fi.fileName())));
     // Require
-    QV4::Scoped<RequireFunction> requireFunc(scope, v4->memoryManager->alloc<RequireFunction>(v4->rootContext(), this));
+    QV4::ScopedContext rootContext(scope, v4->rootContext());
+    QV4::Scoped<RequireFunction> requireFunc(scope, v4->memoryManager->alloc<RequireFunction>(rootContext, this));
     global->defineReadonlyProperty(QStringLiteral("require"), requireFunc);
 
     QScopedPointer<QFile> file(new QFile(d()->filename));
@@ -130,9 +131,9 @@ QV4::Object *ModuleObject::compile(QV4::ExecutionContext *ctx)
         return nullptr;
     }
 
-    QV4::ContextStateSaver ctxSaver(ctx);
+    QV4::ContextStateSaver ctxSaver(scope, ctx);
     QV4::Script script(v4, global, file->readAll(), d()->filename);
-    script.strictMode = v4->currentContext()->d()->strictMode;
+    script.strictMode = v4->currentContext()->strictMode;
     script.inheritContext = true; /// NOTE: Is it needed?
     script.parse();
 
