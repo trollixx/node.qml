@@ -75,6 +75,7 @@ QV4::ReturnedValue GlobalExtensions::method_clearInterval(QV4::CallContext *ctx)
 
 QV4::ReturnedValue GlobalExtensions::method_captureStackTrace(QV4::CallContext *ctx)
 {
+    Q_UNUSED(ctx);
     qWarning("captureStackTrace() is not implemented!");
     return QV4::Encode::undefined();
 }
