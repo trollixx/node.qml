@@ -28,8 +28,8 @@ Heap::UtilModule::UtilModule(QV4::ExecutionEngine *v4) :
 
 QV4::ReturnedValue UtilModule::method_format(QV4::CallContext *ctx)
 {
-    QV4::ExecutionEngine *v4 = ctx->engine();
     NODE_CTX_CALLDATA(ctx);
+    NODE_CTX_V4(ctx);
 
     QV4::Scope scope(ctx);
     QV4::ScopedString s(scope);
@@ -140,16 +140,15 @@ QV4::ReturnedValue UtilModule::method_isUndefined(QV4::CallContext *ctx)
 QV4::ReturnedValue UtilModule::method_inherits(QV4::CallContext *ctx)
 {
     NODE_CTX_CALLDATA(ctx);
+    NODE_CTX_V4(ctx);
 
     if (callData->argc < 2)
-        return ctx->engine()->throwError(QStringLiteral("inherits: two arguments are required"));
+        return v4->throwError(QStringLiteral("inherits: two arguments are required"));
 
     if (!callData->args[0].isObject())
-        return ctx->engine()->throwTypeError(QStringLiteral("inherits: constructor must be an object"));
+        return v4->throwTypeError(QStringLiteral("inherits: constructor must be an object"));
     if (!callData->args[1].isObject())
-        return ctx->engine()->throwTypeError(QStringLiteral("inherits: super constructor must be an object"));
-
-    QV4::ExecutionEngine *v4 = ctx->engine();
+        return v4->throwTypeError(QStringLiteral("inherits: super constructor must be an object"));
 
     QV4::Scope scope(v4);
     QV4::ScopedObject ctor(scope, callData->args[0].asObject());
@@ -161,16 +160,13 @@ QV4::ReturnedValue UtilModule::method_inherits(QV4::CallContext *ctx)
     QV4::ScopedObject superCtorPrototype(scope, superCtor->prototype());
     prototype->setPrototype(superCtorPrototype);
 
-    QV4::ScopedObject constructorProperty(scope, v4->newObject());
-    constructorProperty->defineDefaultProperty(QStringLiteral("value"), ctor);
-    constructorProperty->defineDefaultProperty(QStringLiteral("enumerable"),
-                                               QV4::Primitive::fromBoolean(false));
-    constructorProperty->defineDefaultProperty(QStringLiteral("writable"),
-                                               QV4::Primitive::fromBoolean(true));
-    constructorProperty->defineDefaultProperty(QStringLiteral("configurable"),
-                                               QV4::Primitive::fromBoolean(true));
+    QV4::ScopedObject ctorProperty(scope, v4->newObject());
+    ctorProperty->defineDefaultProperty(v4->id_value, ctor);
+    ctorProperty->defineDefaultProperty(v4->id_enumerable, QV4::Primitive::fromBoolean(false));
+    ctorProperty->defineDefaultProperty(v4->id_writable, QV4::Primitive::fromBoolean(true));
+    ctorProperty->defineDefaultProperty(v4->id_configurable, QV4::Primitive::fromBoolean(true));
 
-    prototype->defineDefaultProperty(QStringLiteral("constructor"), constructorProperty);
+    prototype->defineDefaultProperty(v4->id_constructor, ctorProperty);
     ctor->setPrototype(prototype);
 
     return QV4::Encode::undefined();
