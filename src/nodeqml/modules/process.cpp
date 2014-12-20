@@ -16,14 +16,16 @@ Heap::ProcessModule::ProcessModule(QV4::ExecutionEngine *v4) :
     QV4::ScopedObject self(scope, this);
     QV4::ScopedValue v(scope);
 
-    self->defineReadonlyProperty(QStringLiteral("arch"), (v = v4->newString(NodeQml::ProcessModule::arch())));
-    self->defineReadonlyProperty(QStringLiteral("platform"), (v = v4->newString(NodeQml::ProcessModule::platform())));
+    self->defineReadonlyProperty(QStringLiteral("arch"),
+                                 (v = v4->newString(NodeQml::ProcessModule::arch())));
+    self->defineReadonlyProperty(QStringLiteral("platform"),
+                                 (v = v4->newString(NodeQml::ProcessModule::platform())));
     self->defineReadonlyProperty(QStringLiteral("argv"),
-                              (v = v4->newArrayObject(QCoreApplication::arguments())));
+                                 (v = v4->newArrayObject(QCoreApplication::arguments())));
     self->defineReadonlyProperty(QStringLiteral("execPath"),
-                              (v = v4->newString(QCoreApplication::applicationFilePath())));
+                                 (v = v4->newString(QCoreApplication::applicationFilePath())));
     self->defineReadonlyProperty(QStringLiteral("version"),
-                              (v = v4->newString(QStringLiteral("v0.10.33"))));
+                                 (v = v4->newString(QStringLiteral("v0.10.33"))));
 
     self->defineAccessorProperty(QStringLiteral("pid"), NodeQml::ProcessModule::property_pid_getter, nullptr);
 
@@ -50,14 +52,15 @@ QV4::ReturnedValue ProcessModule::method_abort(QV4::CallContext *ctx)
 QV4::ReturnedValue ProcessModule::method_chdir(QV4::CallContext *ctx)
 {
     NODE_CTX_CALLDATA(ctx);
+    NODE_CTX_V4(ctx);
 
     if (!callData->argc || !callData->args[0].isString())
-        return ctx->engine()->throwError(QStringLiteral("chdir: Bad argument"));
+        return v4->throwError(QStringLiteral("chdir: Bad argument"));
 
     /// TODO: Should have fs error code, like ENOENT or NOACCES
     // { [Error: ENOENT, no such file or directory] errno: 34, code: 'ENOENT', syscall: 'uv_chdir' }
     if (!QDir::setCurrent(callData->args[0].toQStringNoThrow()))
-        return ctx->engine()->throwError(QStringLiteral("chdir: Cannot change directory"));
+        return v4->throwError(QStringLiteral("chdir: Cannot change directory"));
 
     return QV4::Encode::undefined();
 }
@@ -71,11 +74,9 @@ QV4::ReturnedValue ProcessModule::method_exit(QV4::CallContext *ctx)
 {
     NODE_CTX_CALLDATA(ctx);
 
-    int code = 0;
-    if (callData->argc)
-        code = callData->args[0].toInt32();
-
+    const int code = callData->argc ? callData->args[0].toInt32() : 0;
     QCoreApplication::exit(code);
+
     return QV4::Encode::undefined();
 }
 
