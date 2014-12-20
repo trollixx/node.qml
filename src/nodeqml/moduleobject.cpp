@@ -49,7 +49,7 @@ Heap::ModuleObject::ModuleObject(QV4::ExecutionEngine *v4, const QString &module
     childrenArray = children->asArrayObject();
     self->defineDefaultProperty(QStringLiteral("children"), children);
 
-    self->defineDefaultProperty(QStringLiteral("require"), NodeQml::ModuleObject::method_require);
+    self->defineDefaultProperty(QStringLiteral("require"), NodeQml::ModuleObject::method_require, 1);
 }
 
 void ModuleObject::markObjects(QV4::Heap::Base *that, QV4::ExecutionEngine *e)

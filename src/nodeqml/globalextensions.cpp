@@ -15,7 +15,7 @@ void GlobalExtensions::init(QQmlEngine *qmlEngine)
     QV4::ExecutionEngine *v4 = QV8Engine::getV4(qmlEngine);
     QV4::Object *globalObject = v4->globalObject();
 
-    globalObject->defineDefaultProperty(QStringLiteral("require"), method_require);
+    globalObject->defineDefaultProperty(QStringLiteral("require"), method_require, 1);
 
     globalObject->defineDefaultProperty(QStringLiteral("setTimeout"), method_setTimeout);
     globalObject->defineDefaultProperty(QStringLiteral("clearTimeout"), method_clearTimeout);
