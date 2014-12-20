@@ -24,11 +24,11 @@ Heap::ConsoleModule::ConsoleModule(QV4::ExecutionEngine *v4) :
     self->defineDefaultProperty(QStringLiteral("info"), NodeQml::ConsoleModule::method_log);
     self->defineDefaultProperty(QStringLiteral("error"), NodeQml::ConsoleModule::method_error);
     self->defineDefaultProperty(QStringLiteral("warn"), NodeQml::ConsoleModule::method_error);
-    self->defineDefaultProperty(QStringLiteral("dir"), NodeQml::ConsoleModule::method_dir);
-    self->defineDefaultProperty(QStringLiteral("time"), NodeQml::ConsoleModule::method_time);
-    self->defineDefaultProperty(QStringLiteral("timeEnd"), NodeQml::ConsoleModule::method_timeEnd);
+    self->defineDefaultProperty(QStringLiteral("dir"), NodeQml::ConsoleModule::method_dir, 2);
+    self->defineDefaultProperty(QStringLiteral("time"), NodeQml::ConsoleModule::method_time, 1);
+    self->defineDefaultProperty(QStringLiteral("timeEnd"), NodeQml::ConsoleModule::method_timeEnd, 1);
     self->defineDefaultProperty(QStringLiteral("trace"), NodeQml::ConsoleModule::method_trace);
-    self->defineDefaultProperty(QStringLiteral("assert"), NodeQml::ConsoleModule::method_assert);
+    self->defineDefaultProperty(QStringLiteral("assert"), NodeQml::ConsoleModule::method_assert, 1);
 }
 
 QV4::ReturnedValue ConsoleModule::method_log(QV4::CallContext *ctx)
