@@ -78,11 +78,17 @@ QV4::ReturnedValue PathModule::method_resolve(QV4::CallContext *ctx)
     return v4->newString(QDir::cleanPath(parts.join(QLatin1Char('/'))))->asReturnedValue();
 }
 
-/// TODO: path.relative(from, to)
+// path.relative(from, to)
 QV4::ReturnedValue PathModule::method_relative(QV4::CallContext *ctx)
 {
+    NODE_CTX_CALLDATA(ctx);
     NODE_CTX_V4(ctx);
-    return v4->throwUnimplemented(QStringLiteral("path.relative()"));
+
+    if (callData->argc < 2 || !callData->args[0].isString() || !callData->args[1].isString())
+        return v4->throwTypeError(QStringLiteral("Arguments to path.resolve must be strings"));
+
+    const QDir from(callData->args[0].toQString());
+    return v4->newString(from.relativeFilePath(callData->args[1].toQString()))->asReturnedValue();
 }
 
 QV4::ReturnedValue PathModule::method_dirname(QV4::CallContext *ctx)
