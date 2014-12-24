@@ -326,6 +326,8 @@ void BufferPrototype::init(QV4::ExecutionEngine *v4, QV4::Object *ctor)
     ctor->defineDefaultProperty(QStringLiteral("isBuffer"), method_isBuffer, 1);
     ctor->defineDefaultProperty(QStringLiteral("byteLength"), method_byteLength);
 
+    defineDefaultProperty(QStringLiteral("inspect"), method_inspect);
+
     defineDefaultProperty(QStringLiteral("copy"), method_copy, 4);
     defineDefaultProperty(QStringLiteral("fill"), method_fill, 3);
     defineDefaultProperty(QStringLiteral("slice"), method_slice, 2);
@@ -364,6 +366,31 @@ QV4::ReturnedValue BufferPrototype::method_byteLength(QV4::CallContext *ctx)
 QV4::ReturnedValue BufferPrototype::method_concat(QV4::CallContext *ctx)
 {
     return ctx->engine()->throwUnimplemented(QStringLiteral("Buffer.concat()"));
+}
+
+QV4::ReturnedValue BufferPrototype::method_inspect(QV4::CallContext *ctx)
+{
+    NODE_CTX_SELF(BufferObject, ctx);
+    NODE_CTX_V4(ctx);
+
+    /// TODO: make it module variable, once 'buffer' becomes a normal module
+    const int INSPECT_MAX_BYTES = 50;
+
+    const QByteArray data
+            = QByteArray::fromRawData(self->d()->data.data(),
+                                      qMin(INSPECT_MAX_BYTES, self->d()->data.size()));
+    const QString hex = data.toHex();
+    QString bytes;
+    int i = 0;
+    while (i < hex.length()) {
+        if (i > 0)
+            bytes += QStringLiteral(" ");
+        bytes += hex[i];
+        bytes += hex[i + 1];
+        i += 2;
+    }
+
+    return v4->newString(QString("<Buffer %1>").arg(bytes))->asReturnedValue();
 }
 
 /// TODO: Move somewhere

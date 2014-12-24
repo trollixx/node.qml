@@ -73,6 +73,8 @@ struct BufferPrototype : QV4::Object
     static QV4::ReturnedValue method_byteLength(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_concat(QV4::CallContext *ctx);
 
+    static QV4::ReturnedValue method_inspect(QV4::CallContext *ctx);
+
     static QV4::ReturnedValue method_write(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_toString(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_toJSON(QV4::CallContext *ctx);
