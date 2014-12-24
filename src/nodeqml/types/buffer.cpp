@@ -503,7 +503,7 @@ QV4::ReturnedValue BufferPrototype::method_toString(QV4::CallContext *ctx)
         str = data.toBase64();
         break;
     case BufferEncoding::Hex:
-        str = QByteArray::fromHex(data);
+        str = data.toHex();
         break;
     case BufferEncoding::Ucs2:
     case BufferEncoding::Utf16le:
