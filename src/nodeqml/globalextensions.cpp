@@ -4,15 +4,13 @@
 #include "modules/process.h"
 #include "modules/console.h"
 
-#include <QQmlEngine>
-
-#include <private/qv8engine_p.h>
+#include <private/qv4engine_p.h>
+#include <private/qv4mm_p.h>
 
 using namespace NodeQml;
 
-void GlobalExtensions::init(QQmlEngine *qmlEngine)
+void GlobalExtensions::init(QV4::ExecutionEngine *v4)
 {
-    QV4::ExecutionEngine *v4 = QV8Engine::getV4(qmlEngine);
     QV4::Object *globalObject = v4->globalObject();
 
     globalObject->defineDefaultProperty(QStringLiteral("require"), method_require, 1);

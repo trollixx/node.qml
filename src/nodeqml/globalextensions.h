@@ -3,12 +3,14 @@
 
 #include <private/qv4object_p.h>
 
-class QQmlEngine;
+namespace QV4 {
+class ExecutionEngine;
+}
 
 namespace NodeQml {
 
 struct GlobalExtensions {
-    static void init(QQmlEngine *qmlEngine);
+    static void init(QV4::ExecutionEngine *v4);
 
     static QV4::ReturnedValue method_require(QV4::CallContext *ctx);
 

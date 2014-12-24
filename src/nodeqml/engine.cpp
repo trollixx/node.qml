@@ -84,7 +84,7 @@ EnginePrivate::EnginePrivate(QQmlEngine *qmlEngine, Engine *engine) :
     /// TODO: Mutex
     m_nodeEngines.insert(m_v4, this);
 
-    NodeQml::GlobalExtensions::init(m_qmlEngine);
+    NodeQml::GlobalExtensions::init(m_v4);
     registerTypes();
     /// TODO: Core modules should not be loaded unless required
     registerModules();
