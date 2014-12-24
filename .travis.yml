@@ -20,7 +20,7 @@ before_install:
   - git clone --depth 1 --branch dev git://gitorious.org/qt/qtbase.git
   - cd qtbase
   - git log -n1
-  - ./configure -prefix ~/qt -nomake examples -nomake tests -opensource -confirm-license -release -qt-xcb -no-widgets
+  - ./configure -prefix ~/qt -nomake examples -nomake tests -opensource -confirm-license -release -qt-xcb -no-widgets -no-dbus
   - make -j2
   - make install
   - cd ..
