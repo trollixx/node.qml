@@ -6,7 +6,7 @@
 #include <QJSValue>
 #include <QObject>
 
-class QQmlEngine;
+class QJSEngine;
 
 namespace NodeQml {
 
@@ -17,7 +17,7 @@ class NODEQMLSHARED_EXPORT Engine : public QObject
     Q_OBJECT
 public:
 
-    explicit Engine(QQmlEngine *qmlEngine, QObject *parent = nullptr);
+    explicit Engine(QJSEngine *jsEngine, QObject *parent = nullptr);
 
     QJSValue require(const QString &id);
     /// TODO: QJSValue evaluate(const QString &code);

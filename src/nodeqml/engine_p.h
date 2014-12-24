@@ -7,7 +7,7 @@
 #include <private/qv4engine_p.h>
 #include <private/qv4persistent_p.h>
 
-class QQmlEngine;
+class QJSEngine;
 
 namespace NodeQml {
 
@@ -20,7 +20,7 @@ class EnginePrivate : public QObject
 public:
     static EnginePrivate *get(QV4::ExecutionEngine *v4);
 
-    explicit EnginePrivate(QQmlEngine *qmlEngine, Engine *engine = 0);
+    explicit EnginePrivate(QJSEngine *jsEngine, Engine *engine = 0);
     ~EnginePrivate();
 
     bool hasNativeModule(const QString &id) const;

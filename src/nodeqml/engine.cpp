@@ -11,7 +11,7 @@
 #include "types/errnoexception.h"
 
 #include <QCoreApplication>
-#include <QQmlEngine>
+#include <QJSEngine>
 #include <QTimerEvent>
 
 #include <private/qjsvalue_p.h>
@@ -49,9 +49,9 @@ private:
 
 QEvent::Type NextTickEvent::m_type = QEvent::None;
 
-Engine::Engine(QQmlEngine *qmlEngine, QObject *parent) :
+Engine::Engine(QJSEngine *jsEngine, QObject *parent) :
     QObject(parent),
-    d_ptr(new EnginePrivate(qmlEngine, this))
+    d_ptr(new EnginePrivate(jsEngine, this))
 {
 
 }
@@ -75,10 +75,10 @@ EnginePrivate *EnginePrivate::get(QV4::ExecutionEngine *v4)
     return m_nodeEngines.value(v4);
 }
 
-EnginePrivate::EnginePrivate(QQmlEngine *qmlEngine, Engine *engine) :
+EnginePrivate::EnginePrivate(QJSEngine *jsEngine, Engine *engine) :
     QObject(engine),
     q_ptr(engine),
-    m_v4(QV8Engine::getV4(qmlEngine))
+    m_v4(QV8Engine::getV4(jsEngine))
 {
     /// TODO: Mutex
     m_nodeEngines.insert(m_v4, this);
