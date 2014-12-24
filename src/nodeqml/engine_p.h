@@ -61,7 +61,6 @@ private:
     void registerTypes();
     void registerModules();
 
-    QQmlEngine *m_qmlEngine;
     QV4::ExecutionEngine *m_v4;
 
     QHash<QString, QV4::PersistentValue> m_coreModules;

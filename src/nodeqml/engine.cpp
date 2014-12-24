@@ -78,7 +78,6 @@ EnginePrivate *EnginePrivate::get(QV4::ExecutionEngine *v4)
 EnginePrivate::EnginePrivate(QQmlEngine *qmlEngine, Engine *engine) :
     QObject(engine),
     q_ptr(engine),
-    m_qmlEngine(qmlEngine),
     m_v4(QV8Engine::getV4(qmlEngine))
 {
     /// TODO: Mutex
