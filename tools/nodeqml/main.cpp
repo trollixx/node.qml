@@ -2,7 +2,7 @@
 
 #include <QCommandLineParser>
 #include <QCoreApplication>
-#include <QQmlEngine>
+#include <QJSEngine>
 
 int main(int argc, char *argv[])
 {
@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 
     const QString script = parser.positionalArguments().first();
 
-    QScopedPointer<QQmlEngine> engine(new QQmlEngine());
+    QScopedPointer<QJSEngine> engine(new QJSEngine());
     QScopedPointer<NodeQml::Engine> node(new NodeQml::Engine(engine.data()));
 
     QJSValue object = node->require(script);
