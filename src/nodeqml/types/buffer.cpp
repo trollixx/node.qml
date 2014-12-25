@@ -239,8 +239,21 @@ QByteArray BufferObject::decodeString(const QString &str, BufferEncoding encodin
     case BufferEncoding::Utf8:
     case BufferEncoding::Invalid:
     default:
-        /// TODO: Handle 'limit' on per character basis
-        ba = str.toUtf8();
+        if (limit > -1) {
+            int charCount = 0;
+            int baSize = 0;
+            for (int i  = 0; i < str.length(); ++i) {
+                /// FIXME: There should be a way to get the length directly from QChar
+                const QByteArray ch = QString(str[i]).toUtf8();
+                if (baSize + ch.size() > limit)
+                    break;
+                baSize += ch.size();
+                ++charCount;
+            }
+            ba = str.left(charCount).toUtf8();
+        } else {
+            ba = str.toUtf8();
+        }
     }
 
     return ba;
