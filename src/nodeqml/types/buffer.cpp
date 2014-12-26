@@ -86,11 +86,6 @@ Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, const QTypedArrayData
     o->defineReadonlyProperty(v4->id_length, QV4::Primitive::fromInt32(data.size()));
 }
 
-Heap::BufferObject::~BufferObject()
-{
-    data.clearData();
-}
-
 bool Heap::BufferObject::allocateData(size_t length)
 {
     if (!length)
