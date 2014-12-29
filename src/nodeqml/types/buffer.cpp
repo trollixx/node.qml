@@ -310,6 +310,9 @@ QV4::ReturnedValue BufferCtor::construct(QV4::Managed *m, QV4::CallData *callDat
         QTypedArrayDataSlice<char> slice(arrayData);
         arrayData->ref.deref(); // Disown data
         buffer = v4->memoryManager->alloc<BufferObject>(v4, slice);
+    } else if (callData->args[0].isObject()) {
+        // Handle assert.equal(Buffer({length: 3.3}).length, 3);
+        buffer = v4->memoryManager->alloc<BufferObject>(v4, callData->args[0].asObject()->getLength());
     } else {
         return v4->throwTypeError(QStringLiteral("must start with number, buffer, array or string"));
     }
