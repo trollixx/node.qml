@@ -254,11 +254,12 @@ QV4::ReturnedValue ModuleObject::method_require(QV4::CallContext *ctx)
 {
     NODE_CTX_CALLDATA(ctx);
     NODE_CTX_SELF(ModuleObject, ctx);
+    NODE_CTX_V4(ctx);
 
     if (!callData->argc || !callData->args[0].isString())
-        return ctx->engine()->throwError(QStringLiteral("require: path must be a string"));
+        return v4->throwError(QStringLiteral("require: path must be a string"));
 
-    QV4::ScopedObject exports(scope, require(ctx->engine(), callData->args[0].toQStringNoThrow(), self->d()));
+    QV4::ScopedObject exports(scope, require(v4, callData->args[0].toQStringNoThrow(), self->d()));
     return exports.asReturnedValue();
 }
 
