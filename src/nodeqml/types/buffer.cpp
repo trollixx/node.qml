@@ -4,6 +4,7 @@
 
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QtEndian>
 
 #include <private/qv4engine_p.h>
 #include <private/qv4jsonobject_p.h>
@@ -343,12 +344,16 @@ void BufferPrototype::init(QV4::ExecutionEngine *v4, QV4::Object *ctor)
     defineDefaultProperty(QStringLiteral("toString"), method_toString, 3);
     defineDefaultProperty(QStringLiteral("toJSON"), method_toJSON);
 
-    defineDefaultProperty(QStringLiteral("readInt8"), method_readIntBE<qint8>);
-    defineDefaultProperty(QStringLiteral("readUInt8"), method_readIntBE<quint8>);
-    defineDefaultProperty(QStringLiteral("readInt16BE"), method_readIntBE<qint16>);
-    defineDefaultProperty(QStringLiteral("readInt32BE"), method_readIntBE<qint32>);
-    defineDefaultProperty(QStringLiteral("readUInt16BE"), method_readIntBE<quint16>);
-    defineDefaultProperty(QStringLiteral("readUInt32BE"), method_readIntBE<quint32>);
+    defineDefaultProperty(QStringLiteral("readInt8"), method_readInt<qint8>);
+    defineDefaultProperty(QStringLiteral("readUInt8"), method_readInt<quint8>);
+    defineDefaultProperty(QStringLiteral("readInt16LE"), method_readInt<qint16>);
+    defineDefaultProperty(QStringLiteral("readUInt16LE"), method_readInt<quint16>);
+    defineDefaultProperty(QStringLiteral("readInt16BE"), method_readInt<qint16, false>);
+    defineDefaultProperty(QStringLiteral("readUInt16BE"), method_readInt<quint16, false>);
+    defineDefaultProperty(QStringLiteral("readInt32LE"), method_readInt<qint32>);
+    defineDefaultProperty(QStringLiteral("readUInt32LE"), method_readInt<quint32>);
+    defineDefaultProperty(QStringLiteral("readInt32BE"), method_readInt<qint32, false>);
+    defineDefaultProperty(QStringLiteral("readUInt32BE"), method_readInt<quint32, false>);
 }
 
 QV4::ReturnedValue BufferPrototype::method_isEncoding(QV4::CallContext *ctx)
@@ -704,8 +709,8 @@ QV4::ReturnedValue BufferPrototype::method_slice(QV4::CallContext *ctx)
     return newBuffer->asReturnedValue();
 }
 
-template <typename T>
-QV4::ReturnedValue BufferPrototype::method_readIntBE(QV4::CallContext *ctx)
+template <typename T, bool LE>
+QV4::ReturnedValue BufferPrototype::method_readInt(QV4::CallContext *ctx)
 {
     NODE_CTX_V4(ctx);
     NODE_CTX_CALLDATA(ctx);
@@ -721,10 +726,10 @@ QV4::ReturnedValue BufferPrototype::method_readIntBE(QV4::CallContext *ctx)
     if (offset + sizeof(T) > static_cast<size_t>(self->d()->data.size()))
         return v4->throwRangeError(QStringLiteral("index out of range"));
 
-    T value = 0;
+    const uchar *data = reinterpret_cast<const uchar *>(self->d()->data.constData() + offset);
 
-    for (size_t i = 0; i < sizeof(T); ++i)
-        value |= self->d()->data.at(offset + i) << (sizeof(T) - i - 1) * 8;
-
-    return QV4::Encode(value);
+    if (LE)
+        return QV4::Encode(qFromLittleEndian<T>(data));
+    else
+        return QV4::Encode(qFromBigEndian<T>(data));
 }
