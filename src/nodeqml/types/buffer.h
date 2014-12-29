@@ -81,6 +81,9 @@ struct BufferPrototype : QV4::Object
     static QV4::ReturnedValue method_copy(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_fill(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_slice(QV4::CallContext *ctx);
+
+    template <typename T>
+    static QV4::ReturnedValue method_readIntBE(QV4::CallContext *ctx);
     /// TODO: buf.readUInt8(offset, [noAssert])
     /// TODO: buf.readUInt16LE(offset, [noAssert])
     /// TODO: buf.readUInt16BE(offset, [noAssert])

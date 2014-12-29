@@ -342,6 +342,13 @@ void BufferPrototype::init(QV4::ExecutionEngine *v4, QV4::Object *ctor)
     defineDefaultProperty(QStringLiteral("write"), method_write, 4);
     defineDefaultProperty(QStringLiteral("toString"), method_toString, 3);
     defineDefaultProperty(QStringLiteral("toJSON"), method_toJSON);
+
+    defineDefaultProperty(QStringLiteral("readInt8"), method_readIntBE<qint8>);
+    defineDefaultProperty(QStringLiteral("readUInt8"), method_readIntBE<quint8>);
+    defineDefaultProperty(QStringLiteral("readInt16BE"), method_readIntBE<qint16>);
+    defineDefaultProperty(QStringLiteral("readInt32BE"), method_readIntBE<qint32>);
+    defineDefaultProperty(QStringLiteral("readUInt16BE"), method_readIntBE<quint16>);
+    defineDefaultProperty(QStringLiteral("readUInt32BE"), method_readIntBE<quint32>);
 }
 
 QV4::ReturnedValue BufferPrototype::method_isEncoding(QV4::CallContext *ctx)
@@ -695,4 +702,29 @@ QV4::ReturnedValue BufferPrototype::method_slice(QV4::CallContext *ctx)
     QTypedArrayDataSlice<char> slice(self->d()->data, start, end - start);
     QV4::Scoped<BufferObject> newBuffer(scope, v4->memoryManager->alloc<BufferObject>(v4, slice));
     return newBuffer->asReturnedValue();
+}
+
+template <typename T>
+QV4::ReturnedValue BufferPrototype::method_readIntBE(QV4::CallContext *ctx)
+{
+    NODE_CTX_V4(ctx);
+    NODE_CTX_CALLDATA(ctx);
+    NODE_CTX_SELF(BufferObject, ctx);
+
+    if (!self)
+        return v4->throwTypeError();
+
+    const size_t offset = (callData->argc && callData->args[0].isNumber())
+            ? std::max(callData->args[0].toNumber(), 0.)
+            : 0;
+
+    if (offset + sizeof(T) > static_cast<size_t>(self->d()->data.size()))
+        return v4->throwRangeError(QStringLiteral("index out of range"));
+
+    T value = 0;
+
+    for (size_t i = 0; i < sizeof(T); ++i)
+        value |= self->d()->data.at(offset + i) << (sizeof(T) - i - 1) * 8;
+
+    return QV4::Encode(value);
 }
