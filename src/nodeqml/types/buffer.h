@@ -84,16 +84,6 @@ struct BufferPrototype : QV4::Object
 
     template <typename T, bool LE = true>
     static QV4::ReturnedValue method_readInt(QV4::CallContext *ctx);
-    /// TODO: buf.readUInt8(offset, [noAssert])
-    /// TODO: buf.readUInt16LE(offset, [noAssert])
-    /// TODO: buf.readUInt16BE(offset, [noAssert])
-    /// TODO: buf.readUInt32LE(offset, [noAssert])
-    /// TODO: buf.readUInt32BE(offset, [noAssert])
-    /// TODO: buf.readInt8(offset, [noAssert])
-    /// TODO: buf.readInt16LE(offset, [noAssert])
-    /// TODO: buf.readInt16BE(offset, [noAssert])
-    /// TODO: buf.readInt32LE(offset, [noAssert])
-    /// TODO: buf.readInt32BE(offset, [noAssert])
     /// TODO: buf.readFloatLE(offset, [noAssert])
     /// TODO: buf.readFloatBE(offset, [noAssert])
     /// TODO: buf.readDoubleLE(offset, [noAssert])
