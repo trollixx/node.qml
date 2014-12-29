@@ -106,10 +106,12 @@ QV4::Heap::Object *EnginePrivate::nativeModule(const QString &id) const
     return module->d();
 }
 
-void EnginePrivate::cacheModule(const QString &id, ModuleObject *module)
+void EnginePrivate::cacheModule(const QString &id, Heap::ModuleObject *module)
 {
     Q_ASSERT(!m_cachedModules.contains(id));
-    m_cachedModules.insert(id, module);
+    QV4::Scope scope(m_v4);
+    QV4::ScopedObject o(scope, module);
+    m_cachedModules.insert(id, o.asReturnedValue());
 }
 
 bool EnginePrivate::hasCachedModule(const QString &id) const
@@ -117,9 +119,11 @@ bool EnginePrivate::hasCachedModule(const QString &id) const
     return m_cachedModules.contains(id);
 }
 
-QV4::Object *EnginePrivate::cachedModule(const QString &id) const
+Heap::ModuleObject *EnginePrivate::cachedModule(const QString &id) const
 {
-    return m_cachedModules.value(id);
+    QV4::Scope scope(m_v4);
+    QV4::Scoped<ModuleObject> module(scope, m_cachedModules.value(id));
+    return module->d();
 }
 
 QV4::ReturnedValue EnginePrivate::require(const QString &id)

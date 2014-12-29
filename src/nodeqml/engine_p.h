@@ -11,6 +11,10 @@ class QJSEngine;
 
 namespace NodeQml {
 
+namespace Heap {
+struct ModuleObject;
+}
+
 class Engine;
 struct ModuleObject;
 
@@ -26,9 +30,9 @@ public:
     bool hasNativeModule(const QString &id) const;
     QV4::Heap::Object *nativeModule(const QString &id) const;
 
-    void cacheModule(const QString& id, ModuleObject *module);
+    void cacheModule(const QString& id, Heap::ModuleObject *module);
     bool hasCachedModule(const QString &id) const;
-    QV4::Object *cachedModule(const QString &id) const;
+    Heap::ModuleObject *cachedModule(const QString &id) const;
 
     QV4::ReturnedValue require(const QString &id);
 
@@ -64,7 +68,7 @@ private:
     QV4::ExecutionEngine *m_v4;
 
     QHash<QString, QV4::PersistentValue> m_coreModules;
-    QHash<QString, ModuleObject *> m_cachedModules;
+    QHash<QString, QV4::PersistentValue> m_cachedModules;
 
     QHash<int, QV4::PersistentValue> m_timeoutCallbacks;
     QHash<int, QV4::PersistentValue> m_intervalCallbacks;

@@ -175,7 +175,7 @@ QV4::ReturnedValue ModuleObject::require(QV4::ExecutionEngine *v4, const QString
         if (node->hasCachedModule(filename)) {
             qDebug("Module '%s' is already in cache (%s).", qPrintable(path), qPrintable(filename));
             QV4::ScopedString s(scope);
-            exports = node->cachedModule(filename)->get(s = v4->newString("exports"));
+            exports = node->cachedModule(filename)->exports;
         } else {
             QV4::Scoped<NodeQml::ModuleObject> module(scope, v4->memoryManager->alloc<NodeQml::ModuleObject>(v4, filename, parent));
             load(v4, module->d(), filename);
@@ -183,7 +183,7 @@ QV4::ReturnedValue ModuleObject::require(QV4::ExecutionEngine *v4, const QString
             if (v4->hasException)
                 return v4->throwError(QString("Cannot load module '%1'").arg(path));
 
-            node->cacheModule(filename, module);
+            node->cacheModule(filename, module->d());
             exports = module->d()->exports;
         }
     }
