@@ -41,7 +41,7 @@ struct ModuleObject : QV4::Object {
     static void compile(QV4::ExecutionEngine *v4, Heap::ModuleObject *moduleObject);
 
     static QV4::ReturnedValue require(QV4::ExecutionEngine *v4, const QString &path, Heap::ModuleObject *parent = nullptr, bool isMain = false);
-    static QString resolveModule(QV4::ExecutionEngine *v4, const QString &request, const QString &parentPath = QString());
+    static QString resolveModule(const QString &request, const QString &parentPath = QString());
 
     static QV4::ReturnedValue property_exports_getter(QV4::CallContext *ctx);
     static QV4::ReturnedValue property_exports_setter(QV4::CallContext *ctx);

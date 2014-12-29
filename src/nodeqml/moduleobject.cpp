@@ -166,7 +166,7 @@ QV4::ReturnedValue ModuleObject::require(QV4::ExecutionEngine *v4, const QString
     } else {
         const QString parentPath = parent ? parent->dirname : QString();
         qDebug("Parent path: %s", qPrintable(parentPath));
-        QString filename = resolveModule(v4, path, parentPath);
+        QString filename = resolveModule(path, parentPath);
         qDebug("Resolved module path: %s", qPrintable(filename));
 
         if (filename.isEmpty())
@@ -191,13 +191,8 @@ QV4::ReturnedValue ModuleObject::require(QV4::ExecutionEngine *v4, const QString
     return exports.asReturnedValue();
 }
 
-QString ModuleObject::resolveModule(QV4::ExecutionEngine *v4, const QString &request, const QString &parentPath)
+QString ModuleObject::resolveModule(const QString &request, const QString &parentPath)
 {
-    EnginePrivate *node = EnginePrivate::get(v4);
-
-    if (node->hasNativeModule(request))
-        return request;
-
     // Bundled JS module
     QFileInfo fi(QStringLiteral(":/js/") + request + QStringLiteral(".js"));
     if (fi.exists())
