@@ -99,11 +99,11 @@ bool EnginePrivate::hasNativeModule(const QString &id) const
     return m_coreModules.contains(id);
 }
 
-QV4::Object *EnginePrivate::nativeModule(const QString &id) const
+QV4::Heap::Object *EnginePrivate::nativeModule(const QString &id) const
 {
     QV4::Scope scope(m_v4);
-    QV4::Scoped<QV4::Object> module(scope, m_coreModules.value(id));
-    return module.getPointer();
+    QV4::ScopedObject module(scope, m_coreModules.value(id));
+    return module->d();
 }
 
 void EnginePrivate::cacheModule(const QString &id, ModuleObject *module)
@@ -122,14 +122,9 @@ QV4::Object *EnginePrivate::cachedModule(const QString &id) const
     return m_cachedModules.value(id);
 }
 
-QV4::ReturnedValue EnginePrivate::require(const QString &id, QV4::ExecutionContext *ctx)
+QV4::ReturnedValue EnginePrivate::require(const QString &id)
 {
-    if (!ctx) {
-        QV4::Scope scope(m_v4);
-        ctx = QV4::ScopedContext(scope, m_v4->currentContext());
-    }
-
-    return ModuleObject::require(ctx, id)->asReturnedValue();
+    return ModuleObject::require(m_v4, id);
 }
 
 QV4::ReturnedValue EnginePrivate::setTimeout(QV4::CallContext *ctx)
@@ -315,8 +310,10 @@ void EnginePrivate::registerTypes()
 
 void EnginePrivate::registerModules()
 {
-    m_coreModules.insert(QStringLiteral("fs"), m_v4->memoryManager->alloc<FileSystemModule>(m_v4)->asReturnedValue());
-    m_coreModules.insert(QStringLiteral("os"), m_v4->memoryManager->alloc<OsModule>(m_v4)->asReturnedValue());
-    m_coreModules.insert(QStringLiteral("path"), m_v4->memoryManager->alloc<PathModule>(m_v4)->asReturnedValue());
-    m_coreModules.insert(QStringLiteral("util"), m_v4->memoryManager->alloc<UtilModule>(m_v4)->asReturnedValue());
+    QV4::Scope scope(m_v4);
+    QV4::ScopedObject o(scope);
+    m_coreModules.insert(QStringLiteral("fs"), (o = m_v4->memoryManager->alloc<FileSystemModule>(m_v4)).asReturnedValue());
+    m_coreModules.insert(QStringLiteral("os"), (o = m_v4->memoryManager->alloc<OsModule>(m_v4)).asReturnedValue());
+    m_coreModules.insert(QStringLiteral("path"), (o = m_v4->memoryManager->alloc<PathModule>(m_v4)).asReturnedValue());
+    m_coreModules.insert(QStringLiteral("util"), (o = m_v4->memoryManager->alloc<UtilModule>(m_v4)).asReturnedValue());
 }

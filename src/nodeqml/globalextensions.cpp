@@ -48,7 +48,7 @@ QV4::ReturnedValue GlobalExtensions::method_require(QV4::CallContext *ctx)
         return v4->throwTypeError("require(): argument (id) must be a string");
 
     const QString id = callData->args[0].toQStringNoThrow();
-    return EnginePrivate::get(ctx->engine())->require(id, ctx);
+    return EnginePrivate::get(ctx->engine())->require(id);
 }
 
 QV4::ReturnedValue GlobalExtensions::method_setTimeout(QV4::CallContext *ctx)

@@ -18,16 +18,16 @@ struct ModuleObject : QV4::Heap::Object {
     QString id;
     QString filename;
     QString dirname;
-    bool loaded;
-    QV4::PersistentValue exportsObject;
-    NodeQml::ModuleObject *parent = nullptr;
-    QV4::ArrayObject *childrenArray = nullptr;
+    bool loaded = false;
+    NodeQml::Heap::ModuleObject *parent = nullptr;
+    QV4::Heap::Object *exports = nullptr;
+    QV4::Heap::ArrayObject *childrenArray = nullptr;
 };
 
 struct RequireFunction : QV4::Heap::FunctionObject {
-    RequireFunction(QV4::ExecutionContext *ctx, NodeQml::ModuleObject *moduleObject);
+    RequireFunction(QV4::ExecutionContext *ctx, NodeQml::Heap::ModuleObject *moduleObject);
 
-    NodeQml::ModuleObject *module;
+    NodeQml::Heap::ModuleObject *module = nullptr;
 };
 
 } // namespace Heap
@@ -37,12 +37,14 @@ struct ModuleObject : QV4::Object {
 
     static void markObjects(QV4::Heap::Base *that, QV4::ExecutionEngine *e);
 
-    void load(QV4::ExecutionContext *ctx, const QString &path);
-    QV4::Object *compile(QV4::ExecutionContext *ctx);
+    static void load(QV4::ExecutionEngine *v4, Heap::ModuleObject *moduleObject, const QString &path);
+    static void compile(QV4::ExecutionEngine *v4, Heap::ModuleObject *moduleObject);
 
-    static QV4::Object *require(QV4::ExecutionContext *ctx, const QString &path, ModuleObject *parent = nullptr, bool isMain = false);
-    static QString resolveModule(QV4::ExecutionContext *ctx, const QString &request, const QString &parentPath = QString());
+    static QV4::ReturnedValue require(QV4::ExecutionEngine *v4, const QString &path, ModuleObject *parent = nullptr, bool isMain = false);
+    static QString resolveModule(QV4::ExecutionEngine *v4, const QString &request, const QString &parentPath = QString());
 
+    static QV4::ReturnedValue property_exports_getter(QV4::CallContext *ctx);
+    static QV4::ReturnedValue property_exports_setter(QV4::CallContext *ctx);
     static QV4::ReturnedValue property_filename_getter(QV4::CallContext *ctx);
     static QV4::ReturnedValue property_loaded_getter(QV4::CallContext *ctx);
 
