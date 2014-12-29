@@ -283,8 +283,8 @@ QV4::ReturnedValue BufferCtor::construct(QV4::Managed *m, QV4::CallData *callDat
     QV4::Scope scope(v4);
     QV4::Scoped<BufferObject> buffer(scope);
 
-    if (callData->args[0].isInt32()) {
-        buffer = v4->memoryManager->alloc<BufferObject>(v4, callData->args[0].toInt32());
+    if (callData->args[0].isNumber()) {
+        buffer = v4->memoryManager->alloc<BufferObject>(v4, std::max(0., callData->args[0].toInteger()));
     } else if (callData->args[0].asArrayObject()) {
         buffer = v4->memoryManager->alloc<BufferObject>(v4, callData->args[0].asArrayObject());
     } else if (callData->args[0].as<BufferObject>()) {
