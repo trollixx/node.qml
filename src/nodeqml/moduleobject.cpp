@@ -268,15 +268,10 @@ QV4::ReturnedValue ModuleObject::method_require(QV4::CallContext *ctx)
 }
 
 Heap::RequireFunction::RequireFunction(QV4::ExecutionContext *ctx, NodeQml::Heap::ModuleObject *moduleObject) :
-    QV4::Heap::FunctionObject(ctx, QStringLiteral("require"))
+    QV4::Heap::FunctionObject(ctx, QStringLiteral("require")),
+    module(moduleObject)
 {
     setVTable(NodeQml::RequireFunction::staticVTable());
-
-    QV4::Scope scope(ctx->engine());
-    QV4::ScopedValue protectThis(scope, this);
-    Q_UNUSED(protectThis)
-
-    module = moduleObject;
 }
 
 QV4::ReturnedValue RequireFunction::call(QV4::Managed *that, QV4::CallData *callData)
