@@ -15,9 +15,10 @@ using namespace NodeQml;
 DEFINE_OBJECT_VTABLE(ModuleObject);
 DEFINE_OBJECT_VTABLE(RequireFunction);
 
-Heap::ModuleObject::ModuleObject(QV4::ExecutionEngine *v4, const QString &moduleId, NodeQml::ModuleObject *moduleParent) :
+Heap::ModuleObject::ModuleObject(QV4::ExecutionEngine *v4, const QString &moduleId, Heap::ModuleObject *moduleParent) :
     QV4::Heap::Object(v4),
-    id(moduleId)
+    id(moduleId),
+    parent(moduleParent)
 {
     setVTable(NodeQml::ModuleObject::staticVTable());
 
@@ -32,11 +33,11 @@ Heap::ModuleObject::ModuleObject(QV4::ExecutionEngine *v4, const QString &module
     self->defineAccessorProperty(QStringLiteral("loaded"), NodeQml::ModuleObject::property_loaded_getter, nullptr);
     self->defineDefaultProperty(QStringLiteral("require"), NodeQml::ModuleObject::method_require, 1);
 
-    QV4::Scoped<NodeQml::ModuleObject> parent(scope, moduleParent);
-    self->defineDefaultProperty(QStringLiteral("parent"), parent);
+    QV4::Scoped<NodeQml::ModuleObject> scopedParent(scope, moduleParent);
+    self->defineDefaultProperty(QStringLiteral("parent"), scopedParent);
 
-    if (parent) {
-        QV4::ScopedArrayObject parentChildren(scope, moduleParent->d()->childrenArray);
+    if (scopedParent) {
+        QV4::ScopedArrayObject parentChildren(scope, scopedParent->d()->childrenArray);
         parentChildren->push_back(self);
     }
 
@@ -150,7 +151,7 @@ void ModuleObject::compile(QV4::ExecutionEngine *v4, Heap::ModuleObject *moduleO
     }
 }
 
-QV4::ReturnedValue ModuleObject::require(QV4::ExecutionEngine *v4, const QString &path, ModuleObject *parent, bool isMain)
+QV4::ReturnedValue ModuleObject::require(QV4::ExecutionEngine *v4, const QString &path, Heap::ModuleObject *parent, bool isMain)
 {
     Q_UNUSED(isMain)
     qDebug("Require path: %s", qPrintable(path));
@@ -163,7 +164,7 @@ QV4::ReturnedValue ModuleObject::require(QV4::ExecutionEngine *v4, const QString
         qDebug("Native module found: %s", qPrintable(path));
         exports = node->nativeModule(path);
     } else {
-        const QString parentPath = parent ? parent->d()->dirname : QString();
+        const QString parentPath = parent ? parent->dirname : QString();
         qDebug("Parent path: %s", qPrintable(parentPath));
         QString filename = resolveModule(v4, path, parentPath);
         qDebug("Resolved module path: %s", qPrintable(filename));
@@ -262,7 +263,7 @@ QV4::ReturnedValue ModuleObject::method_require(QV4::CallContext *ctx)
     if (!callData->argc || !callData->args[0].isString())
         return ctx->engine()->throwError(QStringLiteral("require: path must be a string"));
 
-    QV4::ScopedObject exports(scope, require(ctx->engine(), callData->args[0].toQStringNoThrow(), self));
+    QV4::ScopedObject exports(scope, require(ctx->engine(), callData->args[0].toQStringNoThrow(), self->d()));
     return exports.asReturnedValue();
 }
 

@@ -13,13 +13,13 @@ struct ModuleObject;
 namespace Heap {
 
 struct ModuleObject : QV4::Heap::Object {
-    ModuleObject(QV4::ExecutionEngine *v4, const QString &moduleId, NodeQml::ModuleObject *moduleParent = nullptr);
+    ModuleObject(QV4::ExecutionEngine *v4, const QString &moduleId, ModuleObject *moduleParent = nullptr);
 
     QString id;
     QString filename;
     QString dirname;
     bool loaded = false;
-    NodeQml::Heap::ModuleObject *parent = nullptr;
+    ModuleObject *parent = nullptr;
     QV4::Heap::Object *exports = nullptr;
     QV4::Heap::ArrayObject *childrenArray = nullptr;
 };
@@ -40,7 +40,7 @@ struct ModuleObject : QV4::Object {
     static void load(QV4::ExecutionEngine *v4, Heap::ModuleObject *moduleObject, const QString &path);
     static void compile(QV4::ExecutionEngine *v4, Heap::ModuleObject *moduleObject);
 
-    static QV4::ReturnedValue require(QV4::ExecutionEngine *v4, const QString &path, ModuleObject *parent = nullptr, bool isMain = false);
+    static QV4::ReturnedValue require(QV4::ExecutionEngine *v4, const QString &path, Heap::ModuleObject *parent = nullptr, bool isMain = false);
     static QString resolveModule(QV4::ExecutionEngine *v4, const QString &request, const QString &parentPath = QString());
 
     static QV4::ReturnedValue property_exports_getter(QV4::CallContext *ctx);
