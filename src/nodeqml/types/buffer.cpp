@@ -212,7 +212,6 @@ QByteArray BufferObject::decodeString(const QString &str, BufferEncoding encodin
             ba[i] = str[i].cell();
         break;
     case BufferEncoding::Base64:
-        /// TODO: Handle 'limit' on per character basis
         if (str.contains(QLatin1Char('+')) || str.contains(QLatin1Char('/')))
             ba = QByteArray::fromBase64(str.toUtf8());
         else
