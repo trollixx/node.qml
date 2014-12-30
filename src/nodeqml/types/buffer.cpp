@@ -332,6 +332,53 @@ QV4::ReturnedValue BufferCtor::call(QV4::Managed *that, QV4::CallData *callData)
     return construct(that, callData);
 }
 
+QV4::ReturnedValue BufferCtor::method_isEncoding(QV4::CallContext *ctx)
+{
+    NODE_CTX_CALLDATA(ctx);
+    return QV4::Encode(callData->argc && callData->args[0].isString()
+            && BufferObject::isEncoding(callData->args[0].toQStringNoThrow()));
+}
+
+QV4::ReturnedValue BufferCtor::method_isBuffer(QV4::CallContext *ctx)
+{
+    NODE_CTX_CALLDATA(ctx);
+    return QV4::Encode(callData->argc && callData->args[0].as<BufferObject>());
+}
+
+QV4::ReturnedValue BufferCtor::method_byteLength(QV4::CallContext *ctx)
+{
+    NODE_CTX_CALLDATA(ctx);
+
+    // Special case for 'undefined'
+    if (!callData->argc)
+        return QV4::Encode(9);
+
+    const BufferEncoding encoding = callData->argc > 1
+            ? BufferObject::parseEncoding(callData->args[1].toQStringNoThrow())
+            : BufferEncoding::Utf8;
+    return QV4::Encode(BufferObject::byteLength(callData->args[0].toQStringNoThrow(), encoding));
+}
+
+QV4::ReturnedValue BufferCtor::method_concat(QV4::CallContext *ctx)
+{
+    return ctx->engine()->throwUnimplemented(QStringLiteral("Buffer.concat()"));
+}
+
+QV4::ReturnedValue BufferCtor::method_compare(QV4::CallContext *ctx)
+{
+    NODE_CTX_CALLDATA(ctx);
+    NODE_CTX_V4(ctx);
+
+    QV4::Scope scope(ctx);
+    QV4::Scoped<BufferObject> a(scope, callData->argument(0));
+    QV4::Scoped<BufferObject> b(scope, callData->argument(1));
+
+    if (!a || !b)
+        return v4->throwTypeError(QStringLiteral("Arguments must be Buffers"));
+
+    return QV4::Encode(BufferPrototype::compare(a->d()->data, b->d()->data));
+}
+
 void BufferPrototype::init(QV4::ExecutionEngine *v4, QV4::Object *ctor)
 {
     QV4::Scope scope(v4);
@@ -341,10 +388,10 @@ void BufferPrototype::init(QV4::ExecutionEngine *v4, QV4::Object *ctor)
     ctor->defineReadonlyProperty(v4->id_prototype, (o = this));
     defineDefaultProperty(QStringLiteral("constructor"), (o = ctor));
 
-    ctor->defineDefaultProperty(QStringLiteral("isEncoding"), method_isEncoding, 1);
-    ctor->defineDefaultProperty(QStringLiteral("isBuffer"), method_isBuffer, 1);
-    ctor->defineDefaultProperty(QStringLiteral("byteLength"), method_byteLength, 2);
-    ctor->defineDefaultProperty(QStringLiteral("compare"), method_compare, 2);
+    ctor->defineDefaultProperty(QStringLiteral("isEncoding"), BufferCtor::method_isEncoding, 1);
+    ctor->defineDefaultProperty(QStringLiteral("isBuffer"), BufferCtor::method_isBuffer, 1);
+    ctor->defineDefaultProperty(QStringLiteral("byteLength"), BufferCtor::method_byteLength, 2);
+    ctor->defineDefaultProperty(QStringLiteral("compare"), BufferCtor::method_compare, 2);
 
     defineDefaultProperty(QStringLiteral("inspect"), method_inspect);
 
@@ -388,51 +435,21 @@ void BufferPrototype::init(QV4::ExecutionEngine *v4, QV4::Object *ctor)
     defineDefaultProperty(QStringLiteral("writeDoubleBE"), method_writeFloatingPoint<double, false>);
 }
 
-QV4::ReturnedValue BufferPrototype::method_isEncoding(QV4::CallContext *ctx)
+int BufferPrototype::compare(const QTypedArrayDataSlice<char> &a, const QTypedArrayDataSlice<char> &b)
 {
-    NODE_CTX_CALLDATA(ctx);
-    return QV4::Encode(callData->argc && callData->args[0].isString()
-            && BufferObject::isEncoding(callData->args[0].toQStringNoThrow()));
-}
+    const size_t aSize = a.size();
+    const size_t bSize = b.size();
 
-QV4::ReturnedValue BufferPrototype::method_isBuffer(QV4::CallContext *ctx)
-{
-    NODE_CTX_CALLDATA(ctx);
-    return QV4::Encode(callData->argc && callData->args[0].as<BufferObject>());
-}
+    const int result = ::memcmp(a.constData(), b.constData(), std::min(aSize, bSize));
+    if (result)
+        return QV4::Encode(result > 0 ? 1 : -1);
 
-QV4::ReturnedValue BufferPrototype::method_byteLength(QV4::CallContext *ctx)
-{
-    NODE_CTX_CALLDATA(ctx);
+    if (aSize > bSize)
+        return 1;
+    else if (aSize < bSize)
+        return -1;
 
-    // Special case for 'undefined'
-    if (!callData->argc)
-        return QV4::Encode(9);
-
-    const BufferEncoding encoding = callData->argc > 1
-            ? BufferObject::parseEncoding(callData->args[1].toQStringNoThrow())
-            : BufferEncoding::Utf8;
-    return QV4::Encode(BufferObject::byteLength(callData->args[0].toQStringNoThrow(), encoding));
-}
-
-QV4::ReturnedValue BufferPrototype::method_concat(QV4::CallContext *ctx)
-{
-    return ctx->engine()->throwUnimplemented(QStringLiteral("Buffer.concat()"));
-}
-
-QV4::ReturnedValue BufferPrototype::method_compare(QV4::CallContext *ctx)
-{
-    NODE_CTX_CALLDATA(ctx);
-    NODE_CTX_V4(ctx);
-
-    QV4::Scope scope(ctx);
-    QV4::Scoped<BufferObject> a(scope, callData->argument(0));
-    QV4::Scoped<BufferObject> b(scope, callData->argument(1));
-
-    if (!a || !b)
-        return v4->throwTypeError(QStringLiteral("Arguments must be Buffers"));
-
-    return QV4::Encode(compare(a->d()->data, b->d()->data));
+    return 0;
 }
 
 QV4::ReturnedValue BufferPrototype::method_inspect(QV4::CallContext *ctx)
@@ -891,21 +908,4 @@ QV4::ReturnedValue BufferPrototype::method_writeFloatingPoint(QV4::CallContext *
     }
 
     return QV4::Encode(static_cast<uint>(offset + sizeof(T)));
-}
-
-int BufferPrototype::compare(const QTypedArrayDataSlice<char> &a, const QTypedArrayDataSlice<char> &b)
-{
-    const size_t aSize = a.size();
-    const size_t bSize = b.size();
-
-    const int result = ::memcmp(a.constData(), b.constData(), std::min(aSize, bSize));
-    if (result)
-        return QV4::Encode(result > 0 ? 1 : -1);
-
-    if (aSize > bSize)
-        return 1;
-    else if (aSize < bSize)
-        return -1;
-
-    return 0;
 }

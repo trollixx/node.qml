@@ -61,17 +61,19 @@ struct BufferCtor : QV4::FunctionObject
 
     static QV4::ReturnedValue construct(QV4::Managed *m, QV4::CallData *callData);
     static QV4::ReturnedValue call(QV4::Managed *that, QV4::CallData *callData);
-};
-
-struct BufferPrototype : QV4::Object
-{
-    void init(QV4::ExecutionEngine *v4, QV4::Object *ctor);
 
     static QV4::ReturnedValue method_isEncoding(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_isBuffer(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_byteLength(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_concat(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_compare(QV4::CallContext *ctx);
+};
+
+struct BufferPrototype : QV4::Object
+{
+    void init(QV4::ExecutionEngine *v4, QV4::Object *ctor);
+
+    static int compare(const QTypedArrayDataSlice<char> &a, const QTypedArrayDataSlice<char> &b);
 
     static QV4::ReturnedValue method_inspect(QV4::CallContext *ctx);
 
@@ -94,9 +96,6 @@ struct BufferPrototype : QV4::Object
 
     template <typename T, bool LE = true>
     static QV4::ReturnedValue method_writeFloatingPoint(QV4::CallContext *ctx);
-
-private:
-    static int compare(const QTypedArrayDataSlice<char> &a, const QTypedArrayDataSlice<char> &b);
 };
 
 } // namespace NodeQml
