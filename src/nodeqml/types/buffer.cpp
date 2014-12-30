@@ -364,6 +364,11 @@ void BufferPrototype::init(QV4::ExecutionEngine *v4, QV4::Object *ctor)
     defineDefaultProperty(QStringLiteral("readUInt32LE"), method_readInteger<quint32>);
     defineDefaultProperty(QStringLiteral("readInt32BE"), method_readInteger<qint32, false>);
     defineDefaultProperty(QStringLiteral("readUInt32BE"), method_readInteger<quint32, false>);
+
+    defineDefaultProperty(QStringLiteral("readFloatLE"), method_readFloatingPoint<float>);
+    defineDefaultProperty(QStringLiteral("readFloatBE"), method_readFloatingPoint<float, false>);
+    defineDefaultProperty(QStringLiteral("readDoubleLE"), method_readFloatingPoint<double>);
+    defineDefaultProperty(QStringLiteral("readDoubleBE"), method_readFloatingPoint<double, false>);
 }
 
 QV4::ReturnedValue BufferPrototype::method_isEncoding(QV4::CallContext *ctx)
@@ -742,4 +747,33 @@ QV4::ReturnedValue BufferPrototype::method_readInteger(QV4::CallContext *ctx)
         return QV4::Encode(qFromLittleEndian<T>(data));
     else
         return QV4::Encode(qFromBigEndian<T>(data));
+}
+
+template <typename T, bool LE>
+QV4::ReturnedValue BufferPrototype::method_readFloatingPoint(QV4::CallContext *ctx)
+{
+    NODE_CTX_V4(ctx);
+    NODE_CTX_CALLDATA(ctx);
+    NODE_CTX_SELF(BufferObject, ctx);
+
+    if (!self)
+        return v4->throwTypeError();
+
+    const size_t offset = (callData->argc && callData->args[0].isNumber())
+            ? std::max(callData->args[0].toNumber(), 0.)
+            : 0;
+
+    if (offset + sizeof(T) > static_cast<size_t>(self->d()->data.size()))
+        return v4->throwRangeError(QStringLiteral("index out of range"));
+
+    const uchar *data = reinterpret_cast<const uchar *>(self->d()->data.constData() + offset);
+
+    /// NOTE: Workaround for missing float and double support in QtEndian
+    if (sizeof(T) == 4) {
+        quint32 value = LE ? qFromLittleEndian<quint32>(data) : qFromBigEndian<quint32>(data);
+        return QV4::Encode(*reinterpret_cast<float *>(&value));
+    } else {
+        quint64 value = LE ? qFromLittleEndian<quint64>(data) : qFromBigEndian<quint64>(data);
+        return QV4::Encode(*reinterpret_cast<double *>(&value));
+    }
 }

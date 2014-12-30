@@ -84,10 +84,9 @@ struct BufferPrototype : QV4::Object
 
     template <typename T, bool LE = true>
     static QV4::ReturnedValue method_readInteger(QV4::CallContext *ctx);
-    /// TODO: buf.readFloatLE(offset, [noAssert])
-    /// TODO: buf.readFloatBE(offset, [noAssert])
-    /// TODO: buf.readDoubleLE(offset, [noAssert])
-    /// TODO: buf.readDoubleBE(offset, [noAssert])
+
+    template <typename T, bool LE = true>
+    static QV4::ReturnedValue method_readFloatingPoint(QV4::CallContext *ctx);
     /// TODO: buf.writeUInt8(value, offset, [noAssert])
     /// TODO: buf.writeUInt16LE(value, offset, [noAssert])
     /// TODO: buf.writeUInt16BE(value, offset, [noAssert])
