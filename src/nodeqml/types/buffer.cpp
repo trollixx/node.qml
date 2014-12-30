@@ -657,7 +657,7 @@ QV4::ReturnedValue BufferPrototype::method_fill(QV4::CallContext *ctx)
     int end = self->d()->data.size();
 
     if (!callData->argc)
-        return QV4::Encode::undefined();
+        return self.asReturnedValue();
 
     if (callData->argc > 1) {
         if (!callData->args[1].isNumber())
@@ -681,7 +681,7 @@ QV4::ReturnedValue BufferPrototype::method_fill(QV4::CallContext *ctx)
     if (callData->args[0].isNumber()) {
         const quint8 value = callData->args[0].toUInt32() & 0xff;
         memset(startPtr, value, length);
-        return QV4::Encode::undefined();
+        return self.asReturnedValue();
     }
 
     if (!callData->args[0].isString())
@@ -692,14 +692,14 @@ QV4::ReturnedValue BufferPrototype::method_fill(QV4::CallContext *ctx)
     // optimize single ascii character case
     if (value.size() == 1) {
         memset(startPtr, value.at(0), length);
-        return QV4::Encode::undefined();
+        return self.asReturnedValue();
     }
 
     int in_there = value.size();
     char * ptr = startPtr + value.size();
     memcpy(startPtr, value.constData(), qMin(value.size(), length));
     if (value.size() >= length)
-        return QV4::Encode::undefined();
+        return self.asReturnedValue();
 
     while (in_there < length - in_there) {
         memcpy(ptr, startPtr, in_there);
@@ -710,7 +710,7 @@ QV4::ReturnedValue BufferPrototype::method_fill(QV4::CallContext *ctx)
     if (in_there < length)
         memcpy(ptr, startPtr, length - in_there);
 
-    return QV4::Encode::undefined();
+    return self.asReturnedValue();
 }
 
 // slice([start], [end])
