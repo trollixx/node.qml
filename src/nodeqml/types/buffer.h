@@ -87,20 +87,12 @@ struct BufferPrototype : QV4::Object
 
     template <typename T, bool LE = true>
     static QV4::ReturnedValue method_readFloatingPoint(QV4::CallContext *ctx);
-    /// TODO: buf.writeUInt8(value, offset, [noAssert])
-    /// TODO: buf.writeUInt16LE(value, offset, [noAssert])
-    /// TODO: buf.writeUInt16BE(value, offset, [noAssert])
-    /// TODO: buf.writeUInt32LE(value, offset, [noAssert])
-    /// TODO: buf.writeUInt32BE(value, offset, [noAssert])
-    /// TODO: buf.writeInt8(value, offset, [noAssert])
-    /// TODO: buf.writeInt16LE(value, offset, [noAssert])
-    /// TODO: buf.writeInt16BE(value, offset, [noAssert])
-    /// TODO: buf.writeInt32LE(value, offset, [noAssert])
-    /// TODO: buf.writeInt32BE(value, offset, [noAssert])
-    /// TODO: buf.writeFloatLE(value, offset, [noAssert])
-    /// TODO: buf.writeFloatBE(value, offset, [noAssert])
-    /// TODO: buf.writeDoubleLE(value, offset, [noAssert])
-    /// TODO: buf.writeDoubleBE(value, offset, [noAssert])
+
+    template <typename T, bool LE = true>
+    static QV4::ReturnedValue method_writeInteger(QV4::CallContext *ctx);
+
+    template <typename T, bool LE = true>
+    static QV4::ReturnedValue method_writeFloatingPoint(QV4::CallContext *ctx);
 };
 
 } // namespace NodeQml

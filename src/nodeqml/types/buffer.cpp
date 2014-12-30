@@ -369,6 +369,22 @@ void BufferPrototype::init(QV4::ExecutionEngine *v4, QV4::Object *ctor)
     defineDefaultProperty(QStringLiteral("readFloatBE"), method_readFloatingPoint<float, false>);
     defineDefaultProperty(QStringLiteral("readDoubleLE"), method_readFloatingPoint<double>);
     defineDefaultProperty(QStringLiteral("readDoubleBE"), method_readFloatingPoint<double, false>);
+
+    defineDefaultProperty(QStringLiteral("writeInt8"), method_writeInteger<qint8>);
+    defineDefaultProperty(QStringLiteral("writeUInt8"), method_writeInteger<quint8>);
+    defineDefaultProperty(QStringLiteral("writeInt16LE"), method_writeInteger<qint16>);
+    defineDefaultProperty(QStringLiteral("writeUInt16LE"), method_writeInteger<quint16>);
+    defineDefaultProperty(QStringLiteral("writeInt16BE"), method_writeInteger<qint16, false>);
+    defineDefaultProperty(QStringLiteral("writeUInt16BE"), method_writeInteger<quint16, false>);
+    defineDefaultProperty(QStringLiteral("writeInt32LE"), method_writeInteger<qint32>);
+    defineDefaultProperty(QStringLiteral("writeUInt32LE"), method_writeInteger<quint32>);
+    defineDefaultProperty(QStringLiteral("writeInt32BE"), method_writeInteger<qint32, false>);
+    defineDefaultProperty(QStringLiteral("writeUInt32BE"), method_writeInteger<quint32, false>);
+
+    defineDefaultProperty(QStringLiteral("writeFloatLE"), method_writeFloatingPoint<float>);
+    defineDefaultProperty(QStringLiteral("writeFloatBE"), method_writeFloatingPoint<float, false>);
+    defineDefaultProperty(QStringLiteral("writeDoubleLE"), method_writeFloatingPoint<double>);
+    defineDefaultProperty(QStringLiteral("writeDoubleBE"), method_writeFloatingPoint<double, false>);
 }
 
 QV4::ReturnedValue BufferPrototype::method_isEncoding(QV4::CallContext *ctx)
@@ -776,4 +792,87 @@ QV4::ReturnedValue BufferPrototype::method_readFloatingPoint(QV4::CallContext *c
         quint64 value = LE ? qFromLittleEndian<quint64>(data) : qFromBigEndian<quint64>(data);
         return QV4::Encode(*reinterpret_cast<double *>(&value));
     }
+}
+
+template <typename T, bool LE>
+QV4::ReturnedValue BufferPrototype::method_writeInteger(QV4::CallContext *ctx)
+{
+    NODE_CTX_V4(ctx);
+    NODE_CTX_CALLDATA(ctx);
+    NODE_CTX_SELF(BufferObject, ctx);
+
+    if (!self)
+        return v4->throwTypeError();
+
+    // Node.js assumes that the value is 0 if nothing is specified
+    /// TODO: Probably it's better to throw an error
+    /// FIXME: QV4::Value::isInteger() should be used instead of isNumber()
+    const double value = (callData->argc && callData->args[0].isNumber())
+            ? callData->args[0].toNumber()
+            : 0;
+
+    if (value > std::numeric_limits<T>::max() || value < std::numeric_limits<T>::min())
+        return v4->throwRangeError(QStringLiteral("value is out of bounds"));
+
+    const size_t offset = (callData->argc > 1 && callData->args[1].isInteger())
+            ? std::max(callData->args[1].toNumber(), 0.)
+            : 0;
+
+    if (offset + sizeof(T) > static_cast<size_t>(self->d()->data.size()))
+        return v4->throwRangeError(QStringLiteral("index out of range"));
+
+    const T src = static_cast<T>(value);
+    uchar *dst = reinterpret_cast<uchar *>(self->d()->data.data() + offset);
+
+    if (LE)
+        qToLittleEndian<T>(src, dst);
+    else
+        qToBigEndian<T>(src, dst);
+
+    return QV4::Encode(static_cast<uint>(offset + sizeof(T)));
+}
+
+template <typename T, bool LE>
+QV4::ReturnedValue BufferPrototype::method_writeFloatingPoint(QV4::CallContext *ctx)
+{
+    NODE_CTX_V4(ctx);
+    NODE_CTX_CALLDATA(ctx);
+    NODE_CTX_SELF(BufferObject, ctx);
+
+    if (!self)
+        return v4->throwTypeError();
+
+    // Node.js assumes that the value is 0 if nothing is specified
+    /// TODO: Probably it's better to throw an error
+    const double value = (callData->argc && callData->args[0].isNumber())
+            ? callData->args[0].toNumber()
+            : 0;
+
+    if (value < std::numeric_limits<T>::lowest() || value > std::numeric_limits<T>::max())
+        return v4->throwRangeError(QStringLiteral("value is out of bounds"));
+
+    const size_t offset = (callData->argc > 1 && callData->args[1].isInteger())
+            ? std::max(callData->args[1].toNumber(), 0.)
+            : 0;
+
+    if (offset + sizeof(T) > static_cast<size_t>(self->d()->data.size()))
+        return v4->throwRangeError(QStringLiteral("index out of range"));
+
+    const T src = static_cast<T>(value);
+    uchar *dst = reinterpret_cast<uchar *>(self->d()->data.data() + offset);
+
+    /// NOTE: Workaround for missing float and double support in QtEndian
+    if (sizeof(T) == 4) {
+        if (LE)
+            qToLittleEndian<quint32>(*reinterpret_cast<const quint32 *>(&src), dst);
+        else
+            qToBigEndian<quint32>(*reinterpret_cast<const quint32 *>(&src), dst);
+    } else {
+        if (LE)
+            qToLittleEndian<quint64>(*reinterpret_cast<const quint64 *>(&src), dst);
+        else
+            qToBigEndian<quint64>(*reinterpret_cast<const quint64 *>(&src), dst);
+    }
+
+    return QV4::Encode(static_cast<uint>(offset + sizeof(T)));
 }
