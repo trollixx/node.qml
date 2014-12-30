@@ -343,7 +343,7 @@ void BufferPrototype::init(QV4::ExecutionEngine *v4, QV4::Object *ctor)
 
     ctor->defineDefaultProperty(QStringLiteral("isEncoding"), method_isEncoding, 1);
     ctor->defineDefaultProperty(QStringLiteral("isBuffer"), method_isBuffer, 1);
-    ctor->defineDefaultProperty(QStringLiteral("byteLength"), method_byteLength);
+    ctor->defineDefaultProperty(QStringLiteral("byteLength"), method_byteLength, 2);
 
     defineDefaultProperty(QStringLiteral("inspect"), method_inspect);
 
