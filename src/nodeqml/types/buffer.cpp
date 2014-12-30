@@ -216,6 +216,8 @@ QByteArray BufferObject::decodeString(const QString &str, BufferEncoding encodin
             ba = QByteArray::fromBase64(str.toUtf8());
         else
             ba = QByteArray::fromBase64(str.toUtf8(), QByteArray::Base64UrlEncoding);
+        if (limit > -1 && limit < ba.size())
+            ba.resize(limit);
         break;
     case BufferEncoding::Hex:
         ba = QByteArray::fromHex(str.toUtf8());
