@@ -71,6 +71,7 @@ struct BufferPrototype : QV4::Object
     static QV4::ReturnedValue method_isBuffer(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_byteLength(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_concat(QV4::CallContext *ctx);
+    static QV4::ReturnedValue method_compare(QV4::CallContext *ctx);
 
     static QV4::ReturnedValue method_inspect(QV4::CallContext *ctx);
 
@@ -93,6 +94,9 @@ struct BufferPrototype : QV4::Object
 
     template <typename T, bool LE = true>
     static QV4::ReturnedValue method_writeFloatingPoint(QV4::CallContext *ctx);
+
+private:
+    static int compare(const QTypedArrayDataSlice<char> &a, const QTypedArrayDataSlice<char> &b);
 };
 
 } // namespace NodeQml

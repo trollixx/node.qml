@@ -344,6 +344,7 @@ void BufferPrototype::init(QV4::ExecutionEngine *v4, QV4::Object *ctor)
     ctor->defineDefaultProperty(QStringLiteral("isEncoding"), method_isEncoding, 1);
     ctor->defineDefaultProperty(QStringLiteral("isBuffer"), method_isBuffer, 1);
     ctor->defineDefaultProperty(QStringLiteral("byteLength"), method_byteLength, 2);
+    ctor->defineDefaultProperty(QStringLiteral("compare"), method_compare, 2);
 
     defineDefaultProperty(QStringLiteral("inspect"), method_inspect);
 
@@ -417,6 +418,21 @@ QV4::ReturnedValue BufferPrototype::method_byteLength(QV4::CallContext *ctx)
 QV4::ReturnedValue BufferPrototype::method_concat(QV4::CallContext *ctx)
 {
     return ctx->engine()->throwUnimplemented(QStringLiteral("Buffer.concat()"));
+}
+
+QV4::ReturnedValue BufferPrototype::method_compare(QV4::CallContext *ctx)
+{
+    NODE_CTX_CALLDATA(ctx);
+    NODE_CTX_V4(ctx);
+
+    QV4::Scope scope(ctx);
+    QV4::Scoped<BufferObject> a(scope, callData->argument(0));
+    QV4::Scoped<BufferObject> b(scope, callData->argument(1));
+
+    if (!a || !b)
+        return v4->throwTypeError(QStringLiteral("Arguments must be Buffers"));
+
+    return QV4::Encode(compare(a->d()->data, b->d()->data));
 }
 
 QV4::ReturnedValue BufferPrototype::method_inspect(QV4::CallContext *ctx)
@@ -875,4 +891,21 @@ QV4::ReturnedValue BufferPrototype::method_writeFloatingPoint(QV4::CallContext *
     }
 
     return QV4::Encode(static_cast<uint>(offset + sizeof(T)));
+}
+
+int BufferPrototype::compare(const QTypedArrayDataSlice<char> &a, const QTypedArrayDataSlice<char> &b)
+{
+    const size_t aSize = a.size();
+    const size_t bSize = b.size();
+
+    const int result = ::memcmp(a.constData(), b.constData(), std::min(aSize, bSize));
+    if (result)
+        return QV4::Encode(result > 0 ? 1 : -1);
+
+    if (aSize > bSize)
+        return 1;
+    else if (aSize < bSize)
+        return -1;
+
+    return 0;
 }
