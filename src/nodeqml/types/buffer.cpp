@@ -220,7 +220,7 @@ QByteArray BufferObject::decodeString(const QString &str, BufferEncoding encodin
     case BufferEncoding::Hex:
         ba = QByteArray::fromHex(str.toUtf8());
         if (limit > -1 && limit < ba.size())
-            ba.resize(limit & ~1);
+            ba.resize(limit);
         break;
     case BufferEncoding::Ucs2:
     case BufferEncoding::Utf16le: {
