@@ -885,7 +885,7 @@ QV4::ReturnedValue BufferPrototype::method_writeInteger(QV4::CallContext *ctx)
     if (value > std::numeric_limits<T>::max() || value < std::numeric_limits<T>::min())
         return v4->throwRangeError(QStringLiteral("value is out of bounds"));
 
-    const size_t offset = (callData->argc > 1 && callData->args[1].isInteger())
+    const size_t offset = (callData->argc > 1 && callData->args[1].isNumber())
             ? std::max(callData->args[1].toNumber(), 0.)
             : 0;
 
@@ -922,7 +922,7 @@ QV4::ReturnedValue BufferPrototype::method_writeFloatingPoint(QV4::CallContext *
     if (value < std::numeric_limits<T>::lowest() || value > std::numeric_limits<T>::max())
         return v4->throwRangeError(QStringLiteral("value is out of bounds"));
 
-    const size_t offset = (callData->argc > 1 && callData->args[1].isInteger())
+    const size_t offset = (callData->argc > 1 && callData->args[1].isNumber())
             ? std::max(callData->args[1].toNumber(), 0.)
             : 0;
 
