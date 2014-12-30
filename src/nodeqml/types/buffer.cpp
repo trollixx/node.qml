@@ -354,16 +354,16 @@ void BufferPrototype::init(QV4::ExecutionEngine *v4, QV4::Object *ctor)
     defineDefaultProperty(QStringLiteral("toString"), method_toString, 3);
     defineDefaultProperty(QStringLiteral("toJSON"), method_toJSON);
 
-    defineDefaultProperty(QStringLiteral("readInt8"), method_readInt<qint8>);
-    defineDefaultProperty(QStringLiteral("readUInt8"), method_readInt<quint8>);
-    defineDefaultProperty(QStringLiteral("readInt16LE"), method_readInt<qint16>);
-    defineDefaultProperty(QStringLiteral("readUInt16LE"), method_readInt<quint16>);
-    defineDefaultProperty(QStringLiteral("readInt16BE"), method_readInt<qint16, false>);
-    defineDefaultProperty(QStringLiteral("readUInt16BE"), method_readInt<quint16, false>);
-    defineDefaultProperty(QStringLiteral("readInt32LE"), method_readInt<qint32>);
-    defineDefaultProperty(QStringLiteral("readUInt32LE"), method_readInt<quint32>);
-    defineDefaultProperty(QStringLiteral("readInt32BE"), method_readInt<qint32, false>);
-    defineDefaultProperty(QStringLiteral("readUInt32BE"), method_readInt<quint32, false>);
+    defineDefaultProperty(QStringLiteral("readInt8"), method_readInteger<qint8>);
+    defineDefaultProperty(QStringLiteral("readUInt8"), method_readInteger<quint8>);
+    defineDefaultProperty(QStringLiteral("readInt16LE"), method_readInteger<qint16>);
+    defineDefaultProperty(QStringLiteral("readUInt16LE"), method_readInteger<quint16>);
+    defineDefaultProperty(QStringLiteral("readInt16BE"), method_readInteger<qint16, false>);
+    defineDefaultProperty(QStringLiteral("readUInt16BE"), method_readInteger<quint16, false>);
+    defineDefaultProperty(QStringLiteral("readInt32LE"), method_readInteger<qint32>);
+    defineDefaultProperty(QStringLiteral("readUInt32LE"), method_readInteger<quint32>);
+    defineDefaultProperty(QStringLiteral("readInt32BE"), method_readInteger<qint32, false>);
+    defineDefaultProperty(QStringLiteral("readUInt32BE"), method_readInteger<quint32, false>);
 }
 
 QV4::ReturnedValue BufferPrototype::method_isEncoding(QV4::CallContext *ctx)
@@ -720,7 +720,7 @@ QV4::ReturnedValue BufferPrototype::method_slice(QV4::CallContext *ctx)
 }
 
 template <typename T, bool LE>
-QV4::ReturnedValue BufferPrototype::method_readInt(QV4::CallContext *ctx)
+QV4::ReturnedValue BufferPrototype::method_readInteger(QV4::CallContext *ctx)
 {
     NODE_CTX_V4(ctx);
     NODE_CTX_CALLDATA(ctx);

@@ -83,7 +83,7 @@ struct BufferPrototype : QV4::Object
     static QV4::ReturnedValue method_slice(QV4::CallContext *ctx);
 
     template <typename T, bool LE = true>
-    static QV4::ReturnedValue method_readInt(QV4::CallContext *ctx);
+    static QV4::ReturnedValue method_readInteger(QV4::CallContext *ctx);
     /// TODO: buf.readFloatLE(offset, [noAssert])
     /// TODO: buf.readFloatBE(offset, [noAssert])
     /// TODO: buf.readDoubleLE(offset, [noAssert])
