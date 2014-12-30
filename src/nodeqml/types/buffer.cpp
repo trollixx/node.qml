@@ -395,6 +395,8 @@ void BufferPrototype::init(QV4::ExecutionEngine *v4, QV4::Object *ctor)
 
     defineDefaultProperty(QStringLiteral("inspect"), method_inspect);
 
+    defineDefaultProperty(QStringLiteral("compare"), method_compare, 1);
+
     defineDefaultProperty(QStringLiteral("copy"), method_copy, 4);
     defineDefaultProperty(QStringLiteral("fill"), method_fill, 3);
     defineDefaultProperty(QStringLiteral("slice"), method_slice, 2);
@@ -475,6 +477,20 @@ QV4::ReturnedValue BufferPrototype::method_inspect(QV4::CallContext *ctx)
     }
 
     return v4->newString(QString("<Buffer %1>").arg(bytes))->asReturnedValue();
+}
+
+QV4::ReturnedValue BufferPrototype::method_compare(QV4::CallContext *ctx)
+{
+    NODE_CTX_CALLDATA(ctx);
+    NODE_CTX_SELF(BufferObject, ctx);
+    NODE_CTX_V4(ctx);
+
+    QV4::Scoped<BufferObject> other(scope, callData->argument(0));
+
+    if (!self || !other)
+        return v4->throwTypeError(QStringLiteral("Arguments must be Buffers"));
+
+    return QV4::Encode(BufferPrototype::compare(self->d()->data, other->d()->data));
 }
 
 /// TODO: Move somewhere
