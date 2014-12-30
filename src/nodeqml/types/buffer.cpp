@@ -6,6 +6,7 @@
 #include <QJsonObject>
 #include <QtEndian>
 
+#include <private/qstringiterator_p.h>
 #include <private/qv4engine_p.h>
 #include <private/qv4jsonobject_p.h>
 
@@ -236,22 +237,26 @@ QByteArray BufferObject::decodeString(const QString &str, BufferEncoding encodin
     }
     case BufferEncoding::Utf8:
     case BufferEncoding::Invalid:
-    default:
+    default:  {
+        // Worst case scenario
+        ba.reserve(str.length() * 3);
+        QStringIterator it(str);
         if (limit > -1) {
-            int charCount = 0;
-            int baSize = 0;
-            for (int i  = 0; i < str.length(); ++i) {
-                /// FIXME: There should be a way to get the length directly from QChar
-                const QByteArray ch = QString(str[i]).toUtf8();
-                if (baSize + ch.size() > limit)
+            while (it.hasNext()) {
+                const uint ch = it.next();
+                const QByteArray chUtf8 = QString::fromUcs4(&ch, 1).toUtf8();
+                if (ba.size() + chUtf8.size() > limit)
                     break;
-                baSize += ch.size();
-                ++charCount;
+                ba += chUtf8;
             }
-            ba = str.left(charCount).toUtf8();
         } else {
-            ba = str.toUtf8();
+            while (it.hasNext()) {
+                const uint ch = it.next();
+                ba += QString::fromUcs4(&ch, 1).toUtf8();
+            }
         }
+        ba.squeeze();
+    }
     }
 
     return ba;
