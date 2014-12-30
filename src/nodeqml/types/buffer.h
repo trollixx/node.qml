@@ -78,6 +78,7 @@ struct BufferPrototype : QV4::Object
     static QV4::ReturnedValue method_inspect(QV4::CallContext *ctx);
 
     static QV4::ReturnedValue method_compare(QV4::CallContext *ctx);
+    static QV4::ReturnedValue method_equals(QV4::CallContext *ctx);
 
     static QV4::ReturnedValue method_write(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_toString(QV4::CallContext *ctx);
