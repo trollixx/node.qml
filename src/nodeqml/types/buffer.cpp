@@ -401,9 +401,47 @@ QV4::ReturnedValue BufferCtor::method_byteLength(QV4::CallContext *ctx)
     return QV4::Encode(BufferObject::byteLength(callData->args[0].toQStringNoThrow(), encoding));
 }
 
+// Buffer.concat(list, [totalLength])
 QV4::ReturnedValue BufferCtor::method_concat(QV4::CallContext *ctx)
 {
-    return ctx->engine()->throwUnimplemented(QStringLiteral("Buffer.concat()"));
+    NODE_CTX_CALLDATA(ctx);
+    NODE_CTX_V4(ctx);
+
+    QV4::Scope scope(v4);
+    QV4::ScopedArrayObject list(scope, callData->argument(0));
+
+    if (!list)
+        return v4->throwTypeError(QStringLiteral("Usage: Buffer.concat(list[, length])"));
+
+    size_t totalLength;
+    if (callData->argc >= 2 && callData->args[1].isNumber()) {
+        totalLength = callData->args[1].toNumber();
+    } else {
+        totalLength = 0;
+        QV4::Scoped<BufferObject> buf(scope);
+        for (size_t i = 0; i < list->getLength(); ++i) {
+            buf = list->getIndexed(i);
+            if (!buf)
+                return v4->throwTypeError(QStringLiteral("list must contain Buffer objects"));
+            totalLength += buf->getLength();
+        }
+    }
+
+    QV4::Scoped<BufferObject> buffer(scope, v4->memoryManager->alloc<BufferObject>(v4, totalLength));
+    if (v4->hasException)
+        return QV4::Encode::undefined();
+
+    QV4::Scoped<BufferObject> buf(scope);
+    for (size_t i = 0, pos = 0; i < list->getLength(); ++i) {
+        buf = list->getIndexed(i);
+        const size_t bufSize = buf->getLength();
+
+        ::memcpy(buffer->d()->data.data() + pos, buf->d()->data.constData(), bufSize);
+
+        pos += bufSize;
+    }
+
+    return buffer.asReturnedValue();
 }
 
 QV4::ReturnedValue BufferCtor::method_compare(QV4::CallContext *ctx)
@@ -433,6 +471,7 @@ void BufferPrototype::init(QV4::ExecutionEngine *v4, QV4::Object *ctor)
     ctor->defineDefaultProperty(QStringLiteral("isEncoding"), BufferCtor::method_isEncoding, 1);
     ctor->defineDefaultProperty(QStringLiteral("isBuffer"), BufferCtor::method_isBuffer, 1);
     ctor->defineDefaultProperty(QStringLiteral("byteLength"), BufferCtor::method_byteLength, 2);
+    ctor->defineDefaultProperty(QStringLiteral("concat"), BufferCtor::method_concat, 2);
     ctor->defineDefaultProperty(QStringLiteral("compare"), BufferCtor::method_compare, 2);
 
     defineDefaultProperty(QStringLiteral("inspect"), method_inspect);
