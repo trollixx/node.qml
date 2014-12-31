@@ -338,10 +338,16 @@ QV4::ReturnedValue BufferCtor::construct(QV4::Managed *m, QV4::CallData *callDat
         // JSON-serialised Buffer
         QV4::ScopedString type(scope, obj->get(s = v4->newString(QStringLiteral("type"))));
         QV4::ScopedArrayObject data(scope, obj->get(s = v4->newString(QStringLiteral("data"))));
-        if (!!type && type->toQString() == QStringLiteral("Buffer") && !!data)
+        if (!!type && type->toQString() == QStringLiteral("Buffer") && !!data) {
             buffer = v4->memoryManager->alloc<BufferObject>(v4, data);
-        else // Handle assert.equal(Buffer({length: 3.3}).length, 3);
+        } else {
+            // Array-like objects
             buffer = v4->memoryManager->alloc<BufferObject>(v4, obj->getLength());
+            QV4::ScopedValue v(scope);
+            /// FIXME: Should be buffer->putIndexed()
+            for (size_t i = 0; i < obj->getLength(); ++i)
+                BufferObject::putIndexed(buffer, i, (v = obj->getIndexed(i)));
+        }
     } else {
         return v4->throwTypeError(QStringLiteral("must start with number, buffer, array or string"));
     }
