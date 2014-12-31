@@ -28,6 +28,11 @@ Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, size_t length) :
 {
     setVTable(NodeQml::BufferObject::staticVTable());
 
+    if (length > kMaxLength) {
+        v4->throwRangeError(QStringLiteral("Attempt to allocate Buffer larger than maximum size: 0x3fffffff bytes"));
+        return;
+    }
+
     if (!allocateData(length)) {
         v4->throwRangeError(QStringLiteral("Buffer: Out of memory"));
         return;
@@ -48,6 +53,11 @@ Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, QV4::ArrayObject *arr
     QV4::ScopedValue v(scope);
 
     const uint length = a->getLength();
+
+    if (length > kMaxLength) {
+        v4->throwRangeError(QStringLiteral("Attempt to allocate Buffer larger than maximum size: 0x3fffffff bytes"));
+        return;
+    }
 
     if (!allocateData(length)) {
         v4->throwRangeError(QStringLiteral("Buffer: Out of memory"));
