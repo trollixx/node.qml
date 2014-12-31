@@ -543,7 +543,7 @@ QV4::ReturnedValue BufferPrototype::method_write(QV4::CallContext *ctx)
     NODE_CTX_V4(ctx);
 
     if (!callData->argc || !callData->args[0].isString())
-        return ctx->engine()->throwTypeError(QStringLiteral("Argument must be a string"));
+        return v4->throwTypeError(QStringLiteral("Argument must be a string"));
 
     QString string = callData->args[0].toQString();
 
@@ -677,9 +677,10 @@ QV4::ReturnedValue BufferPrototype::method_toJSON(QV4::CallContext *ctx)
 QV4::ReturnedValue BufferPrototype::method_copy(QV4::CallContext *ctx)
 {
     NODE_CTX_CALLDATA(ctx);
+    NODE_CTX_V4(ctx);
 
     if (!callData->argc || !callData->args[0].as<BufferObject>())
-        return ctx->engine()->throwTypeError(QStringLiteral("copy: First arg should be a Buffer"));
+        return v4->throwTypeError(QStringLiteral("copy: First arg should be a Buffer"));
 
     NODE_CTX_SELF(BufferObject, ctx);
 
@@ -691,26 +692,26 @@ QV4::ReturnedValue BufferPrototype::method_copy(QV4::CallContext *ctx)
 
     if (callData->argc > 1) {
         if (!callData->args[1].isNumber())
-            return ctx->engine()->throwTypeError(QStringLiteral("Bad argument"));
+            return v4->throwTypeError(QStringLiteral("Bad argument"));
         if (callData->args[1].toInt32() < 0)
-            return ctx->engine()->throwRangeError(QStringLiteral("Out of range index"));
+            return v4->throwRangeError(QStringLiteral("Out of range index"));
 
         targetStart = callData->args[1].toInt32();
     }
 
     if (callData->argc > 2) {
         if (!callData->args[2].isNumber())
-            return ctx->engine()->throwTypeError(QStringLiteral("Bad argument"));
+            return v4->throwTypeError(QStringLiteral("Bad argument"));
         if (callData->args[2].toInt32() < 0)
-            return ctx->engine()->throwRangeError(QStringLiteral("Out of range index"));
+            return v4->throwRangeError(QStringLiteral("Out of range index"));
         sourceStart = callData->args[2].toInt32();
     }
 
     if (callData->argc > 3) {
         if (!callData->args[3].isNumber())
-            return ctx->engine()->throwTypeError(QStringLiteral("Bad argument"));
+            return v4->throwTypeError(QStringLiteral("Bad argument"));
         if (callData->args[3].toInt32() < 0)
-            return ctx->engine()->throwRangeError(QStringLiteral("Out of range index"));
+            return v4->throwRangeError(QStringLiteral("Out of range index"));
         sourceEnd = callData->args[3].toInt32();
     }
 
@@ -719,7 +720,7 @@ QV4::ReturnedValue BufferPrototype::method_copy(QV4::CallContext *ctx)
         return QV4::Encode(0);
 
     if (sourceStart > self->getLength())
-        return ctx->engine()->throwRangeError(QStringLiteral("copy: Out of range index"));
+        return v4->throwRangeError(QStringLiteral("copy: Out of range index"));
 
     const size_t targetLength = target->getLength();
     if (sourceEnd - sourceStart > targetLength - targetStart)
@@ -735,6 +736,7 @@ QV4::ReturnedValue BufferPrototype::method_fill(QV4::CallContext *ctx)
 {
     NODE_CTX_CALLDATA(ctx);
     NODE_CTX_SELF(BufferObject, ctx);
+    NODE_CTX_V4(ctx);
 
     /// TODO: SLICE_START_END (https://github.com/joyent/node/blob/master/src/node_buffer.cc#L52)
 
@@ -746,18 +748,18 @@ QV4::ReturnedValue BufferPrototype::method_fill(QV4::CallContext *ctx)
 
     if (callData->argc > 1) {
         if (!callData->args[1].isNumber())
-            return ctx->engine()->throwTypeError(QStringLiteral("Bad argument"));
+            return v4->throwTypeError(QStringLiteral("Bad argument"));
         offset = callData->args[1].toInt32();
         if (offset < 0)
-            return ctx->engine()->throwRangeError(QStringLiteral("Out of range index"));
+            return v4->throwRangeError(QStringLiteral("Out of range index"));
     }
 
     if (callData->argc > 2) {
         if (!callData->args[2].isNumber())
-            return ctx->engine()->throwTypeError(QStringLiteral("Bad argument"));
+            return v4->throwTypeError(QStringLiteral("Bad argument"));
         end = callData->args[2].toInt32();
         if (end < 0)
-            return ctx->engine()->throwRangeError(QStringLiteral("Out of range index"));
+            return v4->throwRangeError(QStringLiteral("Out of range index"));
     }
 
     const int length = end - offset;
@@ -770,7 +772,7 @@ QV4::ReturnedValue BufferPrototype::method_fill(QV4::CallContext *ctx)
     }
 
     if (!callData->args[0].isString())
-        return ctx->engine()->throwTypeError(QStringLiteral("fill: value is not a number"));
+        return v4->throwTypeError(QStringLiteral("fill: value is not a number"));
 
     const QByteArray value = callData->args[0].toQStringNoThrow().toUtf8();
 
