@@ -814,11 +814,16 @@ QV4::ReturnedValue BufferPrototype::method_slice(QV4::CallContext *ctx)
 
     if (start < 0)
         start = qMax(self->d()->data.size() + start, 0);
+    else if (start > self->d()->data.size())
+        start = self->d()->data.size();
+
     if (end < 0)
         end = qMax(self->d()->data.size() + end, 0);
+    else if (end > self->d()->data.size())
+        end = self->d()->data.size();
 
     if (end < start)
-        return v4->throwRangeError(QStringLiteral("slice: start cannot exceed end"));
+        end = start;
 
     QTypedArrayDataSlice<char> slice(self->d()->data, start, end - start);
     QV4::Scoped<BufferObject> newBuffer(scope, v4->memoryManager->alloc<BufferObject>(v4, slice));
