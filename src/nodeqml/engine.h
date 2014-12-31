@@ -24,6 +24,9 @@ public:
 
     bool hasException() const;
 
+signals:
+    void quit(int returnCode = 0);
+
 private:
     EnginePrivate * const d_ptr;
     Q_DECLARE_PRIVATE(Engine)

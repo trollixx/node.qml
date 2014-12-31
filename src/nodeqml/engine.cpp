@@ -94,6 +94,33 @@ EnginePrivate::~EnginePrivate()
     m_nodeEngines.remove(m_v4);
 }
 
+void EnginePrivate::exceptionCheck()
+{
+    Q_Q(Engine);
+
+    if (!m_v4->hasException)
+        return;
+
+    QV4::Scope scope(m_v4);
+    QV4::StackTrace stackTrace;
+    QV4::ScopedObject ex(scope, m_v4->catchException(&stackTrace));
+
+    /// TODO: Move output to nodeqml binary
+    QV4::ScopedString id_message(scope, m_v4->newString(QStringLiteral("message")));
+    QV4::ScopedValue message(scope, ex->get(id_message));
+
+    qDebug("Exception: %s", qPrintable(message->toQStringNoThrow()));
+    foreach (const QV4::StackFrame &frame, stackTrace) {
+        qDebug("    at %s (%s:%d:%d)",
+               qPrintable(frame.function), qPrintable(frame.source), frame.line, frame.column);
+    }
+
+    /// TODO: process.on('uncaughtException')
+
+    //emit q->exception(new QJSValuePrivate(ex.asReturnedValue()));
+    emit q->quit(1);
+}
+
 bool EnginePrivate::hasNativeModule(const QString &id) const
 {
     return m_coreModules.contains(id);

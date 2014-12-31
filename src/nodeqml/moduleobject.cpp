@@ -133,22 +133,11 @@ void ModuleObject::compile(QV4::ExecutionEngine *v4, Heap::ModuleObject *moduleO
     script.inheritContext = true; /// NOTE: Is it needed?
     script.parse();
 
-    QV4::ScopedValue result(scope);
-    if (!v4->hasException)
-        result = script.run();
+    EnginePrivate::get(v4)->exceptionCheck();
 
-    if (v4->hasException) {
-        QV4::StackTrace stackTrace;
-        QV4::ScopedObject ex(scope, v4->catchException(&stackTrace));
-        QV4::ScopedValue message(scope, ex->get(s = v4->newString(QStringLiteral("message"))));
-        qDebug("Exception: %s", qPrintable(message->toQStringNoThrow()));
-        foreach (const QV4::StackFrame &frame, stackTrace) {
-            qDebug("    at %s (%s:%d:%d)",
-                   qPrintable(frame.function), qPrintable(frame.source), frame.line, frame.column);
-        }
+    script.run();
 
-        return;
-    }
+    EnginePrivate::get(v4)->exceptionCheck();
 }
 
 QV4::ReturnedValue ModuleObject::require(QV4::ExecutionEngine *v4, const QString &path, Heap::ModuleObject *parent, bool isMain)
@@ -180,8 +169,7 @@ QV4::ReturnedValue ModuleObject::require(QV4::ExecutionEngine *v4, const QString
             QV4::Scoped<NodeQml::ModuleObject> module(scope, v4->memoryManager->alloc<NodeQml::ModuleObject>(v4, filename, parent));
             load(v4, module->d(), filename);
 
-            if (v4->hasException)
-                return v4->throwError(QString("Cannot load module '%1'").arg(path));
+            EnginePrivate::get(v4)->exceptionCheck();
 
             node->cacheModule(filename, module->d());
             exports = module->d()->exports;
