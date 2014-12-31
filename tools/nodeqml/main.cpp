@@ -23,6 +23,10 @@ int main(int argc, char *argv[])
     QScopedPointer<QJSEngine> engine(new QJSEngine());
     QScopedPointer<NodeQml::Engine> node(new NodeQml::Engine(engine.data()));
 
+    QObject::connect(node.data(), &NodeQml::Engine::quit, [=](int code) {
+        ::exit(code);
+    });
+
     QJSValue object = node->require(script);
     if (object.isUndefined()) {
         return 1;
