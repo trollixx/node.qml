@@ -121,6 +121,16 @@ bool Heap::BufferObject::allocateData(size_t length)
     return true;
 }
 
+bool BufferObject::isEqualTo(QV4::Managed *m, QV4::Managed *other)
+{
+    QV4::Scope scope(m->engine());
+    QV4::Scoped<BufferObject> self(scope, m);
+    QV4::Scoped<BufferObject> otherBuffer(scope, other);
+
+    return !!self && !!otherBuffer
+            && (BufferPrototype::compare(self->d()->data, otherBuffer->d()->data) == 0);
+}
+
 QV4::ReturnedValue BufferObject::getIndexed(QV4::Managed *m, quint32 index, bool *hasProperty)
 {
     QV4::ExecutionEngine *v4 = m->engine();
