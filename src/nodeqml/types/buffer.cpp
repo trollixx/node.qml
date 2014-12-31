@@ -346,6 +346,10 @@ QV4::ReturnedValue BufferCtor::construct(QV4::Managed *m, QV4::CallData *callDat
         return v4->throwTypeError(QStringLiteral("must start with number, buffer, array or string"));
     }
 
+    // In case an exception has been thrown in the BufferObject constructor
+    if (v4->hasException)
+        return QV4::Encode::undefined();
+
     return buffer.asReturnedValue();
 }
 
