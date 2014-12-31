@@ -27,6 +27,7 @@ public:
     explicit EnginePrivate(QJSEngine *jsEngine, Engine *engine = 0);
     ~EnginePrivate();
 
+    void doneCheck();
     void exceptionCheck();
 
     bool hasNativeModule(const QString &id) const;

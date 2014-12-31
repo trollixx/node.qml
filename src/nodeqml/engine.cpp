@@ -94,6 +94,19 @@ EnginePrivate::~EnginePrivate()
     m_nodeEngines.remove(m_v4);
 }
 
+/*!
+  \internal
+  Checks whether any code (e.g. timeout callbacks) is pending execution. Emits \l {Engine::quit}
+  signal when nothing left.
+*/
+void EnginePrivate::doneCheck()
+{
+    Q_Q(Engine);
+    qApp->processEvents();
+    if (m_intervalCallbacks.isEmpty() && m_timeoutCallbacks.isEmpty())
+        emit q->quit();
+}
+
 void EnginePrivate::exceptionCheck()
 {
     Q_Q(Engine);
@@ -155,7 +168,11 @@ Heap::ModuleObject *EnginePrivate::cachedModule(const QString &id) const
 
 QV4::ReturnedValue EnginePrivate::require(const QString &id)
 {
-    return ModuleObject::require(m_v4, id);
+    QV4::ReturnedValue returnValue(ModuleObject::require(m_v4, id));
+
+    doneCheck();
+
+    return returnValue;
 }
 
 QV4::ReturnedValue EnginePrivate::setTimeout(QV4::CallContext *ctx)
@@ -317,6 +334,8 @@ void EnginePrivate::timerEvent(QTimerEvent *event)
     QV4::ScopedCallData callData(scope);
     callData->thisObject = m_v4->globalObject();
     QV4::SimpleScriptFunction::call(cb, callData);
+
+    doneCheck();
 }
 
 void EnginePrivate::registerTypes()
