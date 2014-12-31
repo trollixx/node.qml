@@ -15,6 +15,12 @@ using namespace NodeQml;
 DEFINE_OBJECT_VTABLE(BufferCtor);
 DEFINE_OBJECT_VTABLE(BufferObject);
 
+/// NOTE: This is a result of V8 memory allocation limitations. It would make sense to lift
+/// such limit in the future.
+namespace {
+const size_t kMaxLength = 0x3fffffff;
+}
+
 /// TODO: Document no buf.parent property support (see test-buffer.js)
 
 Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, size_t length) :
@@ -462,6 +468,14 @@ int BufferPrototype::compare(const QTypedArrayDataSlice<char> &a, const QTypedAr
     return 0;
 }
 
+bool BufferPrototype::checkRange(size_t bufferSize, size_t offset, size_t length)
+{
+    return offset < kMaxLength
+            && length < kMaxLength
+            && offset + length < kMaxLength
+            && offset + length <= bufferSize;
+}
+
 QV4::ReturnedValue BufferPrototype::method_inspect(QV4::CallContext *ctx)
 {
     NODE_CTX_SELF(BufferObject, ctx);
@@ -821,11 +835,10 @@ QV4::ReturnedValue BufferPrototype::method_readInteger(QV4::CallContext *ctx)
     if (!self)
         return v4->throwTypeError();
 
-    const size_t offset = (callData->argc && callData->args[0].isNumber())
-            ? std::max(callData->args[0].toNumber(), 0.)
-            : 0;
+    const size_t offset = callData->argc && callData->args[0].isNumber()
+            ? callData->args[0].toNumber() : 0;
 
-    if (offset + sizeof(T) > static_cast<size_t>(self->d()->data.size()))
+    if (!checkRange(self->d()->data.size(), offset, sizeof(T)))
         return v4->throwRangeError(QStringLiteral("index out of range"));
 
     const uchar *data = reinterpret_cast<const uchar *>(self->d()->data.constData() + offset);
@@ -846,11 +859,10 @@ QV4::ReturnedValue BufferPrototype::method_readFloatingPoint(QV4::CallContext *c
     if (!self)
         return v4->throwTypeError();
 
-    const size_t offset = (callData->argc && callData->args[0].isNumber())
-            ? std::max(callData->args[0].toNumber(), 0.)
-            : 0;
+    const size_t offset = callData->argc && callData->args[0].isNumber()
+            ? callData->args[0].toNumber() : 0;
 
-    if (offset + sizeof(T) > static_cast<size_t>(self->d()->data.size()))
+    if (!checkRange(self->d()->data.size(), offset, sizeof(T)))
         return v4->throwRangeError(QStringLiteral("index out of range"));
 
     const uchar *data = reinterpret_cast<const uchar *>(self->d()->data.constData() + offset);
@@ -885,11 +897,10 @@ QV4::ReturnedValue BufferPrototype::method_writeInteger(QV4::CallContext *ctx)
     if (value > std::numeric_limits<T>::max() || value < std::numeric_limits<T>::min())
         return v4->throwRangeError(QStringLiteral("value is out of bounds"));
 
-    const size_t offset = (callData->argc > 1 && callData->args[1].isNumber())
-            ? std::max(callData->args[1].toNumber(), 0.)
-            : 0;
+    const size_t offset = callData->argc > 1 && callData->args[1].isNumber()
+            ? callData->args[1].toNumber() : 0;
 
-    if (offset + sizeof(T) > static_cast<size_t>(self->d()->data.size()))
+    if (!checkRange(self->d()->data.size(), offset, sizeof(T)))
         return v4->throwRangeError(QStringLiteral("index out of range"));
 
     const T src = static_cast<T>(value);
@@ -922,11 +933,10 @@ QV4::ReturnedValue BufferPrototype::method_writeFloatingPoint(QV4::CallContext *
     if (value < std::numeric_limits<T>::lowest() || value > std::numeric_limits<T>::max())
         return v4->throwRangeError(QStringLiteral("value is out of bounds"));
 
-    const size_t offset = (callData->argc > 1 && callData->args[1].isNumber())
-            ? std::max(callData->args[1].toNumber(), 0.)
-            : 0;
+    const size_t offset = callData->argc > 1 && callData->args[1].isNumber()
+            ? callData->args[1].toNumber() : 0;
 
-    if (offset + sizeof(T) > static_cast<size_t>(self->d()->data.size()))
+    if (!checkRange(self->d()->data.size(), offset, sizeof(T)))
         return v4->throwRangeError(QStringLiteral("index out of range"));
 
     const T src = static_cast<T>(value);

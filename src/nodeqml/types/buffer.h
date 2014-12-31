@@ -74,6 +74,7 @@ struct BufferPrototype : QV4::Object
     void init(QV4::ExecutionEngine *v4, QV4::Object *ctor);
 
     static int compare(const QTypedArrayDataSlice<char> &a, const QTypedArrayDataSlice<char> &b);
+    static inline bool checkRange(size_t bufferSize, size_t offset, size_t length = 0);
 
     static QV4::ReturnedValue method_inspect(QV4::CallContext *ctx);
 
