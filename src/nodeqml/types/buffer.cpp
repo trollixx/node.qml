@@ -213,7 +213,7 @@ QByteArray BufferObject::decodeString(const QString &str, BufferEncoding encodin
     case BufferEncoding::Ascii:
     case BufferEncoding::Binary:
     case BufferEncoding::Raw:
-        ba.resize(limit > -1 ? qMin(str.size(), limit) : str.size());
+        ba.resize(limit > -1 ? std::min(str.size(), limit) : str.size());
         for (int i = 0; i < ba.size(); ++i)
             ba[i] = str[i].cell();
         break;
@@ -486,7 +486,7 @@ QV4::ReturnedValue BufferPrototype::method_inspect(QV4::CallContext *ctx)
 
     const QByteArray data
             = QByteArray::fromRawData(self->d()->data.data(),
-                                      qMin(INSPECT_MAX_BYTES, self->d()->data.size()));
+                                      std::min(INSPECT_MAX_BYTES, self->d()->data.size()));
     const QString hex = data.toHex();
     QString bytes;
     int i = 0;
@@ -609,9 +609,9 @@ QV4::ReturnedValue BufferPrototype::method_toString(QV4::CallContext *ctx)
 
     const int dataSize = self->d()->data.size();
     int start = callData->argc > 1
-            ? qMin(callData->args[1].toInt32(), dataSize) : 0;
+            ? std::min(callData->args[1].toInt32(), dataSize) : 0;
     int end = callData->argc > 2 && !callData->args[2].isUndefined()
-            ? qMin(callData->args[2].toInt32(), dataSize) : dataSize;
+            ? std::min(callData->args[2].toInt32(), dataSize) : dataSize;
 
     if (start < 0)
         start = 0;
@@ -724,7 +724,7 @@ QV4::ReturnedValue BufferPrototype::method_copy(QV4::CallContext *ctx)
     const size_t targetLength = target->getLength();
     if (sourceEnd - sourceStart > targetLength - targetStart)
         sourceEnd = sourceStart + targetLength - targetStart;
-    size_t to_copy = qMin(qMin(sourceEnd - sourceStart, targetLength - targetStart),
+    size_t to_copy = std::min(std::min(sourceEnd - sourceStart, targetLength - targetStart),
                           self->getLength() - sourceStart);
     memmove(target->d()->data.data() + targetStart, self->d()->data.constData() + sourceStart, to_copy);
     return QV4::Primitive::fromUInt32(to_copy).asReturnedValue();
@@ -782,7 +782,7 @@ QV4::ReturnedValue BufferPrototype::method_fill(QV4::CallContext *ctx)
 
     int in_there = value.size();
     char * ptr = startPtr + value.size();
-    memcpy(startPtr, value.constData(), qMin(value.size(), length));
+    memcpy(startPtr, value.constData(), std::min(value.size(), length));
     if (value.size() >= length)
         return self.asReturnedValue();
 
