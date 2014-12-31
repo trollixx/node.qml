@@ -808,19 +808,21 @@ QV4::ReturnedValue BufferPrototype::method_slice(QV4::CallContext *ctx)
     if (!self)
         return v4->throwTypeError();
 
+    const int dataSize = self->d()->data.size();
+
     int start = callData->argc > 0 ? callData->args[0].toInt32() : 0;
     int end = callData->argc < 2 || callData->args[1].isUndefined()
-            ? self->d()->data.size() : callData->args[1].toInt32();
+            ? dataSize : callData->args[1].toInt32();
 
     if (start < 0)
-        start = qMax(self->d()->data.size() + start, 0);
-    else if (start > self->d()->data.size())
-        start = self->d()->data.size();
+        start = std::max(dataSize + start, 0);
+    else if (start > dataSize)
+        start = dataSize;
 
     if (end < 0)
-        end = qMax(self->d()->data.size() + end, 0);
-    else if (end > self->d()->data.size())
-        end = self->d()->data.size();
+        end = std::max(dataSize + end, 0);
+    else if (end > dataSize)
+        end = dataSize;
 
     if (end < start)
         end = start;
