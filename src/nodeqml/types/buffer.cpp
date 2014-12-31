@@ -307,19 +307,18 @@ QV4::ReturnedValue BufferCtor::construct(QV4::Managed *m, QV4::CallData *callDat
         if (callData->argc > 1) {
             if (!callData->args[1].isString())
                 return v4->throwTypeError(QStringLiteral("Encoding must me a string"));
+
             const QString encStr = callData->args[1].toQStringNoThrow();
-            BufferEncoding enc = BufferObject::parseEncoding(encStr);
-            if (enc == BufferEncoding::Invalid)
+            encoding = BufferObject::parseEncoding(encStr);
+            if (encoding == BufferEncoding::Invalid)
                 return v4->throwTypeError(QString("Unknown Encoding: %1").arg(encStr));
-            encoding = enc;
         }
 
-        const QByteArray stringData =
-                NodeQml::BufferObject::decodeString(
-                    callData->args[0].toQStringNoThrow(), encoding);
-        QTypedArrayData<char> *arrayData = NodeQml::BufferObject::fromString(stringData);
+        const QByteArray stringData
+                = BufferObject::decodeString(callData->args[0].toQStringNoThrow(), encoding);
+        QTypedArrayData<char> *arrayData = BufferObject::fromString(stringData);
 
-        QTypedArrayDataSlice<char> slice(arrayData);
+        const QTypedArrayDataSlice<char> slice(arrayData);
         arrayData->ref.deref(); // Disown data
         buffer = v4->memoryManager->alloc<BufferObject>(v4, slice);
     } else if (callData->args[0].isObject()) {
@@ -337,7 +336,7 @@ QV4::ReturnedValue BufferCtor::construct(QV4::Managed *m, QV4::CallData *callDat
         return v4->throwTypeError(QStringLiteral("must start with number, buffer, array or string"));
     }
 
-    return buffer->asReturnedValue();
+    return buffer.asReturnedValue();
 }
 
 QV4::ReturnedValue BufferCtor::call(QV4::Managed *that, QV4::CallData *callData)
@@ -545,7 +544,7 @@ QV4::ReturnedValue BufferPrototype::method_write(QV4::CallContext *ctx)
     if (!callData->argc || !callData->args[0].isString())
         return v4->throwTypeError(QStringLiteral("Argument must be a string"));
 
-    QString string = callData->args[0].toQString();
+    const QString string = callData->args[0].toQString();
 
     // Buffer#write(string);
     BufferEncoding encoding = BufferEncoding::Utf8;
@@ -677,14 +676,12 @@ QV4::ReturnedValue BufferPrototype::method_toJSON(QV4::CallContext *ctx)
 QV4::ReturnedValue BufferPrototype::method_copy(QV4::CallContext *ctx)
 {
     NODE_CTX_CALLDATA(ctx);
+    NODE_CTX_SELF(BufferObject, ctx);
     NODE_CTX_V4(ctx);
 
-    if (!callData->argc || !callData->args[0].as<BufferObject>())
+    QV4::Scoped<BufferObject> target(scope, callData->argument(0));
+    if (!target)
         return v4->throwTypeError(QStringLiteral("copy: First arg should be a Buffer"));
-
-    NODE_CTX_SELF(BufferObject, ctx);
-
-    QV4::Scoped<BufferObject> target(scope, callData->args[0].as<BufferObject>());
 
     size_t targetStart = 0;
     size_t sourceStart = 0;
