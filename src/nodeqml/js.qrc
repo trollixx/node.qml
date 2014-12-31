@@ -2,5 +2,6 @@
     <qresource prefix="/">
         <file>js/assert.js</file>
         <file>js/events.js</file>
+        <file>js/smalloc.js</file>
     </qresource>
 </RCC>
