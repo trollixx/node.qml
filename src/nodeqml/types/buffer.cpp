@@ -328,14 +328,14 @@ QV4::ReturnedValue BufferCtor::construct(QV4::Managed *m, QV4::CallData *callDat
             if (!callData->args[1].isString())
                 return v4->throwTypeError(QStringLiteral("Encoding must me a string"));
 
-            const QString encStr = callData->args[1].toQStringNoThrow();
+            const QString encStr = callData->args[1].toQString();
             encoding = Buffer::parseEncoding(encStr);
             if (encoding == BufferEncoding::Invalid)
                 return v4->throwTypeError(QString("Unknown Encoding: %1").arg(encStr));
         }
 
         const QByteArray stringData
-                = Buffer::decodeString(callData->args[0].toQStringNoThrow(), encoding);
+                = Buffer::decodeString(callData->args[0].toQString(), encoding);
         QTypedArrayData<char> *arrayData = Buffer::fromString(stringData);
 
         const QTypedArrayDataSlice<char> slice(arrayData);
@@ -623,7 +623,7 @@ QV4::ReturnedValue BufferPrototype::method_write(QV4::CallContext *ctx)
 
     // Buffer#write(string, encoding)
     if (callData->argc == 2 && callData->args[1].isString()) {
-        encodingStr = callData->args[1].toQStringNoThrow();
+        encodingStr = callData->args[1].toQString();
     // Buffer#write(string, offset[, length][, encoding])
     } else if (callData->argc > 1 && isFinite(callData->args[1])) {
         offset = callData->args[1].toInt32();
@@ -841,7 +841,7 @@ QV4::ReturnedValue BufferPrototype::method_fill(QV4::CallContext *ctx)
     if (!callData->args[0].isString())
         return v4->throwTypeError(QStringLiteral("fill: value is not a number"));
 
-    const QByteArray value = callData->args[0].toQStringNoThrow().toUtf8();
+    const QByteArray value = callData->args[0].toQString().toUtf8();
 
     // optimize single ascii character case
     if (value.size() == 1) {

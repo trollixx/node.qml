@@ -59,7 +59,7 @@ QV4::ReturnedValue ProcessModule::method_chdir(QV4::CallContext *ctx)
 
     /// TODO: Should have fs error code, like ENOENT or NOACCES
     // { [Error: ENOENT, no such file or directory] errno: 34, code: 'ENOENT', syscall: 'uv_chdir' }
-    if (!QDir::setCurrent(callData->args[0].toQStringNoThrow()))
+    if (!QDir::setCurrent(callData->args[0].toQString()))
         return v4->throwError(QStringLiteral("chdir: Cannot change directory"));
 
     return QV4::Encode::undefined();

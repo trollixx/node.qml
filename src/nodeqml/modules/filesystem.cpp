@@ -50,7 +50,7 @@ QV4::ReturnedValue FileSystemModule::method_mkdirSync(QV4::CallContext *ctx)
     if (callData->argc > 1 && callData->args[1].isNumber())
         mode = callData->args[1].toInt32();
 
-    if (::mkdir(qPrintable(callData->args[0].toQStringNoThrow()), mode) == -1)
+    if (::mkdir(qPrintable(callData->args[0].toQString()), mode) == -1)
         return EnginePrivate::get(v4)->throwErrnoException(errno, QStringLiteral("mkdir"));
 
     return QV4::Encode::undefined();
@@ -68,8 +68,8 @@ QV4::ReturnedValue FileSystemModule::method_renameSync(QV4::CallContext *ctx)
     if (!callData->args[1].isString())
         v4->throwError(QStringLiteral("renameSync: new path must be a string"));
 
-    return QV4::Encode(QFile::rename(callData->args[0].toQStringNoThrow(),
-                       callData->args[1].toQStringNoThrow()));
+    return QV4::Encode(QFile::rename(callData->args[0].toQString(),
+                       callData->args[1].toQString()));
 }
 
 QV4::ReturnedValue FileSystemModule::method_rmdirSync(QV4::CallContext *ctx)
@@ -80,7 +80,7 @@ QV4::ReturnedValue FileSystemModule::method_rmdirSync(QV4::CallContext *ctx)
     if (!callData->argc || !callData->args[0].isString())
         return v4->throwTypeError(QStringLiteral("path must be a string"));
 
-    if (::rmdir(qPrintable(callData->args[0].toQStringNoThrow())))
+    if (::rmdir(qPrintable(callData->args[0].toQString())))
         return EnginePrivate::get(v4)->throwErrnoException(errno, QStringLiteral("rmdir"));
 
     return QV4::Encode::undefined();
@@ -98,7 +98,7 @@ QV4::ReturnedValue FileSystemModule::method_truncateSync(QV4::CallContext *ctx)
 
     const off_t length = callData->args[1].toInt32();
 
-    if (::truncate(qPrintable(callData->args[0].toQStringNoThrow()), length) == -1)
+    if (::truncate(qPrintable(callData->args[0].toQString()), length) == -1)
         return EnginePrivate::get(v4)->throwErrnoException(errno, QStringLiteral("truncate"));
 
     return QV4::Encode::undefined();

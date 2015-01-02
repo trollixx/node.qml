@@ -247,7 +247,7 @@ QV4::ReturnedValue ModuleObject::method_require(QV4::CallContext *ctx)
     if (!callData->argc || !callData->args[0].isString())
         return v4->throwError(QStringLiteral("require: path must be a string"));
 
-    QV4::ScopedObject exports(scope, require(v4, callData->args[0].toQStringNoThrow(), self->d()));
+    QV4::ScopedObject exports(scope, require(v4, callData->args[0].toQString(), self->d()));
     return exports.asReturnedValue();
 }
 

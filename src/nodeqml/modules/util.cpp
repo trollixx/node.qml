@@ -45,7 +45,7 @@ QV4::ReturnedValue UtilModule::method_format(QV4::CallContext *ctx)
         return (s = v4->newString(objects.join(QStringLiteral(" "))))->asReturnedValue();
     }
 
-    const QString format = callData->args[0].toQStringNoThrow();
+    const QString format = callData->args[0].toQString();
 
     QString result;
     int i = 1;

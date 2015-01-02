@@ -47,7 +47,7 @@ QV4::ReturnedValue GlobalExtensions::method_require(QV4::CallContext *ctx)
     if (!callData->args[0].isString())
         return v4->throwTypeError("require(): argument (id) must be a string");
 
-    const QString id = callData->args[0].toQStringNoThrow();
+    const QString id = callData->args[0].toQString();
     return EnginePrivate::get(ctx->engine())->require(id);
 }
 
