@@ -378,7 +378,7 @@ QV4::ReturnedValue BufferCtor::method_isEncoding(QV4::CallContext *ctx)
 {
     NODE_CTX_CALLDATA(ctx);
     return QV4::Encode(callData->argc && callData->args[0].isString()
-            && Buffer::isEncoding(callData->args[0].toQStringNoThrow()));
+            && Buffer::isEncoding(callData->args[0].toQString()));
 }
 
 QV4::ReturnedValue BufferCtor::method_isBuffer(QV4::CallContext *ctx)
@@ -653,6 +653,7 @@ QV4::ReturnedValue BufferPrototype::method_write(QV4::CallContext *ctx)
 
     if (offset + length > self->d()->data.size())
         length = self->d()->data.size() - offset;
+
     const QByteArray stringData = Buffer::decodeString(string, encoding, length);
 
     ::memcpy(self->d()->data.data() + offset, stringData.constData(), stringData.size());
