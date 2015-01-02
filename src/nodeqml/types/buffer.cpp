@@ -517,6 +517,9 @@ void BufferPrototype::init(QV4::ExecutionEngine *v4, QV4::Object *ctor)
     defineDefaultProperty(QStringLiteral("writeFloatBE"), method_writeFloatingPoint<float, false>);
     defineDefaultProperty(QStringLiteral("writeDoubleLE"), method_writeFloatingPoint<double>);
     defineDefaultProperty(QStringLiteral("writeDoubleBE"), method_writeFloatingPoint<double, false>);
+
+    v4->globalObject()->defineDefaultProperty(QStringLiteral("Buffer"), (o = ctor));
+    v4->globalObject()->defineDefaultProperty(QStringLiteral("SlowBuffer"), (o = ctor));
 }
 
 int BufferPrototype::compare(const QTypedArrayDataSlice<char> &a, const QTypedArrayDataSlice<char> &b)
