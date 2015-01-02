@@ -42,7 +42,6 @@ struct BufferCtor : QV4::Heap::FunctionObject {
 struct Buffer : QV4::Object
 {
     NODE_V4_OBJECT(Buffer, Object)
-    V4_NEEDS_DESTROY
 
     static bool isEqualTo(QV4::Managed *m, QV4::Managed *other);
 
