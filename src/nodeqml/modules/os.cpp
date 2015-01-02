@@ -138,9 +138,6 @@ QV4::ReturnedValue OsModule::method_loadavg(QV4::CallContext *ctx)
     array->arrayPut(1, QV4::Primitive::fromDouble(static_cast<double>(info.loads[1]) / 65536.0));
     array->arrayPut(2, QV4::Primitive::fromDouble(static_cast<double>(info.loads[2]) / 65536.0));
 
-    QV4::ScopedValue v(scope, array->asReturnedValue());
-    v->toQStringNoThrow();
-
     return array->asReturnedValue();
 #else
     return QV4::Encode::undefined();
