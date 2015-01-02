@@ -793,7 +793,9 @@ QV4::ReturnedValue BufferPrototype::method_copy(QV4::CallContext *ctx)
         sourceEnd = sourceStart + targetLength - targetStart;
     size_t to_copy = std::min(std::min(sourceEnd - sourceStart, targetLength - targetStart),
                           self->getLength() - sourceStart);
-    memmove(target->d()->data.data() + targetStart, self->d()->data.constData() + sourceStart, to_copy);
+
+    ::memmove(target->d()->data.data() + targetStart, self->d()->data.constData() + sourceStart, to_copy);
+
     return QV4::Primitive::fromUInt32(to_copy).asReturnedValue();
 }
 
@@ -833,7 +835,7 @@ QV4::ReturnedValue BufferPrototype::method_fill(QV4::CallContext *ctx)
 
     if (callData->args[0].isNumber()) {
         const quint8 value = callData->args[0].toUInt32() & 0xff;
-        memset(startPtr, value, length);
+        ::memset(startPtr, value, length);
         return self.asReturnedValue();
     }
 
@@ -844,24 +846,24 @@ QV4::ReturnedValue BufferPrototype::method_fill(QV4::CallContext *ctx)
 
     // optimize single ascii character case
     if (value.size() == 1) {
-        memset(startPtr, value.at(0), length);
+        ::memset(startPtr, value.at(0), length);
         return self.asReturnedValue();
     }
 
     int in_there = value.size();
     char * ptr = startPtr + value.size();
-    memcpy(startPtr, value.constData(), std::min(value.size(), length));
+    ::memcpy(startPtr, value.constData(), std::min(value.size(), length));
     if (value.size() >= length)
         return self.asReturnedValue();
 
     while (in_there < length - in_there) {
-        memcpy(ptr, startPtr, in_there);
+        ::memcpy(ptr, startPtr, in_there);
         ptr += in_there;
         in_there *= 2;
     }
 
     if (in_there < length)
-        memcpy(ptr, startPtr, length - in_there);
+        ::memcpy(ptr, startPtr, length - in_there);
 
     return self.asReturnedValue();
 }
