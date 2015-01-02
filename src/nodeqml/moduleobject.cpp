@@ -127,7 +127,7 @@ void ModuleObject::compile(QV4::ExecutionEngine *v4, Heap::ModuleObject *moduleO
         return;
     }
 
-//  QV4::ContextStateSaver ctxSaver(scope, v4);
+    // QV4::ContextStateSaver ctxSaver(scope, v4);
     QV4::Script script(v4, global, file->readAll(), self->d()->filename);
     script.strictMode = v4->currentContext()->strictMode;
     script.inheritContext = true; /// NOTE: Is it needed?
