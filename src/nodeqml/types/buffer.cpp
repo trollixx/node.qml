@@ -722,8 +722,7 @@ QV4::ReturnedValue BufferPrototype::method_toString(QV4::CallContext *ctx)
         break;
     }
 
-    QV4::ScopedString s(scope, v4->newString(str));
-    return s.asReturnedValue();
+    return v4->newString(str)->asReturnedValue();
 }
 
 QV4::ReturnedValue BufferPrototype::method_toJSON(QV4::CallContext *ctx)
