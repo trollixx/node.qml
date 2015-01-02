@@ -81,14 +81,14 @@ QV4::ReturnedValue OsModule::method_platform(QV4::CallContext *ctx)
 {
     QV4::Scope scope(ctx);
     QV4::ScopedString s(scope, ctx->engine()->newString(ProcessModule::platform()));
-    return s->asReturnedValue();
+    return s.asReturnedValue();
 }
 
 QV4::ReturnedValue OsModule::method_arch(QV4::CallContext *ctx)
 {
     QV4::Scope scope(ctx);
     QV4::ScopedString s(scope, ctx->engine()->newString(ProcessModule::arch()));
-    return s->asReturnedValue();
+    return s.asReturnedValue();
 }
 
 QV4::ReturnedValue OsModule::method_release(QV4::CallContext *ctx)
@@ -138,7 +138,7 @@ QV4::ReturnedValue OsModule::method_loadavg(QV4::CallContext *ctx)
     array->arrayPut(1, QV4::Primitive::fromDouble(static_cast<double>(info.loads[1]) / 65536.0));
     array->arrayPut(2, QV4::Primitive::fromDouble(static_cast<double>(info.loads[2]) / 65536.0));
 
-    return array->asReturnedValue();
+    return array.asReturnedValue();
 #else
     return QV4::Encode::undefined();
 #endif
@@ -214,5 +214,5 @@ QV4::ReturnedValue OsModule::method_networkInterfaces(QV4::CallContext *ctx)
         info->insertMember((s = v4->newString(interface.name())).getPointer(), (v = addressArray));
     }
 
-    return info->asReturnedValue();
+    return info.asReturnedValue();
 }

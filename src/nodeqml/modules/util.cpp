@@ -36,13 +36,13 @@ QV4::ReturnedValue UtilModule::method_format(QV4::CallContext *ctx)
 
     // TODO: Call inspect anyway
     if (!callData->argc)
-        return (s = v4->newString())->asReturnedValue();
+        return (s = v4->newString()).asReturnedValue();
 
     if (!callData->args[0].isString()) {
         QStringList objects;
         for (int i = 0; i < callData->argc; ++i)
             objects << inspect(callData->args[i]);
-        return (s = v4->newString(objects.join(QStringLiteral(" "))))->asReturnedValue();
+        return (s = v4->newString(objects.join(QStringLiteral(" ")))).asReturnedValue();
     }
 
     const QString format = callData->args[0].toQString();
@@ -81,7 +81,7 @@ QV4::ReturnedValue UtilModule::method_format(QV4::CallContext *ctx)
     for (; i < callData->argc; ++i)
         result += QStringLiteral(" ") + inspect(callData->args[i]);
 
-    return (s = v4->newString(result))->asReturnedValue();
+    return (s = v4->newString(result)).asReturnedValue();
 }
 
 QV4::ReturnedValue UtilModule::method_log(QV4::CallContext *ctx)
@@ -99,7 +99,7 @@ QV4::ReturnedValue UtilModule::method_inspect(QV4::CallContext *ctx)
 
     QV4::Scope scope(ctx);
     QV4::ScopedString s(scope);
-    return (s = ctx->engine()->newString(inspect(callData->args[0])))->asReturnedValue();
+    return (s = ctx->engine()->newString(inspect(callData->args[0]))).asReturnedValue();
 }
 
 QV4::ReturnedValue UtilModule::method_isArray(QV4::CallContext *ctx)

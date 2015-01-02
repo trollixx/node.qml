@@ -687,7 +687,7 @@ QV4::ReturnedValue BufferPrototype::method_toString(QV4::CallContext *ctx)
     if (end > dataSize)
         end = dataSize;
     if (end <= start)
-        return QV4::ScopedString(scope, v4->newString())->asReturnedValue();
+        return QV4::ScopedString(scope, v4->newString()).asReturnedValue();
 
     const char *startPtr = self->d()->data.data() + start;
     const int size = end - start;
@@ -723,7 +723,7 @@ QV4::ReturnedValue BufferPrototype::method_toString(QV4::CallContext *ctx)
     }
 
     QV4::ScopedString s(scope, v4->newString(str));
-    return s->asReturnedValue();
+    return s.asReturnedValue();
 }
 
 QV4::ReturnedValue BufferPrototype::method_toJSON(QV4::CallContext *ctx)
@@ -898,7 +898,7 @@ QV4::ReturnedValue BufferPrototype::method_slice(QV4::CallContext *ctx)
 
     QTypedArrayDataSlice<char> slice(self->d()->data, start, end - start);
     QV4::Scoped<Buffer> newBuffer(scope, v4->memoryManager->alloc<Buffer>(v4, slice));
-    return newBuffer->asReturnedValue();
+    return newBuffer.asReturnedValue();
 }
 
 template <typename T, bool LE>
