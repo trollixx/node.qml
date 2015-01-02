@@ -23,11 +23,11 @@ enum class BufferEncoding {
 
 namespace Heap {
 
-struct BufferObject : QV4::Heap::Object {
-    BufferObject(QV4::ExecutionEngine *v4, size_t length);
-    BufferObject(QV4::ExecutionEngine *v4, QV4::ArrayObject *array);
-    BufferObject(QV4::ExecutionEngine *v4, const QByteArray &ba);
-    BufferObject(QV4::ExecutionEngine *v4, const QTypedArrayDataSlice<char> &slice);
+struct Buffer : QV4::Heap::Object {
+    Buffer(QV4::ExecutionEngine *v4, size_t length);
+    Buffer(QV4::ExecutionEngine *v4, QV4::ArrayObject *array);
+    Buffer(QV4::ExecutionEngine *v4, const QByteArray &ba);
+    Buffer(QV4::ExecutionEngine *v4, const QTypedArrayDataSlice<char> &slice);
     bool allocateData(size_t length);
 
     QTypedArrayDataSlice<char> data;
@@ -39,9 +39,9 @@ struct BufferCtor : QV4::Heap::FunctionObject {
 
 } // namespace Heap
 
-struct BufferObject : QV4::Object
+struct Buffer : QV4::Object
 {
-    NODE_V4_OBJECT(BufferObject, Object)
+    NODE_V4_OBJECT(Buffer, Object)
     V4_NEEDS_DESTROY
 
     static bool isEqualTo(QV4::Managed *m, QV4::Managed *other);

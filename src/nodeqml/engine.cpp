@@ -352,7 +352,7 @@ void EnginePrivate::registerTypes()
     bufferCtor = m_v4->memoryManager->alloc<BufferCtor>(rootContext);
     bufferPrototype = m_v4->memoryManager->alloc<BufferPrototype>(m_v4->objectClass, m_v4->objectPrototype.asObject());
     static_cast<BufferPrototype *>(bufferPrototype.asObject())->init(m_v4, bufferCtor.asObject());
-    bufferClass = QV4::InternalClass::create(m_v4, BufferObject::staticVTable());
+    bufferClass = QV4::InternalClass::create(m_v4, Buffer::staticVTable());
 
     m_v4->globalObject()->defineDefaultProperty(QStringLiteral("Buffer"), bufferCtor);
     m_v4->globalObject()->defineDefaultProperty(QStringLiteral("SlowBuffer"), bufferCtor);

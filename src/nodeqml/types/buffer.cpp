@@ -13,7 +13,7 @@
 using namespace NodeQml;
 
 DEFINE_OBJECT_VTABLE(BufferCtor);
-DEFINE_OBJECT_VTABLE(BufferObject);
+DEFINE_OBJECT_VTABLE(Buffer);
 
 /// NOTE: This is a result of V8 memory allocation limitations. It would make sense to lift
 /// such limit in the future.
@@ -23,10 +23,10 @@ const size_t kMaxLength = 0x3fffffff;
 
 /// TODO: Document no buf.parent property support (see test-buffer.js)
 
-Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, size_t length) :
+Heap::Buffer::Buffer(QV4::ExecutionEngine *v4, size_t length) :
     QV4::Heap::Object(EnginePrivate::get(v4)->bufferClass, EnginePrivate::get(v4)->bufferPrototype.asObject())
 {
-    setVTable(NodeQml::BufferObject::staticVTable());
+    setVTable(NodeQml::Buffer::staticVTable());
 
     if (length > kMaxLength) {
         v4->throwRangeError(QStringLiteral("Attempt to allocate Buffer larger than maximum size: 0x3fffffff bytes"));
@@ -43,10 +43,10 @@ Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, size_t length) :
     o->defineReadonlyProperty(v4->id_length, QV4::Primitive::fromInt32(length));
 }
 
-Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, QV4::ArrayObject *array) :
+Heap::Buffer::Buffer(QV4::ExecutionEngine *v4, QV4::ArrayObject *array) :
     QV4::Heap::Object(EnginePrivate::get(v4)->bufferClass, EnginePrivate::get(v4)->bufferPrototype.asObject())
 {
-    setVTable(NodeQml::BufferObject::staticVTable());
+    setVTable(NodeQml::Buffer::staticVTable());
 
     QV4::Scope scope(v4);
     QV4::ScopedArrayObject a(scope, array);
@@ -73,10 +73,10 @@ Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, QV4::ArrayObject *arr
     o->defineReadonlyProperty(v4->id_length, QV4::Primitive::fromInt32(length));
 }
 
-Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, const QByteArray &ba) :
+Heap::Buffer::Buffer(QV4::ExecutionEngine *v4, const QByteArray &ba) :
     QV4::Heap::Object(EnginePrivate::get(v4)->bufferClass, EnginePrivate::get(v4)->bufferPrototype.asObject())
 {
-    setVTable(NodeQml::BufferObject::staticVTable());
+    setVTable(NodeQml::Buffer::staticVTable());
 
     const size_t length = ba.length();
 
@@ -93,18 +93,18 @@ Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, const QByteArray &ba)
     o->defineReadonlyProperty(v4->id_length, QV4::Primitive::fromInt32(length));
 }
 
-Heap::BufferObject::BufferObject(QV4::ExecutionEngine *v4, const QTypedArrayDataSlice<char> &slice) :
+Heap::Buffer::Buffer(QV4::ExecutionEngine *v4, const QTypedArrayDataSlice<char> &slice) :
     QV4::Heap::Object(EnginePrivate::get(v4)->bufferClass, EnginePrivate::get(v4)->bufferPrototype.asObject()),
     data(slice)
 {
-    setVTable(NodeQml::BufferObject::staticVTable());
+    setVTable(NodeQml::Buffer::staticVTable());
 
     QV4::Scope scope(v4);
     QV4::ScopedObject o(scope, this);
     o->defineReadonlyProperty(v4->id_length, QV4::Primitive::fromInt32(data.size()));
 }
 
-bool Heap::BufferObject::allocateData(size_t length)
+bool Heap::Buffer::allocateData(size_t length)
 {
     if (!length)
         return true;
@@ -121,21 +121,21 @@ bool Heap::BufferObject::allocateData(size_t length)
     return true;
 }
 
-bool BufferObject::isEqualTo(QV4::Managed *m, QV4::Managed *other)
+bool Buffer::isEqualTo(QV4::Managed *m, QV4::Managed *other)
 {
     QV4::Scope scope(m->engine());
-    QV4::Scoped<BufferObject> self(scope, m);
-    QV4::Scoped<BufferObject> otherBuffer(scope, other);
+    QV4::Scoped<Buffer> self(scope, m);
+    QV4::Scoped<Buffer> otherBuffer(scope, other);
 
     return !!self && !!otherBuffer
             && (BufferPrototype::compare(self->d()->data, otherBuffer->d()->data) == 0);
 }
 
-QV4::ReturnedValue BufferObject::getIndexed(QV4::Managed *m, quint32 index, bool *hasProperty)
+QV4::ReturnedValue Buffer::getIndexed(QV4::Managed *m, quint32 index, bool *hasProperty)
 {
     QV4::ExecutionEngine *v4 = m->engine();
     QV4::Scope scope(v4);
-    QV4::Scoped<BufferObject> that(scope, static_cast<BufferObject *>(m));
+    QV4::Scoped<Buffer> that(scope, static_cast<Buffer *>(m));
 
     if (index >= static_cast<quint32>(that->d()->data.size())) {
         if (hasProperty)
@@ -149,11 +149,11 @@ QV4::ReturnedValue BufferObject::getIndexed(QV4::Managed *m, quint32 index, bool
     return QV4::Primitive::fromUInt32(that->d()->data.at(index) & 0xff).asReturnedValue();
 }
 
-void BufferObject::putIndexed(QV4::Managed *m, uint index, const QV4::ValueRef value)
+void Buffer::putIndexed(QV4::Managed *m, uint index, const QV4::ValueRef value)
 {
     QV4::ExecutionEngine *v4 = m->engine();
     QV4::Scope scope(v4);
-    QV4::Scoped<BufferObject> that(scope, static_cast<BufferObject *>(m));
+    QV4::Scoped<Buffer> that(scope, static_cast<Buffer *>(m));
 
     if (index >= static_cast<quint32>(that->d()->data.size()))
         return;
@@ -161,14 +161,14 @@ void BufferObject::putIndexed(QV4::Managed *m, uint index, const QV4::ValueRef v
     that->d()->data[index] = value->toInt32();
 }
 
-bool BufferObject::deleteIndexedProperty(QV4::Managed *m, uint index)
+bool Buffer::deleteIndexedProperty(QV4::Managed *m, uint index)
 {
     Q_UNUSED(m)
     Q_UNUSED(index)
     return true;
 }
 
-BufferEncoding BufferObject::parseEncoding(const QString &str)
+BufferEncoding Buffer::parseEncoding(const QString &str)
 {
     const static QHash<QString, BufferEncoding> encodings = {
         std::pair<QString, BufferEncoding>(QStringLiteral("hex"), BufferEncoding::Hex),
@@ -191,7 +191,7 @@ BufferEncoding BufferObject::parseEncoding(const QString &str)
     return encodings.value(encodingStr);
 }
 
-bool BufferObject::isEncoding(const QString &str)
+bool Buffer::isEncoding(const QString &str)
 {
     return parseEncoding(str) != BufferEncoding::Invalid;
 }
@@ -201,7 +201,7 @@ bool BufferObject::isEncoding(const QString &str)
   Returns number of bytes in a given binary array. \l BufferEncoding::Utf8 is assumed if \a encoding
   is \c Invalid or unknown.
  */
-int BufferObject::byteLength(const QString &str, BufferEncoding encoding)
+int Buffer::byteLength(const QString &str, BufferEncoding encoding)
 {
     switch (encoding) {
     case BufferEncoding::Ascii:
@@ -225,7 +225,7 @@ int BufferObject::byteLength(const QString &str, BufferEncoding encoding)
     }
 }
 
-QByteArray BufferObject::decodeString(const QString &str, BufferEncoding encoding, int limit)
+QByteArray Buffer::decodeString(const QString &str, BufferEncoding encoding, int limit)
 {
     QByteArray ba;
 
@@ -287,7 +287,7 @@ QByteArray BufferObject::decodeString(const QString &str, BufferEncoding encodin
     return ba;
 }
 
-QTypedArrayData<char> *BufferObject::fromString(const QByteArray &data)
+QTypedArrayData<char> *Buffer::fromString(const QByteArray &data)
 {
     QTypedArrayData<char> *arrayData = QTypedArrayData<char>::allocate(data.size() + 1);
     if (!arrayData)
@@ -313,15 +313,15 @@ QV4::ReturnedValue BufferCtor::construct(QV4::Managed *m, QV4::CallData *callDat
         return v4->throwTypeError(QStringLiteral("must start with number, buffer, array or string"));
 
     QV4::Scope scope(v4);
-    QV4::Scoped<BufferObject> buffer(scope);
+    QV4::Scoped<Buffer> buffer(scope);
 
     if (callData->args[0].isNumber()) {
-        buffer = v4->memoryManager->alloc<BufferObject>(v4, std::max(0., callData->args[0].toInteger()));
+        buffer = v4->memoryManager->alloc<Buffer>(v4, std::max(0., callData->args[0].toInteger()));
     } else if (callData->args[0].asArrayObject()) {
-        buffer = v4->memoryManager->alloc<BufferObject>(v4, callData->args[0].asArrayObject());
-    } else if (callData->args[0].as<BufferObject>()) {
-        QV4::Scoped<BufferObject> other(scope, callData->args[0].as<BufferObject>());
-        buffer = v4->memoryManager->alloc<BufferObject>(v4, other->d()->data);
+        buffer = v4->memoryManager->alloc<Buffer>(v4, callData->args[0].asArrayObject());
+    } else if (callData->args[0].as<Buffer>()) {
+        QV4::Scoped<Buffer> other(scope, callData->args[0].as<Buffer>());
+        buffer = v4->memoryManager->alloc<Buffer>(v4, other->d()->data);
     } else if (callData->args[0].isString()) {
         BufferEncoding encoding = BufferEncoding::Utf8;
         if (callData->argc > 1) {
@@ -329,18 +329,18 @@ QV4::ReturnedValue BufferCtor::construct(QV4::Managed *m, QV4::CallData *callDat
                 return v4->throwTypeError(QStringLiteral("Encoding must me a string"));
 
             const QString encStr = callData->args[1].toQStringNoThrow();
-            encoding = BufferObject::parseEncoding(encStr);
+            encoding = Buffer::parseEncoding(encStr);
             if (encoding == BufferEncoding::Invalid)
                 return v4->throwTypeError(QString("Unknown Encoding: %1").arg(encStr));
         }
 
         const QByteArray stringData
-                = BufferObject::decodeString(callData->args[0].toQStringNoThrow(), encoding);
-        QTypedArrayData<char> *arrayData = BufferObject::fromString(stringData);
+                = Buffer::decodeString(callData->args[0].toQStringNoThrow(), encoding);
+        QTypedArrayData<char> *arrayData = Buffer::fromString(stringData);
 
         const QTypedArrayDataSlice<char> slice(arrayData);
         arrayData->ref.deref(); // Disown data
-        buffer = v4->memoryManager->alloc<BufferObject>(v4, slice);
+        buffer = v4->memoryManager->alloc<Buffer>(v4, slice);
     } else if (callData->args[0].isObject()) {
         QV4::ScopedObject obj(scope, callData->argument(0));
         QV4::ScopedString s(scope);
@@ -349,20 +349,20 @@ QV4::ReturnedValue BufferCtor::construct(QV4::Managed *m, QV4::CallData *callDat
         QV4::ScopedString type(scope, obj->get(s = v4->newString(QStringLiteral("type"))));
         QV4::ScopedArrayObject data(scope, obj->get(s = v4->newString(QStringLiteral("data"))));
         if (!!type && type->toQString() == QStringLiteral("Buffer") && !!data) {
-            buffer = v4->memoryManager->alloc<BufferObject>(v4, data);
+            buffer = v4->memoryManager->alloc<Buffer>(v4, data);
         } else {
             // Array-like objects
-            buffer = v4->memoryManager->alloc<BufferObject>(v4, obj->getLength());
+            buffer = v4->memoryManager->alloc<Buffer>(v4, obj->getLength());
             QV4::ScopedValue v(scope);
             /// FIXME: Should be buffer->putIndexed()
             for (size_t i = 0; i < obj->getLength(); ++i)
-                BufferObject::putIndexed(buffer, i, (v = obj->getIndexed(i)));
+                Buffer::putIndexed(buffer, i, (v = obj->getIndexed(i)));
         }
     } else {
         return v4->throwTypeError(QStringLiteral("must start with number, buffer, array or string"));
     }
 
-    // In case an exception has been thrown in the BufferObject constructor
+    // In case an exception has been thrown in the Buffer constructor
     if (v4->hasException)
         return QV4::Encode::undefined();
 
@@ -378,13 +378,13 @@ QV4::ReturnedValue BufferCtor::method_isEncoding(QV4::CallContext *ctx)
 {
     NODE_CTX_CALLDATA(ctx);
     return QV4::Encode(callData->argc && callData->args[0].isString()
-            && BufferObject::isEncoding(callData->args[0].toQStringNoThrow()));
+            && Buffer::isEncoding(callData->args[0].toQStringNoThrow()));
 }
 
 QV4::ReturnedValue BufferCtor::method_isBuffer(QV4::CallContext *ctx)
 {
     NODE_CTX_CALLDATA(ctx);
-    return QV4::Encode(callData->argc && callData->args[0].as<BufferObject>());
+    return QV4::Encode(callData->argc && callData->args[0].as<Buffer>());
 }
 
 QV4::ReturnedValue BufferCtor::method_byteLength(QV4::CallContext *ctx)
@@ -396,9 +396,9 @@ QV4::ReturnedValue BufferCtor::method_byteLength(QV4::CallContext *ctx)
         return QV4::Encode(9);
 
     const BufferEncoding encoding = callData->argc > 1
-            ? BufferObject::parseEncoding(callData->args[1].toQStringNoThrow())
+            ? Buffer::parseEncoding(callData->args[1].toQStringNoThrow())
             : BufferEncoding::Utf8;
-    return QV4::Encode(BufferObject::byteLength(callData->args[0].toQStringNoThrow(), encoding));
+    return QV4::Encode(Buffer::byteLength(callData->args[0].toQStringNoThrow(), encoding));
 }
 
 // Buffer.concat(list, [totalLength])
@@ -418,7 +418,7 @@ QV4::ReturnedValue BufferCtor::method_concat(QV4::CallContext *ctx)
         totalLength = callData->args[1].toNumber();
     } else {
         totalLength = 0;
-        QV4::Scoped<BufferObject> buf(scope);
+        QV4::Scoped<Buffer> buf(scope);
         for (size_t i = 0; i < list->getLength(); ++i) {
             buf = list->getIndexed(i);
             if (!buf)
@@ -427,11 +427,11 @@ QV4::ReturnedValue BufferCtor::method_concat(QV4::CallContext *ctx)
         }
     }
 
-    QV4::Scoped<BufferObject> buffer(scope, v4->memoryManager->alloc<BufferObject>(v4, totalLength));
+    QV4::Scoped<Buffer> buffer(scope, v4->memoryManager->alloc<Buffer>(v4, totalLength));
     if (v4->hasException)
         return QV4::Encode::undefined();
 
-    QV4::Scoped<BufferObject> buf(scope);
+    QV4::Scoped<Buffer> buf(scope);
     for (size_t i = 0, pos = 0; i < list->getLength(); ++i) {
         buf = list->getIndexed(i);
         const size_t bufSize = buf->getLength();
@@ -450,8 +450,8 @@ QV4::ReturnedValue BufferCtor::method_compare(QV4::CallContext *ctx)
     NODE_CTX_V4(ctx);
 
     QV4::Scope scope(ctx);
-    QV4::Scoped<BufferObject> a(scope, callData->argument(0));
-    QV4::Scoped<BufferObject> b(scope, callData->argument(1));
+    QV4::Scoped<Buffer> a(scope, callData->argument(0));
+    QV4::Scoped<Buffer> b(scope, callData->argument(1));
 
     if (!a || !b)
         return v4->throwTypeError(QStringLiteral("Arguments must be Buffers"));
@@ -546,7 +546,7 @@ bool BufferPrototype::checkRange(size_t bufferSize, size_t offset, size_t length
 
 QV4::ReturnedValue BufferPrototype::method_inspect(QV4::CallContext *ctx)
 {
-    NODE_CTX_SELF(BufferObject, ctx);
+    NODE_CTX_SELF(Buffer, ctx);
     NODE_CTX_V4(ctx);
 
     /// TODO: make it module variable, once 'buffer' becomes a normal module
@@ -572,10 +572,10 @@ QV4::ReturnedValue BufferPrototype::method_inspect(QV4::CallContext *ctx)
 QV4::ReturnedValue BufferPrototype::method_compare(QV4::CallContext *ctx)
 {
     NODE_CTX_CALLDATA(ctx);
-    NODE_CTX_SELF(BufferObject, ctx);
+    NODE_CTX_SELF(Buffer, ctx);
     NODE_CTX_V4(ctx);
 
-    QV4::Scoped<BufferObject> other(scope, callData->argument(0));
+    QV4::Scoped<Buffer> other(scope, callData->argument(0));
 
     if (!self || !other)
         return v4->throwTypeError(QStringLiteral("Arguments must be Buffers"));
@@ -586,10 +586,10 @@ QV4::ReturnedValue BufferPrototype::method_compare(QV4::CallContext *ctx)
 QV4::ReturnedValue BufferPrototype::method_equals(QV4::CallContext *ctx)
 {
     NODE_CTX_CALLDATA(ctx);
-    NODE_CTX_SELF(BufferObject, ctx);
+    NODE_CTX_SELF(Buffer, ctx);
     NODE_CTX_V4(ctx);
 
-    QV4::Scoped<BufferObject> other(scope, callData->argument(0));
+    QV4::Scoped<Buffer> other(scope, callData->argument(0));
 
     if (!self || !other)
         return v4->throwTypeError(QStringLiteral("Arguments must be Buffers"));
@@ -607,7 +607,7 @@ inline bool isFinite(const QV4::Value &value)
 QV4::ReturnedValue BufferPrototype::method_write(QV4::CallContext *ctx)
 {
     NODE_CTX_CALLDATA(ctx);
-    NODE_CTX_SELF(BufferObject, ctx);
+    NODE_CTX_SELF(Buffer, ctx);
     NODE_CTX_V4(ctx);
 
     if (!callData->argc || !callData->args[0].isString())
@@ -643,7 +643,7 @@ QV4::ReturnedValue BufferPrototype::method_write(QV4::CallContext *ctx)
         return v4->throwRangeError(QStringLiteral("attempt to write outside buffer bounds"));
 
     if (!encodingStr.isEmpty())
-        encoding = BufferObject::parseEncoding(encodingStr);
+        encoding = Buffer::parseEncoding(encodingStr);
 
     if (encoding == BufferEncoding::Invalid)
         return v4->throwTypeError(QString("Unknown encoding: %1").arg(encodingStr));
@@ -653,7 +653,7 @@ QV4::ReturnedValue BufferPrototype::method_write(QV4::CallContext *ctx)
 
     if (offset + length > self->d()->data.size())
         length = self->d()->data.size() - offset;
-    const QByteArray stringData = BufferObject::decodeString(string, encoding, length);
+    const QByteArray stringData = Buffer::decodeString(string, encoding, length);
 
     ::memcpy(self->d()->data.data() + offset, stringData.constData(), stringData.size());
 
@@ -664,13 +664,13 @@ QV4::ReturnedValue BufferPrototype::method_write(QV4::CallContext *ctx)
 QV4::ReturnedValue BufferPrototype::method_toString(QV4::CallContext *ctx)
 {
     NODE_CTX_CALLDATA(ctx);
-    NODE_CTX_SELF(BufferObject, ctx);
+    NODE_CTX_SELF(Buffer, ctx);
     NODE_CTX_V4(ctx);
 
     BufferEncoding encoding = BufferEncoding::Utf8;
     if (callData->argc) {
         const QString encodingStr = callData->args[0].toQStringNoThrow();
-        encoding = BufferObject::parseEncoding(encodingStr);
+        encoding = Buffer::parseEncoding(encodingStr);
         if (encoding == BufferEncoding::Invalid)
             return v4->throwTypeError(QString("Unknown encoding: %1").arg(encodingStr));
     }
@@ -727,7 +727,7 @@ QV4::ReturnedValue BufferPrototype::method_toString(QV4::CallContext *ctx)
 
 QV4::ReturnedValue BufferPrototype::method_toJSON(QV4::CallContext *ctx)
 {
-    NODE_CTX_SELF(BufferObject, ctx);
+    NODE_CTX_SELF(Buffer, ctx);
     NODE_CTX_V4(ctx);
 
     QJsonObject json;
@@ -745,10 +745,10 @@ QV4::ReturnedValue BufferPrototype::method_toJSON(QV4::CallContext *ctx)
 QV4::ReturnedValue BufferPrototype::method_copy(QV4::CallContext *ctx)
 {
     NODE_CTX_CALLDATA(ctx);
-    NODE_CTX_SELF(BufferObject, ctx);
+    NODE_CTX_SELF(Buffer, ctx);
     NODE_CTX_V4(ctx);
 
-    QV4::Scoped<BufferObject> target(scope, callData->argument(0));
+    QV4::Scoped<Buffer> target(scope, callData->argument(0));
     if (!target)
         return v4->throwTypeError(QStringLiteral("copy: First arg should be a Buffer"));
 
@@ -801,7 +801,7 @@ QV4::ReturnedValue BufferPrototype::method_copy(QV4::CallContext *ctx)
 QV4::ReturnedValue BufferPrototype::method_fill(QV4::CallContext *ctx)
 {
     NODE_CTX_CALLDATA(ctx);
-    NODE_CTX_SELF(BufferObject, ctx);
+    NODE_CTX_SELF(Buffer, ctx);
     NODE_CTX_V4(ctx);
 
     /// TODO: SLICE_START_END (https://github.com/joyent/node/blob/master/src/node_buffer.cc#L52)
@@ -871,7 +871,7 @@ QV4::ReturnedValue BufferPrototype::method_slice(QV4::CallContext *ctx)
 {
     NODE_CTX_V4(ctx);
     NODE_CTX_CALLDATA(ctx);
-    NODE_CTX_SELF(BufferObject, ctx);
+    NODE_CTX_SELF(Buffer, ctx);
 
     if (!self)
         return v4->throwTypeError();
@@ -896,7 +896,7 @@ QV4::ReturnedValue BufferPrototype::method_slice(QV4::CallContext *ctx)
         end = start;
 
     QTypedArrayDataSlice<char> slice(self->d()->data, start, end - start);
-    QV4::Scoped<BufferObject> newBuffer(scope, v4->memoryManager->alloc<BufferObject>(v4, slice));
+    QV4::Scoped<Buffer> newBuffer(scope, v4->memoryManager->alloc<Buffer>(v4, slice));
     return newBuffer->asReturnedValue();
 }
 
@@ -905,7 +905,7 @@ QV4::ReturnedValue BufferPrototype::method_readInteger(QV4::CallContext *ctx)
 {
     NODE_CTX_V4(ctx);
     NODE_CTX_CALLDATA(ctx);
-    NODE_CTX_SELF(BufferObject, ctx);
+    NODE_CTX_SELF(Buffer, ctx);
 
     if (!self)
         return v4->throwTypeError();
@@ -929,7 +929,7 @@ QV4::ReturnedValue BufferPrototype::method_readFloatingPoint(QV4::CallContext *c
 {
     NODE_CTX_V4(ctx);
     NODE_CTX_CALLDATA(ctx);
-    NODE_CTX_SELF(BufferObject, ctx);
+    NODE_CTX_SELF(Buffer, ctx);
 
     if (!self)
         return v4->throwTypeError();
@@ -957,7 +957,7 @@ QV4::ReturnedValue BufferPrototype::method_writeInteger(QV4::CallContext *ctx)
 {
     NODE_CTX_V4(ctx);
     NODE_CTX_CALLDATA(ctx);
-    NODE_CTX_SELF(BufferObject, ctx);
+    NODE_CTX_SELF(Buffer, ctx);
 
     if (!self)
         return v4->throwTypeError();
@@ -994,7 +994,7 @@ QV4::ReturnedValue BufferPrototype::method_writeFloatingPoint(QV4::CallContext *
 {
     NODE_CTX_V4(ctx);
     NODE_CTX_CALLDATA(ctx);
-    NODE_CTX_SELF(BufferObject, ctx);
+    NODE_CTX_SELF(Buffer, ctx);
 
     if (!self)
         return v4->throwTypeError();
