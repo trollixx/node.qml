@@ -20,6 +20,7 @@ struct ProcessModule : QV4::Object
     NODE_V4_OBJECT(ProcessModule, Object)
 
     static QV4::ReturnedValue property_pid_getter(QV4::CallContext *ctx);
+    static QV4::ReturnedValue property_env_getter(QV4::CallContext *ctx);
 
     /// TODO: Event: 'exit'
     /// TODO: Event: 'uncaughtException'
@@ -31,7 +32,6 @@ struct ProcessModule : QV4::Object
     static QV4::ReturnedValue method_abort(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_chdir(QV4::CallContext *ctx);
     static QV4::ReturnedValue method_cwd(QV4::CallContext *ctx);
-    /// TODO: process.env
     static QV4::ReturnedValue method_exit(QV4::CallContext *ctx);
     /// TODO: process.getgid()
     /// TODO: process.setgid(id)

@@ -4,6 +4,7 @@
 
 #include <QCoreApplication>
 #include <QDir>
+#include <QProcess>
 
 #include <private/qv4context_p.h>
 
@@ -27,6 +28,7 @@ Heap::ProcessModule::ProcessModule(QV4::ExecutionEngine *v4) :
     self->defineReadonlyProperty(QStringLiteral("version"),
                                  (v = v4->newString(QStringLiteral("v0.10.33"))));
 
+    self->defineAccessorProperty(QStringLiteral("env"), NodeQml::ProcessModule::property_env_getter, nullptr);
     self->defineAccessorProperty(QStringLiteral("pid"), NodeQml::ProcessModule::property_pid_getter, nullptr);
 
     self->defineDefaultProperty(QStringLiteral("abort"), NodeQml::ProcessModule::method_abort);
@@ -41,6 +43,24 @@ QV4::ReturnedValue ProcessModule::property_pid_getter(QV4::CallContext *ctx)
     Q_UNUSED(ctx)
     // Has to be dynamic property, because PID can change because of fork()
     return QV4::Primitive::fromInt32(QCoreApplication::applicationPid()).asReturnedValue();
+}
+
+QV4::ReturnedValue ProcessModule::property_env_getter(QV4::CallContext *ctx)
+{
+    /// TODO: Provide write access
+    NODE_CTX_V4(ctx);
+
+    QV4::Scope scope(ctx);
+    QV4::ScopedObject env(scope, v4->newObject());
+    QV4::ScopedString strName(scope);
+    QV4::ScopedString strValue(scope);
+
+    foreach (const QString &value, QProcess::systemEnvironment()) {
+        const QStringList v = value.split(QLatin1Char('='));
+        env->insertMember((strName = v4->newString(v[0])), (strValue = v4->newString(v[1])));
+    }
+
+    return env.asReturnedValue();
 }
 
 QV4::ReturnedValue ProcessModule::method_abort(QV4::CallContext *ctx)
