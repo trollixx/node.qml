@@ -24,7 +24,7 @@ const size_t kMaxLength = 0x3fffffff;
 /// TODO: Document no buf.parent property support (see test-buffer.js)
 
 Heap::Buffer::Buffer(QV4::ExecutionEngine *v4, size_t length) :
-    QV4::Heap::Object(EnginePrivate::get(v4)->bufferClass, EnginePrivate::get(v4)->bufferPrototype.asObject())
+    QV4::Heap::Object(v4->emptyClass, EnginePrivate::get(v4)->bufferPrototype.asObject())
 {
     if (length > kMaxLength) {
         v4->throwRangeError(QStringLiteral("Attempt to allocate Buffer larger than maximum size: 0x3fffffff bytes"));
@@ -42,7 +42,7 @@ Heap::Buffer::Buffer(QV4::ExecutionEngine *v4, size_t length) :
 }
 
 Heap::Buffer::Buffer(QV4::ExecutionEngine *v4, QV4::ArrayObject *array) :
-    QV4::Heap::Object(EnginePrivate::get(v4)->bufferClass, EnginePrivate::get(v4)->bufferPrototype.asObject())
+    QV4::Heap::Object(v4->emptyClass, EnginePrivate::get(v4)->bufferPrototype.asObject())
 {
     QV4::Scope scope(v4);
     QV4::ScopedArrayObject a(scope, array);
@@ -70,7 +70,7 @@ Heap::Buffer::Buffer(QV4::ExecutionEngine *v4, QV4::ArrayObject *array) :
 }
 
 Heap::Buffer::Buffer(QV4::ExecutionEngine *v4, const QByteArray &ba) :
-    QV4::Heap::Object(EnginePrivate::get(v4)->bufferClass, EnginePrivate::get(v4)->bufferPrototype.asObject())
+    QV4::Heap::Object(v4->emptyClass, EnginePrivate::get(v4)->bufferPrototype.asObject())
 {
     const size_t length = ba.length();
 
@@ -88,7 +88,7 @@ Heap::Buffer::Buffer(QV4::ExecutionEngine *v4, const QByteArray &ba) :
 }
 
 Heap::Buffer::Buffer(QV4::ExecutionEngine *v4, const QTypedArrayDataSlice<char> &slice) :
-    QV4::Heap::Object(EnginePrivate::get(v4)->bufferClass, EnginePrivate::get(v4)->bufferPrototype.asObject()),
+    QV4::Heap::Object(v4->emptyClass, EnginePrivate::get(v4)->bufferPrototype.asObject()),
     data(slice)
 {
     QV4::Scope scope(v4);
