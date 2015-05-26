@@ -144,7 +144,7 @@ bool EnginePrivate::hasNativeModule(const QString &id) const
 QV4::Heap::Object *EnginePrivate::nativeModule(const QString &id) const
 {
     QV4::Scope scope(m_v4);
-    QV4::ScopedObject module(scope, m_coreModules.value(id));
+    QV4::ScopedObject module(scope, m_coreModules.value(id).value());
     return module->d();
 }
 
@@ -153,7 +153,7 @@ void EnginePrivate::cacheModule(const QString &id, Heap::ModuleObject *module)
     Q_ASSERT(!m_cachedModules.contains(id));
     QV4::Scope scope(m_v4);
     QV4::ScopedObject o(scope, module);
-    m_cachedModules.insert(id, o.asReturnedValue());
+    m_cachedModules[id].set(m_v4, o);
 }
 
 bool EnginePrivate::hasCachedModule(const QString &id) const
@@ -164,7 +164,7 @@ bool EnginePrivate::hasCachedModule(const QString &id) const
 Heap::ModuleObject *EnginePrivate::cachedModule(const QString &id) const
 {
     QV4::Scope scope(m_v4);
-    QV4::Scoped<ModuleObject> module(scope, m_cachedModules.value(id));
+    QV4::Scoped<ModuleObject> module(scope, m_cachedModules.value(id).value());
     return module->d();
 }
 
@@ -200,7 +200,7 @@ QV4::ReturnedValue EnginePrivate::setTimeout(QV4::CallContext *ctx)
     if (!timerId)
         return m_v4->throwError("setTimeout: cannot start timer");
 
-    m_timeoutCallbacks.insert(timerId, cb.asReturnedValue());
+    m_timeoutCallbacks[timerId].set(m_v4, cb);
 
     /// TODO: Return an object similar to Node's
     return QV4::Encode(timerId);
@@ -247,7 +247,7 @@ QV4::ReturnedValue EnginePrivate::setInterval(QV4::CallContext *ctx)
     if (!timerId)
         return m_v4->throwError("setInterval: cannot start timer");
 
-    m_intervalCallbacks.insert(timerId, cb.asReturnedValue());
+    m_intervalCallbacks[timerId].set(m_v4, cb);
 
     /// TODO: Return an object similar to Node's
     return QV4::Encode(timerId);
@@ -283,7 +283,7 @@ QV4::ReturnedValue EnginePrivate::nextTick(QV4::CallContext *ctx)
     if (!cb)
         return m_v4->throwTypeError("setInterval: callback must be a function");
 
-    NextTickEvent *e = new NextTickEvent(cb.asReturnedValue());
+    NextTickEvent *e = new NextTickEvent(QV4::PersistentValue(m_v4, cb.asReturnedValue()));
     qApp->postEvent(this, e, INT_MAX);
 
     return QV4::Encode::undefined();
@@ -309,7 +309,7 @@ void EnginePrivate::customEvent(QEvent *event)
 
     NextTickEvent *e = reinterpret_cast<NextTickEvent *>(event);
     QV4::Scope scope(m_v4);
-    QV4::ScopedFunctionObject cb(scope, e->callback());
+    QV4::ScopedFunctionObject cb(scope, e->callback().value());
     QV4::ScopedCallData callData(scope);
     callData->thisObject = m_v4->globalObject();
     cb->call(callData);
@@ -324,9 +324,9 @@ void EnginePrivate::timerEvent(QTimerEvent *event)
 
     if (m_timeoutCallbacks.contains(timerId)) {
         killTimer(timerId);
-        cb = m_timeoutCallbacks.take(timerId);
+        cb = m_timeoutCallbacks.take(timerId).value();
     } else if (m_intervalCallbacks.contains(timerId)) {
-        cb = m_intervalCallbacks.value(timerId);
+        cb = m_intervalCallbacks.value(timerId).value();
     } else {
         return;
     }
@@ -359,8 +359,8 @@ void EnginePrivate::registerModules()
 {
     QV4::Scope scope(m_v4);
     QV4::ScopedObject o(scope);
-    m_coreModules.insert(QStringLiteral("fs"), (o = m_v4->memoryManager->alloc<FileSystemModule>(m_v4)).asReturnedValue());
-    m_coreModules.insert(QStringLiteral("os"), (o = m_v4->memoryManager->alloc<OsModule>(m_v4)).asReturnedValue());
-    m_coreModules.insert(QStringLiteral("path"), (o = m_v4->memoryManager->alloc<PathModule>(m_v4)).asReturnedValue());
-    m_coreModules.insert(QStringLiteral("util"), (o = m_v4->memoryManager->alloc<UtilModule>(m_v4)).asReturnedValue());
+    m_coreModules[QStringLiteral("fs")].set(m_v4, (o = m_v4->memoryManager->alloc<FileSystemModule>(m_v4)).asReturnedValue());
+    m_coreModules[QStringLiteral("os")].set(m_v4, (o = m_v4->memoryManager->alloc<OsModule>(m_v4)).asReturnedValue());
+    m_coreModules[QStringLiteral("path")].set(m_v4, (o = m_v4->memoryManager->alloc<PathModule>(m_v4)).asReturnedValue());
+    m_coreModules[QStringLiteral("util")].set(m_v4, (o = m_v4->memoryManager->alloc<UtilModule>(m_v4)).asReturnedValue());
 }
