@@ -59,7 +59,7 @@ QV4::ReturnedValue ConsoleModule::method_time(QV4::CallContext *ctx)
     NODE_CTX_CALLDATA(ctx);
     NODE_CTX_SELF(ConsoleModule, ctx);
 
-    QV4::ScopedValue key(scope, callData->args[0]);
+    QV4::ScopedObject key(scope, callData->args[0]);
     self->d()->timeMarks.insert(key.asReturnedValue(), QDateTime::currentMSecsSinceEpoch());
 
     return QV4::Encode::undefined();
@@ -70,7 +70,7 @@ QV4::ReturnedValue ConsoleModule::method_timeEnd(QV4::CallContext *ctx)
     NODE_CTX_CALLDATA(ctx);
     NODE_CTX_SELF(ConsoleModule, ctx);
 
-    QV4::ScopedValue key(scope, callData->args[0]);
+    QV4::ScopedObject key(scope, callData->args[0]);
 
     if (!self->d()->timeMarks.contains(key.asReturnedValue())) {
         qDebug("No such label: %s", qPrintable(key->toQStringNoThrow()));

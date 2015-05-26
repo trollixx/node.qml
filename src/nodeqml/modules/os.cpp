@@ -208,10 +208,10 @@ QV4::ReturnedValue OsModule::method_networkInterfaces(QV4::CallContext *ctx)
                 addressObject->insertMember((s = v4->newString(QStringLiteral("scopeid"))).getPointer(), (v = v4->newString(ip.scopeId())));
             addressObject->insertMember((s = v4->newString(QStringLiteral("internal"))).getPointer(), QV4::Primitive::fromBoolean(ip.isLoopback()));
 
-            addressArray->push_back((v = addressObject));
+            addressArray->push_back((v = addressObject.asReturnedValue()));
         }
 
-        info->insertMember((s = v4->newString(interface.name())).getPointer(), (v = addressArray));
+        info->insertMember((s = v4->newString(interface.name())).getPointer(), (v = addressArray.asReturnedValue()));
     }
 
     return info.asReturnedValue();
