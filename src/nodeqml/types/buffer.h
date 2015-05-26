@@ -46,7 +46,7 @@ struct Buffer : QV4::Object
     static bool isEqualTo(QV4::Managed *m, QV4::Managed *other);
 
     static QV4::ReturnedValue getIndexed(QV4::Managed *m, quint32 index, bool *hasProperty);
-    static void putIndexed(QV4::Managed *m, uint index, const QV4::ValueRef value);
+    static void putIndexed(QV4::Managed *m, uint index, const QV4::Value &value);
     static bool deleteIndexedProperty(QV4::Managed *m, uint index);
 
     static BufferEncoding parseEncoding(const QString &str);

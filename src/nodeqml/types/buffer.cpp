@@ -141,7 +141,7 @@ QV4::ReturnedValue Buffer::getIndexed(QV4::Managed *m, quint32 index, bool *hasP
     return QV4::Primitive::fromUInt32(that->d()->data.at(index) & 0xff).asReturnedValue();
 }
 
-void Buffer::putIndexed(QV4::Managed *m, uint index, const QV4::ValueRef value)
+void Buffer::putIndexed(QV4::Managed *m, uint index, const QV4::Value &value)
 {
     QV4::ExecutionEngine *v4 = m->engine();
     QV4::Scope scope(v4);
