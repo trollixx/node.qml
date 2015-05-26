@@ -345,14 +345,12 @@ void EnginePrivate::registerTypes()
     QV4::Scope scope(m_v4);
     QV4::ScopedContext rootContext(scope, m_v4->rootContext());
 
-    errnoExceptionPrototype = m_v4->memoryManager->alloc<ErrnoExceptionPrototype>(m_v4->errorClass, m_v4->errorPrototype.asObject());
+    errnoExceptionPrototype = m_v4->memoryManager->alloc<ErrnoExceptionPrototype>(m_v4->emptyClass, m_v4->errorPrototype.asObject());
     static_cast<ErrnoExceptionPrototype *>(errnoExceptionPrototype.asObject())->init(m_v4, errnoExceptionPrototype.asObject());
-    errnoExceptionClass = QV4::InternalClass::create(m_v4, ErrnoExceptionObject::staticVTable());
 
     bufferCtor = m_v4->memoryManager->alloc<BufferCtor>(rootContext);
-    bufferPrototype = m_v4->memoryManager->alloc<BufferPrototype>(m_v4->objectClass, m_v4->objectPrototype.asObject());
+    bufferPrototype = m_v4->memoryManager->alloc<BufferPrototype>(m_v4->emptyClass, m_v4->objectPrototype.asObject());
     static_cast<BufferPrototype *>(bufferPrototype.asObject())->init(m_v4, bufferCtor.asObject());
-    bufferClass = QV4::InternalClass::create(m_v4, Buffer::staticVTable());
 }
 
 void EnginePrivate::registerModules()
