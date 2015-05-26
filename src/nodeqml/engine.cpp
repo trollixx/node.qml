@@ -59,7 +59,9 @@ Engine::Engine(QJSEngine *jsEngine, QObject *parent) :
 QJSValue Engine::require(const QString &id)
 {
     Q_D(Engine);
-    return new QJSValuePrivate(d->require(id));
+    QV4::Scope scope(d->m_v4);
+    QV4::ScopedValue v(scope, d->require(id));
+    return QJSValue(d->m_v4, v->asReturnedValue());
 }
 
 bool Engine::hasException() const
