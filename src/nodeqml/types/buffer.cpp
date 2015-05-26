@@ -150,7 +150,7 @@ void Buffer::putIndexed(QV4::Managed *m, uint index, const QV4::Value &value)
     if (index >= static_cast<quint32>(that->d()->data.size()))
         return;
 
-    that->d()->data[index] = value->toInt32();
+    that->d()->data[index] = value.toInt32();
 }
 
 bool Buffer::deleteIndexedProperty(QV4::Managed *m, uint index)
