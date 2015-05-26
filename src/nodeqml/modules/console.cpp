@@ -15,8 +15,6 @@ DEFINE_OBJECT_VTABLE(ConsoleModule);
 Heap::ConsoleModule::ConsoleModule(QV4::ExecutionEngine *v4) :
     QV4::Heap::Object(v4)
 {
-    setVTable(NodeQml::ConsoleModule::staticVTable());
-
     QV4::Scope scope(v4);
     QV4::ScopedObject self(scope, this);
 

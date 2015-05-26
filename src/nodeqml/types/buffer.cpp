@@ -26,8 +26,6 @@ const size_t kMaxLength = 0x3fffffff;
 Heap::Buffer::Buffer(QV4::ExecutionEngine *v4, size_t length) :
     QV4::Heap::Object(EnginePrivate::get(v4)->bufferClass, EnginePrivate::get(v4)->bufferPrototype.asObject())
 {
-    setVTable(NodeQml::Buffer::staticVTable());
-
     if (length > kMaxLength) {
         v4->throwRangeError(QStringLiteral("Attempt to allocate Buffer larger than maximum size: 0x3fffffff bytes"));
         return;
@@ -46,8 +44,6 @@ Heap::Buffer::Buffer(QV4::ExecutionEngine *v4, size_t length) :
 Heap::Buffer::Buffer(QV4::ExecutionEngine *v4, QV4::ArrayObject *array) :
     QV4::Heap::Object(EnginePrivate::get(v4)->bufferClass, EnginePrivate::get(v4)->bufferPrototype.asObject())
 {
-    setVTable(NodeQml::Buffer::staticVTable());
-
     QV4::Scope scope(v4);
     QV4::ScopedArrayObject a(scope, array);
     QV4::ScopedValue v(scope);
@@ -76,8 +72,6 @@ Heap::Buffer::Buffer(QV4::ExecutionEngine *v4, QV4::ArrayObject *array) :
 Heap::Buffer::Buffer(QV4::ExecutionEngine *v4, const QByteArray &ba) :
     QV4::Heap::Object(EnginePrivate::get(v4)->bufferClass, EnginePrivate::get(v4)->bufferPrototype.asObject())
 {
-    setVTable(NodeQml::Buffer::staticVTable());
-
     const size_t length = ba.length();
 
     if (!allocateData(length)) {
@@ -97,8 +91,6 @@ Heap::Buffer::Buffer(QV4::ExecutionEngine *v4, const QTypedArrayDataSlice<char> 
     QV4::Heap::Object(EnginePrivate::get(v4)->bufferClass, EnginePrivate::get(v4)->bufferPrototype.asObject()),
     data(slice)
 {
-    setVTable(NodeQml::Buffer::staticVTable());
-
     QV4::Scope scope(v4);
     QV4::ScopedObject o(scope, this);
     o->defineReadonlyProperty(v4->id_length, QV4::Primitive::fromInt32(data.size()));
@@ -303,7 +295,6 @@ QTypedArrayData<char> *Buffer::fromString(const QByteArray &data)
 Heap::BufferCtor::BufferCtor(QV4::ExecutionContext *scope) :
     QV4::Heap::FunctionObject(scope, QStringLiteral("Buffer"))
 {
-    setVTable(NodeQml::BufferCtor::staticVTable());
 }
 
 QV4::ReturnedValue BufferCtor::construct(QV4::Managed *m, QV4::CallData *callData)
