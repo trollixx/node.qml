@@ -115,7 +115,7 @@ bool Heap::Buffer::allocateData(size_t length)
 
 bool Buffer::isEqualTo(QV4::Managed *m, QV4::Managed *other)
 {
-    QV4::Scope scope(m->engine());
+    QV4::Scope scope(static_cast<QV4::Object *>(m)->engine());
     QV4::Scoped<Buffer> self(scope, m);
     QV4::Scoped<Buffer> otherBuffer(scope, other);
 
@@ -125,7 +125,7 @@ bool Buffer::isEqualTo(QV4::Managed *m, QV4::Managed *other)
 
 QV4::ReturnedValue Buffer::getIndexed(QV4::Managed *m, quint32 index, bool *hasProperty)
 {
-    QV4::ExecutionEngine *v4 = m->engine();
+    QV4::ExecutionEngine *v4 = static_cast<QV4::Object *>(m)->engine();
     QV4::Scope scope(v4);
     QV4::Scoped<Buffer> that(scope, static_cast<Buffer *>(m));
 
@@ -143,7 +143,7 @@ QV4::ReturnedValue Buffer::getIndexed(QV4::Managed *m, quint32 index, bool *hasP
 
 void Buffer::putIndexed(QV4::Managed *m, uint index, const QV4::Value &value)
 {
-    QV4::ExecutionEngine *v4 = m->engine();
+    QV4::ExecutionEngine *v4 = static_cast<QV4::Object *>(m)->engine();
     QV4::Scope scope(v4);
     QV4::Scoped<Buffer> that(scope, static_cast<Buffer *>(m));
 
@@ -299,7 +299,7 @@ Heap::BufferCtor::BufferCtor(QV4::ExecutionContext *scope) :
 
 QV4::ReturnedValue BufferCtor::construct(QV4::Managed *m, QV4::CallData *callData)
 {
-    QV4::ExecutionEngine *v4 = m->engine();
+    QV4::ExecutionEngine *v4 = static_cast<QV4::Object *>(m)->engine();
     if (!callData->argc)
         return v4->throwTypeError(QStringLiteral("must start with number, buffer, array or string"));
 

@@ -257,7 +257,7 @@ Heap::RequireFunction::RequireFunction(QV4::ExecutionContext *ctx, NodeQml::Heap
 
 QV4::ReturnedValue RequireFunction::call(QV4::Managed *that, QV4::CallData *callData)
 {
-    QV4::ExecutionEngine *v4 = that->engine();
+    QV4::ExecutionEngine *v4 = static_cast<QV4::Object *>(that)->engine();
     QV4::Scope scope(v4);
     QV4::Scoped<RequireFunction> self(scope, that->as<RequireFunction>());
     QV4::Scoped<ModuleObject> module(scope, self->d()->module);
